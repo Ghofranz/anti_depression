@@ -1,0 +1,39 @@
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br p-6"
+     [ngClass]="gradientClass">
+  <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
+    <h2 class="text-3xl font-bold text-center text-pink-600 mb-6">
+      Whisper Your Secret
+    </h2>
+
+    <textarea
+      [(ngModel)]="text"
+      class="w-full p-4 border rounded-xl mb-4"
+      placeholder="Say what you can't say out loud..."
+      rows="5"
+    ></textarea>
+
+    <select [(ngModel)]="emotion" class="w-full p-3 border rounded-xl mb-4">
+      <option value="crush">Crush</option>
+      <option value="love">Love</option>
+      <option value="heartbreak">Heartbreak</option>
+      <option value="regret">Regret</option>
+      <option value="fight">Fight</option>
+    </select>
+
+    <input
+      [(ngModel)]="location"
+      class="w-full p-3 border rounded-xl mb-4"
+      placeholder="Where? (ex: math class, gym...)"
+    />
+
+    <div class="text-red-500 text-sm mb-3">{{ error }}</div>
+
+    <button
+      (click)="submit()"
+      [disabled]="loading"
+      class="w-full bg-pink-500 text-white py-3 rounded-xl font-bold hover:bg-pink-600 transition"
+    >
+      {{ loading ? 'Whispering...' : 'Confess' }}
+    </button>
+  </div>
+</div>

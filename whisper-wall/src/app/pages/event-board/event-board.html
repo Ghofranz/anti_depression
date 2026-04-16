@@ -1,0 +1,26 @@
+<div class="event-grid bg-gradient-to-br from-black via-gray-900 to-blue-900 p-6 text-white">
+  <div *ngFor="let event of events" 
+       class="ticket-card" 
+       [attr.data-type]="event.type">
+    
+    <div class="ticket-icon">
+      <span *ngIf="event.type === 'date'">✦</span>
+      <span *ngIf="event.type === 'battle'">◈</span>
+      <span *ngIf="event.type === 'chat'">❈</span>
+    </div>
+
+    <div class="flex-grow">
+      <h3 class="text-sm font-black uppercase text-slate-800 leading-tight">
+        {{ event.title }}
+      </h3>
+      <p class="text-[10px] font-bold text-slate-500 mt-1">
+        {{ event.plan.length }} STEPS
+      </p>
+    </div>
+
+    <div class="border-t border-dashed border-slate-300 pt-3 flex justify-between items-center">
+      <span class="text-[9px] text-slate-400 font-mono">WHISPER-RADAR-{{event.event_id}}</span>
+      <span class="text-slate-400">→</span>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,70 @@
+<!-- Reveal Modal -->
+<div *ngIf="revealStage !== 'none'"
+     class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">   >
+
+  <div class="bg-gradient-to-br from-purple-900 via-black to-gray-900 rounded-2xl p-6 w-full max-w-md text-white shadow-xl animate-fadeIn">
+
+    <!-- PROFILE ENTRY -->
+    <div *ngIf="revealStage === 'profile'">
+      <h2 class="text-2xl font-extrabold mb-4 text-pink-400 text-center">Before revealing… 💌</h2>
+
+      <p class="text-gray-300 mb-4 text-center">
+        Fill in your profile to reveal your identity safely.
+      </p>
+
+      <input [(ngModel)]="profile.name" placeholder="Your name"
+             class="w-full mb-3 px-4 py-2 rounded-xl bg-black/40 border border-purple-600 focus:border-pink-500 outline-none transition placeholder-gray-400"
+             [class.border-red-500]="!profile.name && showError"/>
+
+      <input [(ngModel)]="profile.photo" placeholder="Photo URL"
+             class="w-full mb-3 px-4 py-2 rounded-xl bg-black/40 border border-purple-600 focus:border-pink-500 outline-none transition placeholder-gray-400"/>
+
+      <textarea [(ngModel)]="profile.bio" placeholder="One line about you"
+                class="w-full mb-4 px-4 py-2 rounded-xl bg-black/40 border border-purple-600 focus:border-pink-500 outline-none transition placeholder-gray-400"
+                rows="3"></textarea>
+
+      <button (click)="submitProfile()"
+              class="w-full bg-pink-500 hover:bg-pink-600 text-white py-2 rounded-xl font-semibold transition">
+        Send Reveal Request 💌
+      </button>
+
+      <p *ngIf="!profile.name && showError" class="text-red-400 mt-2 text-sm text-center">
+        Name is required to reveal yourself!
+      </p>
+    </div>
+
+    <!-- WAITING / LOADING -->
+    <div *ngIf="revealStage === 'waiting'" class="flex flex-col items-center justify-center py-10">
+      <div class="loader mb-4"></div>
+      <h2 class="text-xl font-bold mb-2 text-purple-400">Waiting…</h2>
+      <p class="text-gray-400 text-center">
+        Your secret is knocking on their heart. 💖
+      </p>
+    </div>
+
+    <!-- ACCEPTED / SUCCESS -->
+    <div *ngIf="revealStage === 'accepted'" class="flex flex-col items-center justify-center py-10">
+      <svg class="w-16 h-16 mb-4 text-green-400" fill="none" stroke="currentColor" stroke-width="2"
+           viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <h2 class="text-xl font-bold mb-2 text-green-400">Revealed! 🎉</h2>
+      <p class="text-gray-400 text-center">
+        Your identity has been revealed!
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- NO DATA / EMPTY STATE - FOOTER -->
+<div *ngIf="revealStage === 'none'"
+     class="flex flex-col items-center justify-center py-20 mt-auto min-h-screen  bg-gradient-to-br from-pink-500 to-purple-700 p-6">
+  <svg class="w-16 h-16 mb-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+       viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <path stroke-linecap="round" stroke-linejoin="round"
+          d="M9 17v-6a4 4 0 018 0v6m-4-3v3m0-3H7m4 0h4"></path>
+  </svg>
+  <p class="text-gray-400 text-center text-lg">Nothing to reveal yet…</p>
+</div>

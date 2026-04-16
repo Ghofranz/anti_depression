@@ -1,0 +1,60 @@
+// events.component.scss
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); // Force 2 per line
+  gap: 1rem;
+  padding: 1rem;
+  min-height: 85vh; // Full viewport height
+  box-sizing: border-box;
+}
+
+.ticket-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1.25rem;
+  height: 180px;
+  border-left: 6px solid #e2e8f0; // Thicker border for better look
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+  // Creative "Punch Hole"
+  &::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: #f8fafc; // Matches your background color
+    border-radius: 50%;
+    box-shadow: inset -3px 0 5px rgba(0,0,0,0.05);
+  }
+
+  // FORCE COLORS BASED ON DATA-TYPE
+  &[data-type="date"] {
+    border-left-color: #f43f5e !important;
+    background-color: #fff1f2;
+    .ticket-icon { color: #f43f5e; }
+  }
+
+  &[data-type="battle"] {
+    border-left-color: #1e293b !important;
+    background-color: #f1f5f9;
+    .ticket-icon { color: #1e293b; }
+  }
+
+  &[data-type="chat"] {
+    border-left-color: #0ea5e9 !important;
+    background-color: #f0f9ff;
+    .ticket-icon { color: #0ea5e9; }
+  }
+}
+
+.ticket-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}

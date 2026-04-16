@@ -1,0 +1,31 @@
+<div class="live-container">
+  <div class="event-grid">
+    <div *ngFor="let event of events" class="video-card" (click)="watchEvent(event.id)">
+      
+      <div class="thumbnail" [style.background]="event.thumbnail_color">
+        <span *ngIf="event.status === 'LIVE'" class="live-badge">LIVE</span>
+        <span class="duration">{{ event.participants }}</span>
+        
+        <div class="event-icon">
+          <span *ngIf="event.type === 'Blind Date'">❤️</span>
+          <span *ngIf="event.type === 'Cage Fight'">🥊</span>
+          <span *ngIf="event.type === 'Chat'">💬</span>
+        </div>
+      </div>
+
+      <div class="details">
+        <div class="category-avatar" [style.background]="event.thumbnail_color">
+          {{ event.type[0] }}
+        </div>
+        <div class="info">
+          <h3 class="title">{{ event.title }}</h3>
+          <p class="meta">
+            {{ event.type }} • {{ event.location }}<br>
+            {{ event.status === 'LIVE' ? 'Watching now' : 'Finished' }}
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

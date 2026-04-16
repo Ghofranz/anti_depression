@@ -1,0 +1,40 @@
+<nav class="navbar">
+  <div class="logo glow">Whisper Radar</div>
+
+  <input type="checkbox" id="nav-toggle" class="nav-toggle">
+  <label for="nav-toggle" class="nav-toggle-label">
+    <span></span>
+  </label>
+
+  <ul class="nav-links">
+    <li><a routerLink="/home" routerLinkActive="active">Home</a></li>
+    <li><a routerLink="/confess" routerLinkActive="active">Confess</a></li>
+    <li><a routerLink="/matches" routerLinkActive="active">Matches</a></li>
+    <li><a routerLink="/event" routerLinkActive="active">Event</a></li>
+    <li><a routerLink="/live" routerLinkActive="active">Live</a></li>
+    <li class="mobile-only-profile">
+        <div class="profile">
+            <img src="assets/profile.png" alt="profile">
+        </div>
+    </li>
+  </ul>
+
+  <div class="profile desktop-only">
+    <img src="assets/profile.png" alt="profile">
+  </div>
+</nav>
+
+<router-outlet></router-outlet>
+<footer class="footer">
+  <div class="footer-content">
+    <p>Whisper Radar © 2026</p>
+    <div class="footer-links">
+      <span>Anonymous</span>
+      <span>Safe</span>
+      <span>Encrypted</span>
+    </div>
+  </div>
+</footer>
+
+
+
