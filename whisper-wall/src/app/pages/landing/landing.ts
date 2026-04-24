@@ -70,6 +70,7 @@ export class Landing {
       password: this.form.password,
     }).subscribe({
       next: (res: any) => {
+        localStorage.setItem('token', res.token);
         localStorage.setItem('profileId', res.id);
         localStorage.setItem('userName', res.name);
         this.loading = false;
