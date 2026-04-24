@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Api } from '../../services/api';
 import { Match } from '../../entity/match';
@@ -12,12 +12,12 @@ import { Match } from '../../entity/match';
   styleUrl: './matches.scss',
 })
 
-export class Matches {
+export class Matches implements OnInit {
   matches: Match[] = [];
   loading = false;
   error = '';
 
-  constructor(private api: Api) {}
+  constructor(private api: Api, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     this.getMatches();
@@ -34,7 +34,8 @@ export class Matches {
     this.loading = true;
     this.api.getMatches(confessionId).subscribe({
       next: (res: any) => {
-        this.matches = res.map((m:any) => ({
+        const data = Array.isArray(res) ? res : (res?.results || []);
+        this.matches = data.map((m:any) => ({
           id: m.id,
           confession_a: m.confession_a,
           confession_b: m.confession_b,
@@ -43,10 +44,12 @@ export class Matches {
           is_active: m.is_active
         }));
         this.loading = false;
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = "Failed to load matches.";
         this.loading = false;
+        this.cdr.detectChanges();
       }
     });
   }
