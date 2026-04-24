@@ -7,7 +7,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-confess',
-  imports: [CommonModule, FormsModule], 
+  imports: [CommonModule, FormsModule],
   templateUrl: './confess.html',
   styleUrl: './confess.scss',
 })
@@ -21,22 +21,22 @@ export class Confess {
   bg1 = 'pink';
   bg2 = 'purple';
 
-  constructor(private api: Api, private router: Router) {}
+  constructor(private api: Api, private router: Router) { }
 
-   get gradientClass(): string {
+  get gradientClass(): string {
     switch (this.emotion) {
-      case 'love':        return 'from-pink-500 to-purple-700';
-      case 'crush':       return 'from-blue-500 to-cyan-700';
-      case 'heartbreak':  return 'from-gray-500 to-gray-900';
-      case 'regret':      return 'from-yellow-500 to-orange-700';
-      case 'fight':       return 'from-red-500 to-red-900';
-      default:            return 'from-pink-500 to-purple-700';
+      case 'love': return 'from-pink-500 to-purple-700';
+      case 'crush': return 'from-blue-500 to-cyan-700';
+      case 'heartbreak': return 'from-gray-500 to-gray-900';
+      case 'regret': return 'from-yellow-500 to-orange-700';
+      case 'fight': return 'from-red-500 to-red-900';
+      default: return 'from-pink-500 to-purple-700';
     }
   }
 
   submit() {
     console.log('Submitting confession:...');
-    
+
     if (!this.text || !this.location) {
       this.error = 'Please fill all fields';
       return;
@@ -49,7 +49,9 @@ export class Confess {
       location_hint: this.location
     }).subscribe({
       next: (res: any) => {
-        this.router.navigate(['/matches', res.id]);
+        localStorage.setItem('myConfessionId', String(res.id));
+        this.loading = false;
+        this.router.navigate(['/matches']);
       },
       error: () => {
         this.error = 'Server error. Try again.';

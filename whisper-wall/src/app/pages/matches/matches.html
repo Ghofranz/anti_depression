@@ -2,7 +2,15 @@
 
   <h1 class="text-3xl font-bold text-center mb-8">💞 Your Matches</h1>
 
-  <div *ngIf="matches.length === 0" class="text-center text-gray-400">
+  <div *ngIf="error" class="text-center text-red-500 mb-4">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="text-center text-gray-400 mb-4">
+    Loading matches...
+  </div>
+
+  <div *ngIf="matches.length === 0 && !error && !loading" class="text-center text-gray-400">
     You have no matches yet 💔
   </div>
 
@@ -22,7 +30,7 @@
 
       <div class="bg-black/30 p-4 rounded-lg mb-2">
         <p *ngIf="match.confession_a.is_revealed" class="italic">
-          "{{ match.confession_a.message }}"
+          "{{ match.confession_a.text }}"
         </p>
         <p *ngIf="!match.confession_a.is_revealed" class="text-center text-gray-400">
           🔒 Confession locked until reveal
@@ -45,7 +53,7 @@
 
       <div class="bg-black/30 p-4 rounded-lg mb-2">
         <p *ngIf="match.confession_b.is_revealed" class="italic">
-          "{{ match.confession_b.message }}"
+          "{{ match.confession_b.text }}"
         </p>
         <p *ngIf="!match.confession_b.is_revealed" class="text-center text-gray-400">
           🔒 Confession locked until reveal
