@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
 @Injectable({
@@ -7,30 +7,41 @@ import { Injectable } from '@angular/core';
 export class Api {
   private base = 'http://127.0.0.1:8000/api';
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
-  post_confess(data: any) {
-    return this.http.post(`${this.base}/confess/`, data);
+  private getAuthHeaders() {
+    const token = localStorage.getItem('token') || '';
+    console.log('TOKEN SENT:', token);
+
+    return {
+      headers: new HttpHeaders({
+        Authorization: `Token ${token}`
+      })
+    };
   }
 
-  get_all_confess(data: any) {
-    return this.http.get(`${this.base}/confess/`, data);
+  post_confess(data: any) {
+    return this.http.post(`${this.base}/confess/`, data, this.getAuthHeaders());
+  }
+
+  get_all_confess() {
+    return this.http.get(`${this.base}/confess/`, this.getAuthHeaders());
   }
 
   getMatches(id: number) {
-    return this.http.get(`${this.base}/matches/${id}/`);
+    return this.http.get(`${this.base}/matches/${id}/`, this.getAuthHeaders());
   }
 
   getChat(matchId: number) {
-    return this.http.get(`${this.base}/chat/${matchId}/`);
+    return this.http.get(`${this.base}/chat/${matchId}/`, this.getAuthHeaders());
   }
 
   sendMessage(data: any) {
-    return this.http.post(`${this.base}/chat/send/`, data);
+    return this.http.post(`${this.base}/chat/send/`, data, this.getAuthHeaders());
   }
 
   reveal(data: any) {
-    return this.http.post(`${this.base}/reveal/`, data);
+    return this.http.post(`${this.base}/reveal/`, data, this.getAuthHeaders());
   }
 
   signUp(data: { name: string; email: string; username: string; password: string }) {
