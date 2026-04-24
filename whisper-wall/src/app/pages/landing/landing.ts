@@ -25,7 +25,7 @@ export class Landing {
     confirmPassword: '',
   };
 
-  constructor(private router: Router, private api: Api) {}
+  constructor(private router: Router, private api: Api) { }
 
   get isLoggedIn(): boolean {
     return !!localStorage.getItem('profileId');
@@ -89,6 +89,7 @@ export class Landing {
   }
 
   logout() {
+    localStorage.removeItem('token');
     localStorage.removeItem('profileId');
     localStorage.removeItem('userName');
     localStorage.removeItem('myConfessionId');
