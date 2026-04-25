@@ -71,11 +71,30 @@ export class Landing {
     }).subscribe({
       next: (res: any) => {
         localStorage.setItem('token', res.token);
-        localStorage.setItem('profileId', res.id);
-        localStorage.setItem('userName', res.name);
-        this.loading = false;
-        this.closeModal();
-        this.router.navigate(['/confess']);
+        localStorage.setItem('profileId', res.user.id);
+        localStorage.setItem('userName', res.user.name || res.user.username);
+        
+        this.api.get_all_confess().subscribe({
+          next: (confesRes: any) => {
+            const arr = Array.isArray(confesRes) ? confesRes : confesRes?.results || [];
+            if (arr.length > 0) {
+              const latest = arr.sort((a: any, b: any) => b.id - a.id)[0];
+              localStorage.setItem('myConfessionId', String(latest.id));
+              this.loading = false;
+              this.closeModal();
+              this.router.navigate(['/matches']);
+            } else {
+              this.loading = false;
+              this.closeModal();
+              this.router.navigate(['/confess']);
+            }
+          },
+          error: () => {
+             this.loading = false;
+             this.closeModal();
+             this.router.navigate(['/confess']);
+          }
+        });
       },
       error: (err: any) => {
         this.error = err?.error?.error || 'Signup failed. Try again.';

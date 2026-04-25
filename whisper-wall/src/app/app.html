@@ -1,5 +1,5 @@
-<nav class="navbar">
-  <div class="logo glow">Whisper Radar</div>
+<nav class="navbar bg-indigo-900 border-b border-indigo-700 shadow-md">
+  <div class="logo text-cyan-200 font-bold tracking-tight">CampusConnect</div>
 
   <input type="checkbox" id="nav-toggle" class="nav-toggle">
   <label for="nav-toggle" class="nav-toggle-label">
@@ -7,11 +7,15 @@
   </label>
 
   <ul class="nav-links">
-    <li><a routerLink="/home" routerLinkActive="active">Home</a></li>
-    <li><a routerLink="/confess" routerLinkActive="active">Confess</a></li>
-    <li><a routerLink="/matches" routerLinkActive="active">Matches</a></li>
-    <li><a routerLink="/event" routerLinkActive="active">Event</a></li>
-    <li><a routerLink="/live" routerLinkActive="active">Live</a></li>
+    <li><a routerLink="/home" routerLinkActive="active" class="hover:text-cyan-300 transition">Dashboard</a></li>
+    <li><a routerLink="/confess" routerLinkActive="active" class="hover:text-cyan-300 transition">Submit Situation</a></li>
+    <li><a routerLink="/matches" routerLinkActive="active" class="hover:text-cyan-300 transition">Academic Matches</a></li>
+    <li><a routerLink="/event" routerLinkActive="active" class="hover:text-cyan-300 transition">Event</a></li>
+    <li><a routerLink="/live" routerLinkActive="active" class="hover:text-cyan-300 transition">Live</a></li>
+    
+    <li *ngIf="!isLoggedIn()"><a routerLink="/login" routerLinkActive="active">Login</a></li>
+    <li *ngIf="isLoggedIn()"><a href="javascript:void(0)" (click)="logout()">Logout</a></li>
+
     <li class="mobile-only-profile">
         <div class="profile">
             <img src="assets/profile.png" alt="profile">
@@ -25,13 +29,13 @@
 </nav>
 
 <router-outlet></router-outlet>
-<footer class="footer">
-  <div class="footer-content">
-    <p>Whisper Radar © 2026</p>
-    <div class="footer-links">
+<footer class="footer bg-indigo-950 border-t border-indigo-800">
+  <div class="footer-content text-blue-200">
+    <p>CampusConnect © 2026</p>
+    <div class="footer-links text-indigo-300">
       <span>Anonymous</span>
-      <span>Safe</span>
-      <span>Encrypted</span>
+      <span>Collaborative</span>
+      <span>Community</span>
     </div>
   </div>
 </footer>

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import get_matches, send_message, get_chat, request_reveal, confession_list, sign_up
+from .views import get_matches, send_message, get_chat, request_reveal, confession_list, sign_up, login
 
 urlpatterns = [
     path('confess/',confession_list),
@@ -7,6 +7,7 @@ urlpatterns = [
     path('chat/send/', send_message),
     path('chat/<int:match_id>/', get_chat),
     path('reveal/', request_reveal),
-    path('sign_up',sign_up)
+    path('sign_up/', sign_up),
+    path('login/', login)
 
 ]

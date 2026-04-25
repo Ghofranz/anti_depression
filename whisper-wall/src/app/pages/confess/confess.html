@@ -1,39 +1,47 @@
 <div class="min-h-screen flex items-center justify-center bg-gradient-to-br p-6"
      [ngClass]="gradientClass">
-  <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
-    <h2 class="text-3xl font-bold text-center text-pink-600 mb-6">
-      Whisper Your Secret
+  <div class="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 w-full max-w-lg border border-white/20">
+    <h2 class="text-3xl font-bold text-center text-indigo-700 mb-6">
+      Share an Academic Situation
     </h2>
 
     <textarea
       [(ngModel)]="text"
-      class="w-full p-4 border rounded-xl mb-4"
-      placeholder="Say what you can't say out loud..."
+      class="w-full p-4 border border-indigo-100 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-400 outline-none transition"
+      placeholder="Describe what you need help with or what you are looking for..."
       rows="5"
     ></textarea>
 
-    <select [(ngModel)]="emotion" class="w-full p-3 border rounded-xl mb-4">
-      <option value="crush">Crush</option>
-      <option value="love">Love</option>
-      <option value="heartbreak">Heartbreak</option>
-      <option value="regret">Regret</option>
-      <option value="fight">Fight</option>
-    </select>
+    <div class="mb-4">
+      <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
+      <select [(ngModel)]="emotion" class="w-full p-3 border border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none bg-white">
+        <option value="course_help">Course Help</option>
+        <option value="project_team">Project Team</option>
+        <option value="exam_preparation">Exam Preparation</option>
+        <option value="study_group">Study Group</option>
+        <option value="internship_advice">Internship Advice</option>
+        <option value="administrative_request">Administrative Request</option>
+        <option value="lost_found">Lost / Found</option>
+      </select>
+    </div>
 
-    <input
-      [(ngModel)]="location"
-      class="w-full p-3 border rounded-xl mb-4"
-      placeholder="Where? (ex: math class, gym...)"
-    />
+    <div class="mb-6">
+      <label class="block text-sm font-semibold text-gray-700 mb-1">Campus Context</label>
+      <input
+        [(ngModel)]="location"
+        class="w-full p-3 border border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none"
+        placeholder="Course, classroom, campus place, or context..."
+      />
+    </div>
 
     <div class="text-red-500 text-sm mb-3">{{ error }}</div>
 
     <button
       (click)="submit()"
       [disabled]="loading"
-      class="w-full bg-pink-500 text-white py-3 rounded-xl font-bold hover:bg-pink-600 transition"
+      class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg active:scale-95 disabled:opacity-70"
     >
-      {{ loading ? 'Whispering...' : 'Confess' }}
+      {{ loading ? 'Submitting...' : 'Submit Situation' }}
     </button>
   </div>
 </div>

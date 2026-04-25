@@ -1,0 +1,39 @@
+<div class="min-h-screen bg-gradient-to-br from-black via-purple-900 to-black text-white flex flex-col justify-center items-center px-6">
+  <div class="bg-white/10 backdrop-blur-xl w-full max-w-md rounded-2xl shadow-2xl p-8 border border-white/10 relative">
+    
+    <button routerLink="/" class="absolute top-4 left-4 text-gray-400 hover:text-white transition">
+      ← Back
+    </button>
+
+    <h1 class="text-3xl font-bold text-center mb-6 mt-4">Welcome Back</h1>
+    <p class="text-center text-gray-300 mb-8 text-sm">Resume your anonymous journey.</p>
+    
+    <div class="mb-4">
+      <label class="block text-sm font-medium mb-1 text-gray-300">Username</label>
+      <input
+        [(ngModel)]="username"
+        type="text"
+        placeholder="Enter your username"
+        class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 outline-none transition text-white"/>
+    </div>
+
+    <div class="mb-6">
+      <label class="block text-sm font-medium mb-1 text-gray-300">Password</label>
+      <input
+        [(ngModel)]="password"
+        type="password"
+        (keyup.enter)="submit()"
+        placeholder="Enter your password"
+        class="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 focus:ring-2 focus:ring-purple-500 outline-none transition text-white"/>
+    </div>
+
+    <p *ngIf="error" class="text-red-400 text-sm mb-4 text-center">{{ error }}</p>
+
+    <button
+      (click)="submit()"
+      [disabled]="loading"
+      class="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 rounded-lg shadow-lg hover:shadow-purple-500/50 transition-all disabled:opacity-50 active:scale-95">
+      {{ loading ? 'Logging in...' : 'Login' }}
+    </button>
+  </div>
+</div>

@@ -11,7 +11,6 @@ export class Api {
 
   private getAuthHeaders() {
     const token = localStorage.getItem('token') || '';
-    console.log('TOKEN SENT:', token);
 
     return {
       headers: new HttpHeaders({
@@ -45,6 +44,10 @@ export class Api {
   }
 
   signUp(data: { name: string; email: string; username: string; password: string }) {
-    return this.http.post(`${this.base}/sign_up`, data);
+    return this.http.post(`${this.base}/sign_up/`, data);
+  }
+
+  login(data: any) {
+    return this.http.post(`${this.base}/login/`, data);
   }
 }

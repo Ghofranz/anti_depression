@@ -1,9 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
+
 import { Api } from '../../services/api';
 import { Match } from '../../entity/match';
 
+interface GroupedMatches {
+  confession: any;
+  matches: Match[];
+}
 
 @Component({
   selector: 'app-matches',
@@ -11,46 +18,78 @@ import { Match } from '../../entity/match';
   templateUrl: './matches.html',
   styleUrl: './matches.scss',
 })
-
 export class Matches implements OnInit {
-  matches: Match[] = [];
+  groupedMatches: GroupedMatches[] = [];
   loading = false;
   error = '';
 
-  constructor(private api: Api, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private api: Api,
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    this.getMatches();
+    this.loadAllMatches();
   }
 
-  getMatches() {
-    const confessionIdStr = localStorage.getItem('myConfessionId');
-    if (!confessionIdStr) {
-      this.error = "Please submit a situation first.";
-      return;
-    }
+  openChat(matchId: number, confessionId: number) {
+    localStorage.setItem('myConfessionId', String(confessionId));
+    this.router.navigate(['/chat', matchId]);
+  }
 
-    const confessionId = Number(confessionIdStr);
+  loadAllMatches() {
     this.loading = true;
-    this.api.getMatches(confessionId).subscribe({
-      next: (res: any) => {
-        const data = Array.isArray(res) ? res : (res?.results || []);
-        this.matches = data.map((m:any) => ({
-          id: m.id,
-          confession_a: m.confession_a,
-          confession_b: m.confession_b,
-          score: m.score,
-          created_at: m.created_at,
-          is_active: m.is_active
-        }));
-        this.loading = false;
-        this.cdr.detectChanges();
+    this.error = '';
+
+    this.api.get_all_confess().subscribe({
+      next: (confesRes: any) => {
+        const confessions = Array.isArray(confesRes) ? confesRes : confesRes?.results || [];
+        
+        if (confessions.length === 0) {
+          this.error = 'Please share a situation first.';
+          this.loading = false;
+          this.cdr.detectChanges();
+          return;
+        }
+
+        const matchRequests = confessions.map((c: any) => this.api.getMatches(c.id));
+
+        forkJoin(matchRequests).subscribe({
+          next: (results: any) => {
+            this.groupedMatches = confessions.map((c: any, index: number) => {
+              const res = results[index];
+              const matchesArray = Array.isArray(res) ? res : res?.results || [];
+              return {
+                confession: c,
+                matches: matchesArray
+              };
+            });
+            // Reverse to show latest confession at the top visually
+            this.groupedMatches = this.groupedMatches.reverse();
+            this.loading = false;
+            this.cdr.detectChanges();
+          },
+          error: () => {
+             this.error = 'Failed to load matches.';
+             this.loading = false;
+             this.cdr.detectChanges();
+          }
+        });
       },
       error: () => {
-        this.error = "Failed to load matches.";
+        this.error = 'Failed to load situations.';
         this.loading = false;
         this.cdr.detectChanges();
       }
     });
+  }
+
+  getMyConfession(match: Match, myConfessionId: number) {
+    return match.confession_a.id === myConfessionId ? match.confession_a : match.confession_b;
+  }
+
+  getOtherConfession(match: Match, myConfessionId: number) {
+    return match.confession_a.id === myConfessionId ? match.confession_b : match.confession_a;
   }
 }

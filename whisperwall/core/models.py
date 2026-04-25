@@ -5,17 +5,19 @@ from difflib import SequenceMatcher
 
 class Confession(models.Model):
     EMOTIONS = [
-        ('love', 'Love'),
-        ('crush', 'Crush'),
-        ('heartbreak', 'Heartbreak'),
-        ('regret', 'Regret'),
-        ('fight', 'Fight'),
-        ('miss', 'Missing You'),
-        ('apology', 'Apology'),
+        ('course_help', 'Course Help'),
+        ('project_team', 'Project Team'),
+        ('exam_preparation', 'Exam Preparation'),
+        ('study_group', 'Study Group'),
+        ('internship_advice', 'Internship Advice'),
+        ('administrative_request', 'Administrative Request'),
+        ('lost_found', 'Lost / Found'),
+        # Fallbacks for existing db records to not crash:
+        ('love', 'Love'), ('crush', 'Crush'), ('heartbreak', 'Heartbreak'), ('regret', 'Regret'), ('fight', 'Fight'), ('miss', 'Missing You'), ('apology', 'Apology')
     ]
 
     text = models.TextField()
-    emotion = models.CharField(max_length=20, choices=EMOTIONS)
+    emotion = models.CharField(max_length=30, choices=EMOTIONS)
     location_hint = models.CharField(max_length=100)  # e.g. "math class", "gym"
     created_at = models.DateTimeField(auto_now_add=True)
     likes = models.IntegerField(default=0)
