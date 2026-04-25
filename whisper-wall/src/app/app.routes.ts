@@ -8,10 +8,12 @@ import { Landing } from './pages/landing/landing';
 import { EventBoard } from './pages/event-board/event-board';
 import { Live } from './pages/live/live';
 import { VedioPlayer } from './pages/vedio-player/vedio-player';
+import { Dashboard } from './pages/dashboard/dashboard';
 
 export const routes: Routes = [
   { path: '', component: Landing },
   { path: 'login', component: Login },
+  { path: 'dashboard', component: Dashboard },
   { path: 'confess', component: Confess },
   { path: 'matches', component: Matches },
   { path: 'chat/:matchId', component: Chat },
