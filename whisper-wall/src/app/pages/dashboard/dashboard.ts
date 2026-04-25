@@ -3,11 +3,10 @@ import { CommonModule } from '@angular/common';
 import { Api } from '../../services/api';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { Router } from '@angular/router';
-
+import { Router, RouterLink } from '@angular/router';
 @Component({
   selector: 'app-dashboard',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.scss',
 })
@@ -71,10 +70,11 @@ this.cdr.detectChanges();
 
   loadMatchMetrics(situations: any[]) {
     if (!situations.length) {
-      this.totalMatches = 0;
-      this.activeDiscussions = 0;
-      return;
-    }
+  this.totalMatches = 0;
+  this.activeDiscussions = 0;
+  this.cdr.detectChanges();
+  return;
+}
 
     const matchRequests = situations.map((s: any) =>
       this.api.getMatches(s.id).pipe(catchError(() => of([])))
@@ -91,9 +91,9 @@ this.cdr.detectChanges();
           uniqueMatches.set(key, m);
         });
       });
-
-      this.totalMatches = uniqueMatches.size;
-      this.activeDiscussions = uniqueMatches.size;
+this.totalMatches = uniqueMatches.size;
+this.activeDiscussions = uniqueMatches.size;
+this.cdr.detectChanges();
     });
   }
 

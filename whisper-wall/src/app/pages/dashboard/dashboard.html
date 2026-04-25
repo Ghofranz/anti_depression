@@ -1,88 +1,172 @@
-<div class="min-h-screen bg-gray-50 p-6 md:p-10 font-sans">
-  
-  <div class="max-w-6xl mx-auto">
-    <!-- Header -->
-    <div class="mb-10 text-center md:text-left">
-      <h1 class="text-3xl md:text-4xl font-extrabold text-indigo-900 tracking-tight">Academic Support Dashboard</h1>
-      <p class="text-gray-600 mt-2 text-lg">Track your situations, matches, and academic discussions.</p>
-    </div>
+<div class="min-h-screen bg-slate-50 px-4 py-8 md:px-8 lg:px-12 font-sans">
+  <div class="max-w-7xl mx-auto">
 
-    <div *ngIf="loading" class="text-center text-indigo-600 font-medium my-10 animate-pulse">
-      Loading dashboard metrics...
-    </div>
+    <!-- Hero Header -->
+    <section class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-900 via-blue-800 to-cyan-700 text-white p-8 md:p-10 shadow-xl mb-8">
+      <div class="relative z-10 max-w-3xl">
+        <p class="text-cyan-100 text-sm font-semibold uppercase tracking-[0.2em] mb-3">
+          University peer-support portal
+        </p>
 
-    <div *ngIf="error" class="text-center text-red-500 bg-red-50 p-4 rounded-lg my-6">
-      {{ error }}
-    </div>
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">
+          Academic Support Dashboard
+        </h1>
 
-    <div *ngIf="!loading && !error">
-      
-      <!-- Statistics Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-        <!-- Card 1 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition">
-          <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Submitted Situations</span>
-          <span class="text-4xl font-bold text-indigo-700">{{ totalSituations }}</span>
-        </div>
-        <!-- Card 2 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition">
-          <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Academic Matches</span>
-          <span class="text-4xl font-bold text-blue-600">{{ totalMatches }}</span>
-        </div>
-        <!-- Card 3 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition">
-          <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Active Discussions</span>
-          <span class="text-4xl font-bold text-cyan-600">{{ activeDiscussions }}</span>
-        </div>
-        <!-- Card 4 -->
-        <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 flex flex-col hover:shadow-md transition">
-          <span class="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-1">Suggested Categories</span>
-          <span class="text-4xl font-bold text-slate-700">{{ suggestedCategories.length }}</span>
+        <p class="text-blue-100 text-base md:text-lg leading-relaxed">
+          Track your submitted situations, academic matches, and ongoing discussions in one place.
+        </p>
+
+        <div class="mt-6 flex flex-col sm:flex-row gap-3">
+          <button
+            (click)="navigateToMatches()"
+            class="px-5 py-3 rounded-xl bg-white text-indigo-800 font-bold hover:bg-blue-50 transition shadow-sm">
+            View Academic Matches
+          </button>
+
+          <a
+            routerLink="/confess"
+            class="px-5 py-3 rounded-xl bg-indigo-700/70 border border-white/20 text-white font-bold hover:bg-indigo-600 transition text-center">
+            Submit New Situation
+          </a>
         </div>
       </div>
 
-      <!-- Main Content Grid -->
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        <!-- Recent Situations (Spans 2 columns) -->
-        <div class="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
-            <h2 class="text-xl font-bold text-gray-800">Recent Situations</h2>
-            <button (click)="navigateToMatches()" class="text-sm font-semibold text-indigo-600 hover:text-indigo-800 transition">View All Matches &rarr;</button>
+      <div class="absolute -right-16 -top-16 w-56 h-56 bg-white/10 rounded-full"></div>
+      <div class="absolute right-20 -bottom-20 w-72 h-72 bg-cyan-300/10 rounded-full"></div>
+    </section>
+
+    <!-- Loading / Error -->
+    <div *ngIf="loading" class="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center text-indigo-700 font-semibold animate-pulse mb-8">
+      Loading dashboard metrics...
+    </div>
+
+    <div *ngIf="error" class="bg-red-50 border border-red-100 text-red-700 rounded-2xl p-5 mb-8">
+      {{ error }}
+    </div>
+
+    <div *ngIf="!loading">
+
+      <!-- Statistics Cards -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5 mb-8">
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-2xl">📝</div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total</span>
           </div>
-          
-          <div *ngIf="recentSituations.length === 0" class="text-center text-gray-400 py-8 italic">
-            You haven't submitted any situations yet.
+          <p class="text-sm font-semibold text-slate-500">Submitted Situations</p>
+          <p class="text-4xl font-extrabold text-indigo-800 mt-2">{{ totalSituations }}</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-2xl">🤝</div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Matched</span>
+          </div>
+          <p class="text-sm font-semibold text-slate-500">Academic Matches</p>
+          <p class="text-4xl font-extrabold text-blue-700 mt-2">{{ totalMatches }}</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-cyan-50 flex items-center justify-center text-2xl">💬</div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Open</span>
+          </div>
+          <p class="text-sm font-semibold text-slate-500">Active Discussions</p>
+          <p class="text-4xl font-extrabold text-cyan-700 mt-2">{{ activeDiscussions }}</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between mb-4">
+            <div class="w-12 h-12 rounded-2xl bg-slate-100 flex items-center justify-center text-2xl">🎓</div>
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Available</span>
+          </div>
+          <p class="text-sm font-semibold text-slate-500">Suggested Categories</p>
+          <p class="text-4xl font-extrabold text-slate-800 mt-2">{{ suggestedCategories.length }}</p>
+        </div>
+      </section>
+
+      <!-- Main Grid -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <!-- Recent Situations -->
+        <div class="lg:col-span-2 bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="p-6 md:p-7 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Recent Academic Situations</h2>
+              <p class="text-sm text-slate-500 mt-1">Your latest submitted academic needs and contexts.</p>
+            </div>
+
+            <button
+              (click)="navigateToMatches()"
+              class="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-700 font-bold hover:bg-indigo-100 transition">
+              View Matches
+            </button>
           </div>
 
-          <div class="space-y-4">
-            <div *ngFor="let situation of recentSituations" class="p-4 rounded-lg bg-gray-50 border border-gray-100 hover:border-indigo-200 transition">
-              <div class="flex flex-col sm:flex-row justify-between mb-2 gap-2">
-                <span class="inline-block px-3 py-1 bg-indigo-100 text-indigo-800 text-xs font-bold rounded-full w-max">
-                  {{ situation.emotion.replace('_', ' ') | uppercase }}
-                </span>
-                <span class="text-xs font-semibold text-gray-500 bg-gray-200 px-2 py-1 rounded w-max">
-                   📍 {{ situation.location_hint }}
-                </span>
-              </div>
-              <p class="text-gray-700 text-sm italic">"{{ situation.text }}"</p>
+          <div *ngIf="recentSituations.length === 0" class="p-10 text-center">
+            <div class="mx-auto w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-3xl mb-4">
+              📚
             </div>
+            <h3 class="text-lg font-bold text-slate-800">No situations yet</h3>
+            <p class="text-slate-500 mt-1">Submit your first academic situation to start finding similar students.</p>
+          </div>
+
+          <div class="divide-y divide-slate-100">
+            <article
+              *ngFor="let situation of recentSituations"
+              class="p-6 md:p-7 hover:bg-slate-50 transition">
+              <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+
+                <div class="min-w-0">
+                  <div class="flex flex-wrap items-center gap-2 mb-3">
+                    <span class="px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-extrabold">
+                      {{ getCategoryLabel(situation.emotion) }}
+                    </span>
+
+                    <span class="px-3 py-1 rounded-full bg-slate-100 text-slate-600 text-xs font-semibold">
+                      📍 {{ situation.location_hint || 'No context specified' }}
+                    </span>
+                  </div>
+
+                  <p class="text-slate-800 font-semibold leading-relaxed">
+                    {{ situation.text }}
+                  </p>
+
+                  <p *ngIf="situation.created_at" class="text-xs text-slate-400 mt-3">
+                    Submitted on {{ situation.created_at | date:'medium' }}
+                  </p>
+                </div>
+
+                <button
+                  (click)="navigateToMatches()"
+                  class="shrink-0 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 font-bold hover:border-indigo-200 hover:text-indigo-700 hover:bg-indigo-50 transition">
+                  View
+                </button>
+              </div>
+            </article>
           </div>
         </div>
 
         <!-- Suggested Categories -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 class="text-xl font-bold text-gray-800 mb-6 border-b border-gray-100 pb-4">Suggested Categories</h2>
-          <div class="flex flex-wrap gap-2">
-            <span *ngFor="let cat of suggestedCategories" 
-                  class="px-4 py-2 bg-blue-50 text-blue-700 text-sm font-medium rounded-lg border border-blue-100 hover:bg-blue-100 transition cursor-default">
-              📚 {{ cat }}
-            </span>
+        <aside class="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-7 h-fit">
+          <h2 class="text-xl md:text-2xl font-extrabold text-slate-900">Suggested Categories</h2>
+          <p class="text-sm text-slate-500 mt-1 mb-6">
+            Use these categories to make matching more relevant.
+          </p>
+
+          <div class="space-y-3">
+            <div
+              *ngFor="let cat of suggestedCategories"
+              class="flex items-center gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-blue-200 hover:bg-blue-50 transition">
+              <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm">
+                📚
+              </div>
+              <span class="font-bold text-slate-700">{{ cat }}</span>
+            </div>
           </div>
-        </div>
+        </aside>
 
-      </div>
-
+      </section>
     </div>
   </div>
 </div>
