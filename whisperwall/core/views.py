@@ -208,6 +208,88 @@ def request_reveal(request):
     }, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_reveal_status(request, match_id):
+    user = get_user(request)
+    try:
+        match = Match.objects.get(id=match_id)
+    except Match.DoesNotExist:
+        return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    # Determine if user is part of the match
+    if user != match.confession_a.author and user != match.confession_b.author:
+        return Response({"error": "Forbidden: You are not part of this match."}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        reveal = RevealRequest.objects.get(match=match)
+    except RevealRequest.DoesNotExist:
+        return Response({
+            "match": match_id,
+            "my_profile_sharing_active": False,
+            "peer_profile_sharing_active": False,
+            "both_active": False
+        }, status=status.HTTP_200_OK)
+
+    my_profile_sharing_active = False
+    peer_profile_sharing_active = False
+
+    if user == match.confession_a.author:
+        my_profile_sharing_active = reveal.confession_a_accepted
+        peer_profile_sharing_active = reveal.confession_b_accepted
+    else:
+        my_profile_sharing_active = reveal.confession_b_accepted
+        peer_profile_sharing_active = reveal.confession_a_accepted
+
+    both_active = (my_profile_sharing_active and peer_profile_sharing_active)
+
+    return Response({
+        "match": match_id,
+        "my_profile_sharing_active": my_profile_sharing_active,
+        "peer_profile_sharing_active": peer_profile_sharing_active,
+        "both_active": both_active
+    }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def activate_profile_sharing(request, match_id):
+    user = get_user(request)
+
+    try:
+        match = Match.objects.get(id=match_id)
+    except Match.DoesNotExist:
+        return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if user != match.confession_a.author and user != match.confession_b.author:
+        return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
+
+    reveal, _ = RevealRequest.objects.get_or_create(match=match)
+
+    my_profile_sharing_active = False
+    peer_profile_sharing_active = False
+
+    if user == match.confession_a.author:
+        reveal.confession_a_accepted = True
+        my_profile_sharing_active = True
+        peer_profile_sharing_active = reveal.confession_b_accepted
+    else:
+        reveal.confession_b_accepted = True
+        my_profile_sharing_active = True
+        peer_profile_sharing_active = reveal.confession_a_accepted
+
+    reveal.save()
+    reveal.try_reveal()
+
+    both_active = (my_profile_sharing_active and peer_profile_sharing_active)
+
+    return Response({
+        "message": "Profile sharing activated",
+        "my_profile_sharing_active": my_profile_sharing_active,
+        "peer_profile_sharing_active": peer_profile_sharing_active,
+        "both_active": both_active
+    }, status=status.HTTP_200_OK)
+
 # ─── Events ──────────────────────────────────────────────────────────────────
 
 @api_view(['GET'])

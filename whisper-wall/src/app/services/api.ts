@@ -50,4 +50,12 @@ export class Api {
   login(data: any) {
     return this.http.post(`${this.base}/login/`, data);
   }
+
+  getRevealStatus(matchId: number) {
+    return this.http.get(`${this.base}/reveal/status/${matchId}/`, this.getAuthHeaders());
+  }
+
+  activateProfileSharing(matchId: number) {
+    return this.http.post(`${this.base}/reveal/activate/${matchId}/`, {}, this.getAuthHeaders());
+  }
 }
