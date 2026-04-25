@@ -8,8 +8,7 @@ import {
   AfterViewInit
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
-
+import { ActivatedRoute, Router } from '@angular/router';
 import { Api } from '../../services/api';
 import { Match } from '../../entity/match';
 
@@ -65,11 +64,12 @@ export class Chat implements OnInit, AfterViewInit {
 
   readonly contactMessageThreshold = 4;
 
-  constructor(
-    private route: ActivatedRoute,
-    private api: Api,
-    private cdr: ChangeDetectorRef
-  ) {}
+constructor(
+  private route: ActivatedRoute,
+  private router: Router,
+  private api: Api,
+  private cdr: ChangeDetectorRef
+) {}
 
   ngOnInit() {
     this.matchId = Number(this.route.snapshot.paramMap.get('matchId'));
@@ -86,7 +86,9 @@ export class Chat implements OnInit, AfterViewInit {
   ngAfterViewInit() {
     this.scrollToBottom();
   }
-
+goBackToMatches() {
+  this.router.navigate(['/matches']);
+}
   loadMatchContext() {
     if (!this.myConfessionId) return;
 
@@ -189,13 +191,17 @@ export class Chat implements OnInit, AfterViewInit {
     });
   }
 
-  scrollToBottom() {
-    setTimeout(() => {
-      const el = this.messagesContainer?.nativeElement;
-      if (!el) return;
-      el.scrollTop = el.scrollHeight;
-    }, 0);
-  }
+scrollToBottom() {
+  setTimeout(() => {
+    const el = this.messagesContainer?.nativeElement;
+    if (!el) return;
+
+    el.scrollTo({
+      top: el.scrollHeight,
+      behavior: 'auto'
+    });
+  }, 80);
+}
 
   updateContactAvailability() {
     this.contactExchangeAvailable =

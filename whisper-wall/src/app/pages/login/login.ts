@@ -11,12 +11,28 @@ import { Api } from '../../services/api';
   styleUrl: './login.scss',
 })
 export class Login {
+  mode: 'login' | 'signup' = 'login';
+
   username = '';
   password = '';
+
+  signupForm = {
+    name: '',
+    email: '',
+    userName: '',
+    password: '',
+    confirmPassword: ''
+  };
+
   loading = false;
   error = '';
 
   constructor(private api: Api, private router: Router) {}
+
+  switchMode(mode: 'login' | 'signup') {
+    this.mode = mode;
+    this.error = '';
+  }
 
   submit() {
     this.error = '';
@@ -33,7 +49,6 @@ export class Login {
       password: this.password
     }).subscribe({
       next: (res: any) => {
-        // Important: clear old account state before storing the new one
         localStorage.clear();
 
         localStorage.setItem('token', res.token);
@@ -47,7 +62,6 @@ export class Login {
             if (arr.length > 0) {
               const latest = arr.sort((a: any, b: any) => b.id - a.id)[0];
               localStorage.setItem('myConfessionId', String(latest.id));
-
               this.loading = false;
               this.router.navigate(['/matches']);
             } else {
@@ -63,6 +77,54 @@ export class Login {
       },
       error: (err: any) => {
         this.error = err?.error?.error || 'Login failed. Invalid credentials.';
+        this.loading = false;
+      }
+    });
+  }
+
+  submitSignup() {
+    this.error = '';
+
+    if (
+      !this.signupForm.name.trim() ||
+      !this.signupForm.userName.trim() ||
+      !this.signupForm.password ||
+      !this.signupForm.confirmPassword
+    ) {
+      this.error = 'Please fill all required fields.';
+      return;
+    }
+
+    if (this.signupForm.password.length < 6) {
+      this.error = 'Password must contain at least 6 characters.';
+      return;
+    }
+
+    if (this.signupForm.password !== this.signupForm.confirmPassword) {
+      this.error = 'Passwords do not match.';
+      return;
+    }
+
+    this.loading = true;
+
+    this.api.signUp({
+      name: this.signupForm.name.trim(),
+      email: this.signupForm.email.trim(),
+      username: this.signupForm.userName.trim(),
+      password: this.signupForm.password
+    }).subscribe({
+      next: (res: any) => {
+        localStorage.clear();
+
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('userId', String(res.user.id));
+        localStorage.setItem('userName', res.user.username || res.user.name || this.signupForm.userName.trim());
+
+        this.loading = false;
+        this.router.navigate(['/confess']);
+      },
+      error: (err: any) => {
+        this.error = err?.error?.error || 'Account creation failed. Please try again.';
         this.loading = false;
       }
     });
