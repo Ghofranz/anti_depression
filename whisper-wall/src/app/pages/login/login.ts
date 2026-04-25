@@ -27,18 +27,27 @@ export class Login {
     }
 
     this.loading = true;
-    this.api.login({ username: this.username, password: this.password }).subscribe({
+
+    this.api.login({
+      username: this.username.trim(),
+      password: this.password
+    }).subscribe({
       next: (res: any) => {
+        // Important: clear old account state before storing the new one
+        localStorage.clear();
+
         localStorage.setItem('token', res.token);
-        localStorage.setItem('profileId', res.user.id);
-        localStorage.setItem('userName', res.user.name || res.user.username);
-        
+        localStorage.setItem('userId', String(res.user.id));
+        localStorage.setItem('userName', res.user.username || res.user.name || this.username.trim());
+
         this.api.get_all_confess().subscribe({
           next: (confesRes: any) => {
             const arr = Array.isArray(confesRes) ? confesRes : confesRes?.results || [];
+
             if (arr.length > 0) {
               const latest = arr.sort((a: any, b: any) => b.id - a.id)[0];
               localStorage.setItem('myConfessionId', String(latest.id));
+
               this.loading = false;
               this.router.navigate(['/matches']);
             } else {

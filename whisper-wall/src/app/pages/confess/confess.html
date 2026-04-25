@@ -1,47 +1,144 @@
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br p-6"
-     [ngClass]="gradientClass">
-  <div class="bg-white/95 backdrop-blur rounded-2xl shadow-2xl p-8 w-full max-w-lg border border-white/20">
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br p-6"
+  [ngClass]="gradientClass">
+
+  <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-lg">
+
     <h2 class="text-3xl font-bold text-center text-indigo-700 mb-6">
       Share an Academic Situation
     </h2>
 
+    <!-- Situation Description -->
+    <div class="flex items-center justify-between mb-2">
+      <label class="text-sm font-semibold text-slate-700">
+        Situation Description
+      </label>
+
+      <button
+        type="button"
+        (click)="openHelpPopup(0)"
+        class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold hover:bg-indigo-200 transition">
+        ?
+      </button>
+    </div>
+
     <textarea
       [(ngModel)]="text"
-      class="w-full p-4 border border-indigo-100 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-400 outline-none transition"
+      class="w-full p-4 border rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
       placeholder="Describe what you need help with or what you are looking for..."
-      rows="5"
-    ></textarea>
+      rows="5">
+    </textarea>
 
-    <div class="mb-4">
-      <label class="block text-sm font-semibold text-gray-700 mb-1">Category</label>
-      <select [(ngModel)]="emotion" class="w-full p-3 border border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none bg-white">
-        <option value="course_help">Course Help</option>
-        <option value="project_team">Project Team</option>
-        <option value="exam_preparation">Exam Preparation</option>
-        <option value="study_group">Study Group</option>
-        <option value="internship_advice">Internship Advice</option>
-        <option value="administrative_request">Administrative Request</option>
-        <option value="lost_found">Lost / Found</option>
-      </select>
+    <!-- Category -->
+    <div class="flex items-center justify-between mb-2">
+      <label class="text-sm font-semibold text-slate-700">
+        Category
+      </label>
+
+      <button
+        type="button"
+        (click)="openHelpPopup(1)"
+        class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold hover:bg-indigo-200 transition">
+        ?
+      </button>
     </div>
 
-    <div class="mb-6">
-      <label class="block text-sm font-semibold text-gray-700 mb-1">Campus Context</label>
-      <input
-        [(ngModel)]="location"
-        class="w-full p-3 border border-indigo-100 rounded-xl focus:ring-2 focus:ring-indigo-400 outline-none"
-        placeholder="Course, classroom, campus place, or context..."
-      />
+    <select
+      [(ngModel)]="emotion"
+      class="w-full p-3 border rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400">
+
+      <option value="course_help">Course Help</option>
+      <option value="project_team">Project Team</option>
+      <option value="exam_preparation">Exam Preparation</option>
+      <option value="study_group">Study Group</option>
+      <option value="internship_advice">Internship Advice</option>
+      <option value="administrative_request">Administrative Request</option>
+      <option value="lost_found">Lost / Found</option>
+    </select>
+
+    <!-- Campus Context -->
+    <div class="flex items-center justify-between mb-2">
+      <label class="text-sm font-semibold text-slate-700">
+        Campus Context
+      </label>
+
+      <button
+        type="button"
+        (click)="openHelpPopup(2)"
+        class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-700 font-bold hover:bg-indigo-200 transition">
+        ?
+      </button>
     </div>
 
-    <div class="text-red-500 text-sm mb-3">{{ error }}</div>
+    <input
+      [(ngModel)]="location"
+      class="w-full p-3 border rounded-xl mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+      placeholder="Course, classroom, campus place, or context..."
+    />
+
+    <div class="text-red-500 text-sm mb-3" *ngIf="error">
+      {{ error }}
+    </div>
 
     <button
       (click)="submit()"
       [disabled]="loading"
-      class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg active:scale-95 disabled:opacity-70"
-    >
+      class="w-full bg-indigo-600 text-white py-3 rounded-xl font-bold hover:bg-indigo-700 transition disabled:opacity-60">
       {{ loading ? 'Submitting...' : 'Submit Situation' }}
     </button>
   </div>
+
+  <!-- Help Popup -->
+  <div
+    *ngIf="showHelpPopup"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+
+    <div class="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden">
+
+      <div class="bg-gradient-to-r from-indigo-800 via-blue-700 to-cyan-600 p-6 text-white">
+        <div class="w-14 h-14 rounded-2xl bg-white/15 flex items-center justify-center text-3xl mb-4">
+          {{ currentHelp.icon }}
+        </div>
+
+        <h3 class="text-2xl font-extrabold">
+          {{ currentHelp.title }}
+        </h3>
+
+        <p class="text-blue-100 text-sm mt-2">
+          Tip {{ currentHelpIndex + 1 }} of {{ helpPopups.length }}
+        </p>
+      </div>
+
+      <div class="p-6">
+        <p class="text-slate-600 text-sm leading-relaxed">
+          {{ currentHelp.message }}
+        </p>
+
+        <label class="flex items-center gap-2 mt-5 text-sm text-slate-600 cursor-pointer">
+          <input
+            type="checkbox"
+            [(ngModel)]="neverShowHelpAgain"
+            class="w-4 h-4">
+          Never show me again
+        </label>
+
+        <div class="flex gap-3 mt-6">
+          <button
+            type="button"
+            (click)="closeHelpPopup()"
+            class="flex-1 px-4 py-3 rounded-xl bg-slate-100 text-slate-700 font-bold hover:bg-slate-200 transition">
+            Skip
+          </button>
+
+          <button
+            type="button"
+            (click)="nextHelpPopup()"
+            class="flex-1 px-4 py-3 rounded-xl bg-indigo-700 text-white font-bold hover:bg-indigo-800 transition">
+            {{ currentHelpIndex < helpPopups.length - 1 ? 'Next' : 'Got it' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>

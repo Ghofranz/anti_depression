@@ -8,8 +8,8 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from .models import Confession, Match, ChatMessage, RevealRequest, Event
-from .serializers import ConfessionSerializer, MatchSerializer, ChatMessageSerializer
+from .models import Confession, Match, ChatMessage, RevealRequest, Event, AcademicProfile
+from .serializers import ConfessionSerializer, MatchSerializer, ChatMessageSerializer, AcademicProfileSerializer
 
 
 def get_user(request) -> User:
@@ -210,14 +210,13 @@ def request_reveal(request):
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_reveal_status(request, match_id):
+def get_contact_exchange_status(request, match_id):
     user = get_user(request)
     try:
         match = Match.objects.get(id=match_id)
     except Match.DoesNotExist:
         return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
 
-    # Determine if user is part of the match
     if user != match.confession_a.author and user != match.confession_b.author:
         return Response({"error": "Forbidden: You are not part of this match."}, status=status.HTTP_403_FORBIDDEN)
 
@@ -226,34 +225,49 @@ def get_reveal_status(request, match_id):
     except RevealRequest.DoesNotExist:
         return Response({
             "match": match_id,
-            "my_profile_sharing_active": False,
-            "peer_profile_sharing_active": False,
-            "both_active": False
+            "my_contact_exchange_active": False,
+            "peer_contact_exchange_active": False,
+            "both_active": False,
+            "my_profile": None,
+            "peer_profile": None
         }, status=status.HTTP_200_OK)
 
-    my_profile_sharing_active = False
-    peer_profile_sharing_active = False
+    my_active = False
+    peer_active = False
+    peer_user = None
 
     if user == match.confession_a.author:
-        my_profile_sharing_active = reveal.confession_a_accepted
-        peer_profile_sharing_active = reveal.confession_b_accepted
+        my_active = reveal.confession_a_accepted
+        peer_active = reveal.confession_b_accepted
+        peer_user = match.confession_b.author
     else:
-        my_profile_sharing_active = reveal.confession_b_accepted
-        peer_profile_sharing_active = reveal.confession_a_accepted
+        my_active = reveal.confession_b_accepted
+        peer_active = reveal.confession_a_accepted
+        peer_user = match.confession_a.author
 
-    both_active = (my_profile_sharing_active and peer_profile_sharing_active)
+    both_active = (my_active and peer_active)
+
+    my_profile_data = None
+    if hasattr(user, 'academic_profile'):
+        my_profile_data = AcademicProfileSerializer(user.academic_profile).data
+
+    peer_profile_data = None
+    if both_active and peer_user and hasattr(peer_user, 'academic_profile'):
+        peer_profile_data = AcademicProfileSerializer(peer_user.academic_profile).data
 
     return Response({
         "match": match_id,
-        "my_profile_sharing_active": my_profile_sharing_active,
-        "peer_profile_sharing_active": peer_profile_sharing_active,
-        "both_active": both_active
+        "my_contact_exchange_active": my_active,
+        "peer_contact_exchange_active": peer_active,
+        "both_active": both_active,
+        "my_profile": my_profile_data,
+        "peer_profile": peer_profile_data
     }, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def activate_profile_sharing(request, match_id):
+def activate_contact_exchange(request, match_id):
     user = get_user(request)
 
     try:
@@ -266,29 +280,79 @@ def activate_profile_sharing(request, match_id):
 
     reveal, _ = RevealRequest.objects.get_or_create(match=match)
 
-    my_profile_sharing_active = False
-    peer_profile_sharing_active = False
+    my_active = False
+    peer_active = False
+    peer_user = None
 
     if user == match.confession_a.author:
         reveal.confession_a_accepted = True
-        my_profile_sharing_active = True
-        peer_profile_sharing_active = reveal.confession_b_accepted
+        my_active = True
+        peer_active = reveal.confession_b_accepted
+        peer_user = match.confession_b.author
     else:
         reveal.confession_b_accepted = True
-        my_profile_sharing_active = True
-        peer_profile_sharing_active = reveal.confession_a_accepted
+        my_active = True
+        peer_active = reveal.confession_a_accepted
+        peer_user = match.confession_a.author
 
     reveal.save()
-    reveal.try_reveal()
+    # DO NOT call reveal.try_reveal() to protect confession.is_revealed from mutating!
 
-    both_active = (my_profile_sharing_active and peer_profile_sharing_active)
+    both_active = (my_active and peer_active)
+
+    my_profile_data = None
+    if hasattr(user, 'academic_profile'):
+        my_profile_data = AcademicProfileSerializer(user.academic_profile).data
+
+    peer_profile_data = None
+    if both_active and peer_user and hasattr(peer_user, 'academic_profile'):
+        peer_profile_data = AcademicProfileSerializer(peer_user.academic_profile).data
 
     return Response({
-        "message": "Profile sharing activated",
-        "my_profile_sharing_active": my_profile_sharing_active,
-        "peer_profile_sharing_active": peer_profile_sharing_active,
-        "both_active": both_active
+        "message": "Contact exchange activated",
+        "my_contact_exchange_active": my_active,
+        "peer_contact_exchange_active": peer_active,
+        "both_active": both_active,
+        "my_profile": my_profile_data,
+        "peer_profile": peer_profile_data
     }, status=status.HTTP_200_OK)
+
+
+@api_view(['GET', 'POST', 'PUT'])
+@permission_classes([IsAuthenticated])
+def manage_academic_profile(request):
+    user = get_user(request)
+
+    if request.method == 'GET':
+        if hasattr(user, 'academic_profile'):
+            serializer = AcademicProfileSerializer(user.academic_profile)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method in ['POST', 'PUT']:
+        data = request.data
+        if hasattr(user, 'academic_profile'):
+            profile = user.academic_profile
+            profile.display_name = data.get('display_name', profile.display_name)
+            profile.academic_email = data.get('academic_email', profile.academic_email)
+            profile.programme = data.get('programme', profile.programme)
+            profile.bio = data.get('bio', profile.bio)
+            profile.save()
+            return Response(AcademicProfileSerializer(profile).data, status=status.HTTP_200_OK)
+        else:
+            required = ['display_name', 'academic_email', 'programme']
+            missing = [f for f in required if not data.get(f)]
+            if missing:
+                return Response({"error": f"Missing fields: {', '.join(missing)}"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            profile = AcademicProfile.objects.create(
+                user=user,
+                display_name=data['display_name'],
+                academic_email=data['academic_email'],
+                programme=data['programme'],
+                bio=data.get('bio', '')
+            )
+            return Response(AcademicProfileSerializer(profile).data, status=status.HTTP_201_CREATED)
 
 # ─── Events ──────────────────────────────────────────────────────────────────
 

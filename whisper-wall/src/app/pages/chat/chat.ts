@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import {
+  Component,
+  ChangeDetectorRef,
+  OnInit,
+  ViewChild,
+  ElementRef,
+  AfterViewInit
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
@@ -18,7 +25,9 @@ interface Message {
   templateUrl: './chat.html',
   styleUrl: './chat.scss',
 })
-export class Chat implements OnInit {
+export class Chat implements OnInit, AfterViewInit {
+  @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
+
   messages: Message[] = [];
   newMessage = '';
 
@@ -28,18 +37,33 @@ export class Chat implements OnInit {
 
   loading = true;
 
-  showRevealNudge = false;
-  revealNudgeShown = false;
+  showContactNudge = false;
+  contactNudgeShown = false;
 
-  showProfileSharingConfirm = false;
-  activatingProfileSharing = false;
+  showContactConfirm = false;
+  activatingContactExchange = false;
 
-  profileSharingAvailable = false;
-  profileSharingActivated = false;
-  peerProfileSharingActivated = false;
-  bothProfilesShared = false;
+  contactExchangeAvailable = false;
+  contactExchangeActivated = false;
+  peerContactExchangeActivated = false;
+  bothContactsExchanged = false;
 
-  readonly revealMessageThreshold = 4;
+  showInfoModal = false;
+
+  showProfileForm = false;
+  savingProfile = false;
+
+  profileForm = {
+    display_name: '',
+    academic_email: '',
+    programme: '',
+    bio: ''
+  };
+
+  myProfile: any = null;
+  peerProfile: any = null;
+
+  readonly contactMessageThreshold = 4;
 
   constructor(
     private route: ActivatedRoute,
@@ -51,41 +75,64 @@ export class Chat implements OnInit {
     this.matchId = Number(this.route.snapshot.paramMap.get('matchId'));
     this.myConfessionId = Number(localStorage.getItem('myConfessionId'));
 
-    this.loadRevealStatus();
+    this.contactNudgeShown =
+      localStorage.getItem(`contactNudgeShown_${this.matchId}`) === 'true';
 
-    if (this.myConfessionId) {
-      this.api.getMatches(this.myConfessionId).subscribe({
-        next: (res: any) => {
-          const data = Array.isArray(res) ? res : res?.results || [];
-          this.matchContext = data.find((m: any) => m.id === this.matchId);
-          this.cdr.detectChanges();
-        },
-        error: () => {
-          console.error('Failed to load match context');
-        }
-      });
-    }
-
+    this.loadContactStatus();
+    this.loadMatchContext();
     this.loadMessages();
   }
 
-  loadRevealStatus() {
-    this.api.getRevealStatus(this.matchId).subscribe({
-      next: (status: any) => {
-        this.applyRevealStatus(status);
+  ngAfterViewInit() {
+    this.scrollToBottom();
+  }
+
+  loadMatchContext() {
+    if (!this.myConfessionId) return;
+
+    this.api.getMatches(this.myConfessionId).subscribe({
+      next: (res: any) => {
+        const data = Array.isArray(res) ? res : res?.results || [];
+        this.matchContext = data.find((m: any) => m.id === this.matchId);
+        this.cdr.detectChanges();
       },
       error: () => {
-        console.error('Failed to load profile sharing status');
+        console.error('Failed to load match context');
       }
     });
   }
 
-  applyRevealStatus(status: any) {
-    this.profileSharingActivated = !!status.my_profile_sharing_active;
-    this.peerProfileSharingActivated = !!status.peer_profile_sharing_active;
-    this.bothProfilesShared = !!status.both_active;
+  loadContactStatus() {
+    this.api.getContactExchangeStatus(this.matchId).subscribe({
+      next: (status: any) => {
+        this.applyContactStatus(status);
+      },
+      error: () => {
+        console.error('Failed to load contact exchange status');
+      }
+    });
+  }
 
-    this.updateProfileSharingAvailability();
+  applyContactStatus(status: any) {
+    this.contactExchangeActivated = !!status.my_contact_exchange_active;
+    this.peerContactExchangeActivated = !!status.peer_contact_exchange_active;
+    this.bothContactsExchanged = !!status.both_active;
+
+    this.myProfile = status.my_profile || null;
+    this.peerProfile = status.peer_profile || null;
+
+    if (this.contactExchangeActivated || this.bothContactsExchanged) {
+      this.showContactNudge = false;
+      this.contactNudgeShown = true;
+      localStorage.setItem(`contactNudgeShown_${this.matchId}`, 'true');
+    }
+
+    if (this.bothContactsExchanged) {
+      this.showContactConfirm = false;
+      this.showProfileForm = false;
+    }
+
+    this.updateContactAvailability();
     this.cdr.detectChanges();
   }
 
@@ -101,9 +148,10 @@ export class Chat implements OnInit {
         }));
 
         this.loading = false;
-        this.updateProfileSharingAvailability();
-        this.checkRevealNudge();
+        this.updateContactAvailability();
+        this.checkContactNudge();
         this.cdr.detectChanges();
+        this.scrollToBottom();
       },
       error: () => {
         this.loading = false;
@@ -130,9 +178,10 @@ export class Chat implements OnInit {
         });
 
         this.newMessage = '';
-        this.updateProfileSharingAvailability();
-        this.checkRevealNudge();
+        this.updateContactAvailability();
+        this.checkContactNudge();
         this.cdr.detectChanges();
+        this.scrollToBottom();
       },
       error: () => {
         console.error('Failed to send message');
@@ -140,61 +189,125 @@ export class Chat implements OnInit {
     });
   }
 
-  updateProfileSharingAvailability() {
-    this.profileSharingAvailable =
-      this.messages.length >= this.revealMessageThreshold ||
-      this.profileSharingActivated ||
-      this.peerProfileSharingActivated ||
-      this.bothProfilesShared;
+  scrollToBottom() {
+    setTimeout(() => {
+      const el = this.messagesContainer?.nativeElement;
+      if (!el) return;
+      el.scrollTop = el.scrollHeight;
+    }, 0);
   }
 
-  checkRevealNudge() {
-    if (this.profileSharingActivated) return;
-    if (this.revealNudgeShown) return;
-    if (this.messages.length < this.revealMessageThreshold) return;
-
-    this.showRevealNudge = true;
-    this.revealNudgeShown = true;
-    this.profileSharingAvailable = true;
+  updateContactAvailability() {
+    this.contactExchangeAvailable =
+      this.messages.length >= this.contactMessageThreshold ||
+      this.contactExchangeActivated ||
+      this.peerContactExchangeActivated ||
+      this.bothContactsExchanged;
   }
 
-  dismissRevealNudge() {
-    this.showRevealNudge = false;
-    this.profileSharingAvailable = true;
+  checkContactNudge() {
+    if (this.contactExchangeActivated) return;
+    if (this.bothContactsExchanged) return;
+    if (this.contactNudgeShown) return;
+    if (this.messages.length < this.contactMessageThreshold) return;
+
+    this.showContactNudge = true;
+    this.contactExchangeAvailable = true;
+  }
+
+  dismissContactNudge() {
+    this.showContactNudge = false;
+    this.contactNudgeShown = true;
+    this.contactExchangeAvailable = true;
+    localStorage.setItem(`contactNudgeShown_${this.matchId}`, 'true');
     this.cdr.detectChanges();
   }
 
-  askProfileSharingConfirmation() {
-    if (this.profileSharingActivated) return;
+  askContactExchangeConfirmation() {
+    if (this.contactExchangeActivated || this.bothContactsExchanged) return;
 
-    this.showRevealNudge = false;
-    this.showProfileSharingConfirm = true;
+    this.showContactNudge = false;
+
+    if (!this.myProfile) {
+      this.showProfileForm = true;
+      this.cdr.detectChanges();
+      return;
+    }
+
+    this.showContactConfirm = true;
     this.cdr.detectChanges();
   }
 
-  cancelProfileSharingConfirmation() {
-    this.showProfileSharingConfirm = false;
-    this.cdr.detectChanges();
-  }
+  submitProfileForm() {
+    if (
+      !this.profileForm.display_name.trim() ||
+      !this.profileForm.academic_email.trim() ||
+      !this.profileForm.programme.trim()
+    ) {
+      return;
+    }
 
-  confirmProfileSharingActivation() {
-    if (this.profileSharingActivated || this.activatingProfileSharing) return;
+    this.savingProfile = true;
 
-    this.activatingProfileSharing = true;
-
-    this.api.activateProfileSharing(this.matchId).subscribe({
+    this.api.saveAcademicProfile({
+      display_name: this.profileForm.display_name.trim(),
+      academic_email: this.profileForm.academic_email.trim(),
+      programme: this.profileForm.programme.trim(),
+      bio: this.profileForm.bio.trim()
+    }).subscribe({
       next: (res: any) => {
-        this.activatingProfileSharing = false;
-        this.showProfileSharingConfirm = false;
-        this.applyRevealStatus(res);
+        this.myProfile = res;
+        this.savingProfile = false;
+        this.showProfileForm = false;
+        this.showContactConfirm = true;
+        this.cdr.detectChanges();
       },
       error: () => {
-        this.activatingProfileSharing = false;
-        this.showProfileSharingConfirm = false;
-        console.error('Failed to activate profile sharing');
+        this.savingProfile = false;
+        console.error('Failed to save academic profile');
         this.cdr.detectChanges();
       }
     });
+  }
+
+  cancelProfileForm() {
+    this.showProfileForm = false;
+    this.cdr.detectChanges();
+  }
+
+  cancelContactExchangeConfirmation() {
+    this.showContactConfirm = false;
+    this.cdr.detectChanges();
+  }
+
+  confirmContactExchangeActivation() {
+    if (this.contactExchangeActivated || this.activatingContactExchange) return;
+
+    this.activatingContactExchange = true;
+
+    this.api.activateContactExchange(this.matchId).subscribe({
+      next: (res: any) => {
+        this.activatingContactExchange = false;
+        this.showContactConfirm = false;
+        this.applyContactStatus(res);
+      },
+      error: () => {
+        this.activatingContactExchange = false;
+        this.showContactConfirm = false;
+        console.error('Failed to activate contact exchange');
+        this.cdr.detectChanges();
+      }
+    });
+  }
+
+  openInfoModal() {
+    this.showInfoModal = true;
+    this.cdr.detectChanges();
+  }
+
+  closeInfoModal() {
+    this.showInfoModal = false;
+    this.cdr.detectChanges();
   }
 
   getMyConfession() {

@@ -1,128 +1,147 @@
-<div class="h-screen bg-gradient-to-b from-black via-blue-900 to-indigo-900 flex flex-col text-white">
+<div class="h-[calc(100vh-132px)] bg-slate-50 flex flex-col text-slate-900 overflow-hidden">
 
-  <!-- Header -->
-  <div class="p-4 bg-black/40 backdrop-blur border-b border-white/10 flex flex-col gap-2 shadow-lg z-10">
-    <div class="flex justify-between items-center px-1">
-      <h2 class="text-xl font-bold flex items-center gap-2 text-cyan-200">
-        <span class="text-2xl">🎓</span> Academic Match Discussion
-      </h2>
+  <!-- Compact Messenger Header -->
+  <div class="bg-white border-b border-slate-200 shadow-sm px-4 py-3 z-10">
+    <div class="max-w-6xl mx-auto flex items-center justify-between gap-3">
 
-      <span
-        *ngIf="matchContext"
-        class="text-xs font-bold px-3 py-1 bg-indigo-600/80 rounded-full border border-indigo-400">
-        Relevance: {{ matchContext.score | number:'1.0-2' }}
-      </span>
-    </div>
-
-    <!-- Match Context -->
-    <div *ngIf="matchContext" class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mt-3">
-      <div class="bg-white/5 p-4 rounded-xl border border-indigo-500/30 backdrop-blur-md">
-        <div class="text-indigo-300 font-bold mb-2 uppercase tracking-wide text-xs">
-          My Situation
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-2xl bg-indigo-100 flex items-center justify-center text-2xl">
+          🎓
         </div>
-        <div class="italic text-gray-200">
-          "{{ getMyConfession()?.text }}"
+
+        <div class="min-w-0">
+          <h2 class="text-lg md:text-xl font-extrabold text-indigo-900 truncate">
+            Academic Match Discussion
+          </h2>
+
+          <p class="text-xs text-slate-500 truncate">
+            Similar academic situation
+            <span *ngIf="matchContext"> · Relevance {{ matchContext.score | number:'1.0-2' }}</span>
+          </p>
         </div>
       </div>
 
-      <div class="bg-white/5 p-4 rounded-xl border border-white/10 backdrop-blur-md">
-        <div class="text-gray-300 font-bold mb-2 uppercase tracking-wide text-xs">
-          Peer’s Situation
-        </div>
+      <div class="flex items-center gap-2 shrink-0">
 
-        <div *ngIf="bothProfilesShared" class="italic text-gray-200">
-          "{{ getOtherConfession()?.text }}"
-        </div>
+        <button
+          *ngIf="peerContactExchangeActivated && !contactExchangeActivated && !bothContactsExchanged"
+          (click)="askContactExchangeConfirmation()"
+          class="hidden sm:inline-flex px-3 py-2 rounded-full bg-cyan-50 border border-cyan-200 text-cyan-700 text-xs font-bold hover:bg-cyan-100 transition">
+          Peer ready
+        </button>
 
-        <div *ngIf="!bothProfilesShared" class="text-gray-400 flex flex-col gap-1 py-1">
-          <span>🔒 Profile Locked</span>
+        <button
+          *ngIf="bothContactsExchanged"
+          (click)="openInfoModal()"
+          class="px-3 py-2 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-bold hover:bg-green-100 transition">
+          ✅ Contacts exchanged
+        </button>
 
-          <span *ngIf="peerProfileSharingActivated && !profileSharingActivated" class="text-xs text-cyan-300">
-            Your peer has activated profile sharing.
-          </span>
+        <button
+          *ngIf="!bothContactsExchanged"
+          (click)="openInfoModal()"
+          class="px-3 py-2 rounded-full bg-slate-100 border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
+          ℹ Info
+        </button>
 
-          <span *ngIf="profileSharingActivated && !peerProfileSharingActivated" class="text-xs text-indigo-300">
-            Waiting for your peer to activate profile sharing.
-          </span>
-        </div>
+        <button
+          *ngIf="bothContactsExchanged"
+          (click)="openInfoModal()"
+          class="px-3 py-2 rounded-full bg-indigo-700 text-white text-xs font-bold hover:bg-indigo-800 transition">
+          View details
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Messages -->
-  <div class="flex-1 overflow-y-auto p-4 space-y-4">
+  <div
+    #messagesContainer
+    class="flex-1 min-h-0 overflow-y-auto px-4 py-5 md:px-6 bg-slate-50">
 
-    <div *ngIf="messages.length === 0 && !loading" class="text-center text-gray-400 my-8">
-      Start the discussion...
-    </div>
+    <div class="max-w-5xl mx-auto space-y-4">
 
-    <div *ngIf="loading" class="text-center text-gray-400 my-8 flex justify-center items-center gap-2">
-      <span class="animate-pulse">Loading messages...</span>
-    </div>
+      <div *ngIf="messages.length === 0 && !loading" class="text-center text-slate-400 my-8">
+        Start the academic discussion...
+      </div>
 
-    <div
-      *ngFor="let msg of messages"
-      [ngClass]="msg.from === 'me' ? 'text-right' : 'text-left'">
+      <div *ngIf="loading" class="text-center text-indigo-600 my-8 flex justify-center items-center gap-2">
+        <span class="animate-pulse">Loading messages...</span>
+      </div>
 
       <div
-        class="inline-block max-w-xs px-4 py-3 rounded-2xl text-sm shadow-md"
-        [ngClass]="msg.from === 'me'
-          ? 'bg-indigo-600 rounded-br-none text-white'
-          : 'bg-white/10 rounded-bl-none text-gray-100 border border-white/5'">
-        {{ msg.text }}
+        *ngFor="let msg of messages"
+        [ngClass]="msg.from === 'me' ? 'text-right' : 'text-left'">
+
+        <div
+          class="inline-block max-w-xs md:max-w-md px-4 py-3 rounded-2xl text-sm shadow-sm"
+          [ngClass]="msg.from === 'me'
+            ? 'bg-indigo-700 rounded-br-none text-white'
+            : 'bg-white rounded-bl-none text-slate-700 border border-slate-200'">
+          {{ msg.text }}
+        </div>
+
+        <div
+          class="text-xs mt-1 px-1"
+          [ngClass]="msg.from === 'me' ? 'text-indigo-300' : 'text-slate-400'">
+          {{ msg.time }}
+        </div>
       </div>
 
-      <div class="text-xs text-indigo-300/50 mt-1 px-1">
-        {{ msg.time }}
-      </div>
     </div>
   </div>
 
-  <!-- Profile Sharing Control: hidden before 4 messages unless already activated by someone -->
+  <!-- Contact Exchange Status Bar -->
   <div
-    *ngIf="profileSharingAvailable"
-    class="px-4 py-2 bg-black/40 border-t border-white/10 flex justify-end gap-2">
+    *ngIf="contactExchangeAvailable"
+    class="bg-white border-t border-slate-200 px-4 py-2">
 
-    <button
-      *ngIf="!profileSharingActivated"
-      (click)="askProfileSharingConfirmation()"
-      class="px-4 py-2 rounded-full bg-white/10 border border-white/10 text-cyan-200 text-xs font-bold hover:bg-white/15 transition">
-      🎓 Activate Profile Sharing
-    </button>
+    <div class="max-w-5xl mx-auto flex justify-end gap-2">
 
-    <button
-      *ngIf="profileSharingActivated && !bothProfilesShared"
-      disabled
-      class="px-4 py-2 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-bold cursor-not-allowed">
-      ✅ Your profile sharing is active — waiting for peer
-    </button>
+      <button
+        *ngIf="!contactExchangeActivated"
+        (click)="askContactExchangeConfirmation()"
+        class="px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold hover:bg-indigo-100 transition">
+        🎓 Exchange Academic Contact
+      </button>
 
-    <button
-      *ngIf="bothProfilesShared"
-      disabled
-      class="px-4 py-2 rounded-full bg-green-500/20 border border-green-400/30 text-green-300 text-xs font-bold cursor-not-allowed">
-      ✅ Academic profiles shared
-    </button>
+      <button
+        *ngIf="contactExchangeActivated && !bothContactsExchanged"
+        disabled
+        class="px-4 py-2 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-bold cursor-not-allowed">
+        ✅ You agreed — waiting for peer
+      </button>
+
+      <!-- <button
+        *ngIf="bothContactsExchanged"
+        (click)="openInfoModal()"
+        class="px-4 py-2 rounded-full bg-green-50 border border-green-200 text-green-700 text-xs font-bold hover:bg-green-100 transition">
+        ✅ Academic contacts exchanged
+      </button> -->
+
+    </div>
   </div>
 
   <!-- Input -->
-  <div class="p-4 bg-black/40 backdrop-blur border-t border-white/10 flex gap-2">
-    <input
-      [(ngModel)]="newMessage"
-      (keyup.enter)="send()"
-      placeholder="Write a message..."
-      class="flex-1 px-5 py-3 bg-white/5 rounded-full outline-none border border-white/10 focus:border-indigo-500 transition shadow-inner text-white placeholder-gray-500"/>
+  <div class="bg-white border-t border-slate-200 p-4 shrink-0">
+    <div class="max-w-5xl mx-auto flex gap-2">
+      <input
+        [(ngModel)]="newMessage"
+        (keyup.enter)="send()"
+        placeholder="Write a message..."
+        class="flex-1 px-5 py-3 bg-slate-50 rounded-full outline-none border border-slate-200 focus:border-indigo-400 focus:ring-2 focus:ring-indigo-100 transition text-slate-800 placeholder-slate-400"/>
 
-    <button
-      (click)="send()"
-      class="px-6 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 transition font-bold shadow-lg active:scale-95">
-      Send
-    </button>
+      <button
+        (click)="send()"
+        class="px-6 py-3 rounded-full bg-indigo-700 hover:bg-indigo-800 transition font-bold text-white shadow-sm active:scale-95">
+        Send
+      </button>
+    </div>
   </div>
 
-  <!-- Small Profile Sharing Nudge -->
+  <!-- Small Contact Nudge -->
   <div
-    *ngIf="showRevealNudge"
+    *ngIf="showContactNudge"
     class="fixed bottom-28 right-6 z-40 w-[320px] rounded-2xl bg-white text-slate-900 shadow-2xl border border-slate-200 overflow-hidden">
 
     <div class="p-4">
@@ -133,24 +152,23 @@
 
         <div class="flex-1">
           <h3 class="font-extrabold text-slate-900 text-sm">
-            Share your academic profile?
+            Exchange academic contact?
           </h3>
-
           <p class="text-xs text-slate-500 mt-1 leading-relaxed">
-            You can activate profile sharing for this discussion when you are ready.
+            Would you like to exchange academic contact details securely?
           </p>
         </div>
       </div>
 
       <div class="flex gap-2 mt-4">
         <button
-          (click)="askProfileSharingConfirmation()"
+          (click)="askContactExchangeConfirmation()"
           class="flex-1 px-3 py-2 rounded-xl bg-indigo-700 text-white text-xs font-bold hover:bg-indigo-800 transition">
-          Activate
+          Continue
         </button>
 
         <button
-          (click)="dismissRevealNudge()"
+          (click)="dismissContactNudge()"
           class="flex-1 px-3 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition">
           Maybe Later
         </button>
@@ -158,32 +176,205 @@
     </div>
   </div>
 
+  <!-- Conversation Info + Contact Details Modal -->
+  <div
+    *ngIf="showInfoModal"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+
+    <div class="w-full max-w-4xl rounded-3xl bg-white text-slate-900 shadow-2xl border border-slate-200 overflow-hidden max-h-[90vh] flex flex-col">
+
+      <div class="p-5 border-b border-slate-100 flex justify-between items-start gap-4">
+        <div>
+          <h3 class="text-xl font-extrabold text-indigo-900">Discussion Info</h3>
+          <p class="text-sm text-slate-500">Academic context and contact exchange details.</p>
+        </div>
+
+        <button
+          (click)="closeInfoModal()"
+          class="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 transition text-slate-700 font-bold shrink-0">
+          ×
+        </button>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-5">
+
+        <!-- Contact status -->
+        <div
+          *ngIf="bothContactsExchanged"
+          class="rounded-2xl bg-green-50 border border-green-200 p-4">
+          <p class="text-sm font-bold text-green-700">
+            ✅ Academic contacts exchanged
+          </p>
+          <p class="text-sm text-slate-600 mt-1">
+            Both students agreed to share academic contact details.
+          </p>
+        </div>
+
+        <div
+          *ngIf="peerContactExchangeActivated && !contactExchangeActivated && !bothContactsExchanged"
+          class="rounded-2xl bg-cyan-50 border border-cyan-200 p-4">
+          <p class="text-sm font-bold text-cyan-700">
+            Your peer is ready
+          </p>
+          <p class="text-sm text-slate-600 mt-1">
+            Your peer agreed to exchange academic contact details. You can review and accept when ready.
+          </p>
+
+          <button
+            (click)="askContactExchangeConfirmation(); closeInfoModal()"
+            class="mt-3 px-4 py-2 rounded-xl bg-cyan-600 text-white text-sm font-bold hover:bg-cyan-700 transition">
+            Review exchange
+          </button>
+        </div>
+
+        <!-- Contact cards -->
+        <div *ngIf="bothContactsExchanged" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-5 bg-indigo-50 rounded-2xl border border-indigo-100">
+            <div class="text-xs text-indigo-700 uppercase font-bold tracking-wide mb-2">
+              My Contact
+            </div>
+            <div class="font-bold text-xl text-slate-900">{{ myProfile?.display_name }}</div>
+            <div class="text-sm text-slate-600 mt-2">🎓 {{ myProfile?.programme }}</div>
+            <div class="text-sm text-cyan-700 mt-1">{{ myProfile?.academic_email }}</div>
+            <div *ngIf="myProfile?.bio" class="text-sm italic text-slate-500 mt-3">
+              “{{ myProfile?.bio }}”
+            </div>
+          </div>
+
+          <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200">
+            <div class="text-xs text-slate-500 uppercase font-bold tracking-wide mb-2">
+              Peer Contact
+            </div>
+            <div class="font-bold text-xl text-slate-900">{{ peerProfile?.display_name }}</div>
+            <div class="text-sm text-slate-600 mt-2">🎓 {{ peerProfile?.programme }}</div>
+            <div class="text-sm text-cyan-700 mt-1">{{ peerProfile?.academic_email }}</div>
+            <div *ngIf="peerProfile?.bio" class="text-sm italic text-slate-500 mt-3">
+              “{{ peerProfile?.bio }}”
+            </div>
+          </div>
+        </div>
+
+        <!-- Situations -->
+        <div>
+          <h4 class="text-sm font-extrabold text-slate-700 uppercase tracking-wider mb-3">
+            Conversation started from
+          </h4>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <div class="text-indigo-700 font-bold mb-1 uppercase text-[11px]">
+                My situation
+              </div>
+              <div class="italic text-slate-700">
+                “{{ getMyConfession()?.text }}”
+              </div>
+            </div>
+
+            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+              <div class="text-cyan-700 font-bold mb-1 uppercase text-[11px]">
+                Peer’s situation
+              </div>
+              <div class="italic text-slate-700">
+                “{{ getOtherConfession()?.text }}”
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <!-- Confirmation Popup -->
   <div
-    *ngIf="showProfileSharingConfirm"
-    class="fixed bottom-28 right-6 z-50 w-[340px] rounded-2xl bg-white text-slate-900 shadow-2xl border border-slate-200 overflow-hidden">
+    *ngIf="showContactConfirm"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
 
-    <div class="p-5">
-      <h3 class="font-extrabold text-slate-900 text-base">
-        Confirm profile sharing
+    <div class="w-full max-w-[360px] rounded-2xl bg-white text-slate-900 shadow-2xl border border-slate-200 overflow-hidden p-6">
+      <h3 class="font-extrabold text-slate-900 text-lg">
+        Confirm academic contact exchange
       </h3>
 
-      <p class="text-sm text-slate-600 mt-2 leading-relaxed">
-        Once activated, this cannot be undone for this discussion. Your peer will be able to see that you agreed to share your academic profile.
+      <p class="text-sm text-slate-600 mt-3 leading-relaxed">
+        Once activated, this cannot be undone for this discussion. Your peer will be notified that you are ready to share academic contact details.
       </p>
 
-      <div class="flex gap-2 mt-5">
+      <div class="flex flex-col gap-2 mt-6">
         <button
-          (click)="confirmProfileSharingActivation()"
-          [disabled]="activatingProfileSharing"
-          class="flex-1 px-3 py-2 rounded-xl bg-indigo-700 text-white text-xs font-bold hover:bg-indigo-800 transition disabled:opacity-60">
-          {{ activatingProfileSharing ? 'Activating...' : 'Confirm' }}
+          (click)="confirmContactExchangeActivation()"
+          [disabled]="activatingContactExchange"
+          class="w-full px-4 py-3 rounded-xl bg-indigo-700 text-white text-sm font-bold hover:bg-indigo-800 transition disabled:opacity-60">
+          {{ activatingContactExchange ? 'Activating...' : 'Confirm Exchange' }}
         </button>
 
         <button
-          (click)="cancelProfileSharingConfirmation()"
-          [disabled]="activatingProfileSharing"
-          class="flex-1 px-3 py-2 rounded-xl bg-slate-100 text-slate-700 text-xs font-bold hover:bg-slate-200 transition disabled:opacity-60">
+          (click)="cancelContactExchangeConfirmation()"
+          [disabled]="activatingContactExchange"
+          class="w-full px-4 py-3 rounded-xl bg-slate-100 text-slate-700 text-sm font-bold hover:bg-slate-200 transition disabled:opacity-60">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Academic Profile Form Modal -->
+  <div
+    *ngIf="showProfileForm"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+
+    <div class="w-full max-w-[420px] rounded-2xl bg-white text-slate-900 shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="p-5 border-b border-slate-100">
+        <h3 class="font-extrabold text-lg text-indigo-900">Create Academic Profile</h3>
+        <p class="text-sm text-slate-500 mt-1">You need an academic profile to exchange contacts.</p>
+      </div>
+
+      <div class="p-5 overflow-y-auto space-y-4 flex-1">
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Display Name</label>
+          <input
+            [(ngModel)]="profileForm.display_name"
+            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none transition"
+            placeholder="John Doe">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Academic Email</label>
+          <input
+            [(ngModel)]="profileForm.academic_email"
+            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none transition"
+            placeholder="j.doe@university.edu"
+            type="email">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Programme / Major</label>
+          <input
+            [(ngModel)]="profileForm.programme"
+            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none transition"
+            placeholder="BSc Computer Science">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Short Bio Optional</label>
+          <textarea
+            [(ngModel)]="profileForm.bio"
+            class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg focus:border-indigo-500 outline-none transition resize-none h-20"
+            placeholder="Hello! Feel free to reach out..."></textarea>
+        </div>
+      </div>
+
+      <div class="p-5 border-t border-slate-100 flex gap-2 bg-slate-50">
+        <button
+          (click)="submitProfileForm()"
+          [disabled]="savingProfile || !profileForm.display_name || !profileForm.academic_email || !profileForm.programme"
+          class="flex-1 px-4 py-3 rounded-xl bg-indigo-700 text-white text-sm font-bold hover:bg-indigo-800 transition disabled:opacity-50">
+          {{ savingProfile ? 'Saving...' : 'Save & Continue' }}
+        </button>
+
+        <button
+          (click)="cancelProfileForm()"
+          [disabled]="savingProfile"
+          class="px-4 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-100 transition disabled:opacity-50">
           Cancel
         </button>
       </div>

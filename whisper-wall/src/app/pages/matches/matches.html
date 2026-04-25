@@ -1,98 +1,171 @@
-<div class="min-h-screen bg-gradient-to-br from-black via-gray-900 to-purple-900 p-6 text-white">
+<div class="min-h-screen bg-slate-50 px-4 py-8 md:px-10 text-slate-900">
 
-  <h1 class="text-3xl font-bold text-center mb-8 text-cyan-200">📚 Academic Matches</h1>
+  <!-- Page Header -->
+  <section class="max-w-6xl mx-auto mb-8">
+    <div class="rounded-3xl bg-gradient-to-r from-indigo-900 via-blue-800 to-cyan-700 text-white p-8 shadow-xl overflow-hidden relative">
+      <div class="relative z-10">
+        <p class="text-cyan-100 text-sm font-semibold uppercase tracking-[0.2em] mb-3">
+          University peer-support portal
+        </p>
 
-  <div *ngIf="error" class="text-center text-red-500 mb-4">
+        <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">
+          Academic Matches
+        </h1>
+
+        <p class="text-blue-100 mt-3 max-w-2xl">
+          Find students with similar academic situations and start a focused discussion.
+        </p>
+      </div>
+
+      <div class="absolute -right-14 -top-14 w-48 h-48 bg-white/10 rounded-full"></div>
+      <div class="absolute right-20 -bottom-20 w-64 h-64 bg-cyan-300/10 rounded-full"></div>
+    </div>
+  </section>
+
+  <!-- States -->
+  <div *ngIf="error" class="max-w-6xl mx-auto mb-6 rounded-2xl bg-red-50 border border-red-100 text-red-700 p-4 text-center">
     {{ error }}
   </div>
 
-  <div *ngIf="loading" class="text-center text-blue-200 mb-4">
-    Loading your situations...
+  <div *ngIf="loading" class="max-w-6xl mx-auto mb-6 rounded-2xl bg-white border border-slate-200 shadow-sm text-indigo-700 p-6 text-center font-semibold animate-pulse">
+    Loading your academic situations...
   </div>
 
-  <div *ngIf="groupedMatches.length === 0 && !error && !loading" class="text-center text-blue-300/60">
-    No similar academic situations yet.
+  <div *ngIf="groupedMatches.length === 0 && !error && !loading" class="max-w-3xl mx-auto mt-16 rounded-3xl bg-white border border-slate-200 shadow-sm p-10 text-center">
+    <div class="mx-auto w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center text-3xl mb-4">
+      📚
+    </div>
+
+    <h2 class="text-xl font-extrabold text-slate-900">
+      No similar academic situations yet
+    </h2>
+
+    <p class="text-slate-500 mt-2">
+      Submit a situation or wait for another student with a similar academic need.
+    </p>
   </div>
 
-  <div *ngFor="let group of groupedMatches" class="mb-12">
-    <!-- Confession Banner -->
-    <div class="mb-6 bg-indigo-900/40 border-l-4 border-cyan-400 p-4 rounded-r-lg shadow-md">
-      <h2 class="text-xl font-bold text-cyan-300 mb-1">Your situation</h2>
-      <p class="italic text-blue-50">"{{ group.confession.text }}"</p>
-    </div>
+  <!-- Groups -->
+  <section class="max-w-6xl mx-auto space-y-10">
+    <div *ngFor="let group of groupedMatches" class="rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden">
 
-    <!-- Match List -->
-    <h3 *ngIf="group.matches.length > 0" class="text-lg font-semibold text-indigo-300 mb-4 ml-2 md:ml-8">Similar students / situations</h3>
+      <!-- Situation Banner -->
+      <div class="p-6 md:p-7 border-b border-slate-100 bg-gradient-to-r from-slate-50 to-blue-50">
+        <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+          <div>
+            <p class="text-xs font-extrabold uppercase tracking-wider text-cyan-700 mb-2">
+              Your situation
+            </p>
 
-    <div *ngIf="group.matches.length === 0" class="text-blue-300/60 italic pl-4 mb-8 flex items-center gap-2">
-      <span class="text-sm">⏳</span> No similar academic situations yet.
-    </div>
-
-    <div
-      *ngFor="let match of group.matches; let i = index"
-      class="mb-8 ml-2 md:ml-8"
-    >
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
-
-        <!-- My Situation Card -->
-        <div class="bg-white/10 backdrop-blur-xl rounded-xl p-6 border border-purple-500/50 mb-4 shadow-lg hover:border-purple-400 transition">
-          <div class="flex items-center gap-4 mb-2">
-            <img
-              src="https://i.pravatar.cc/150?img=1"
-              class="w-14 h-14 rounded-full border border-purple-500"
-            />
-            <div>
-              <h2 class="text-xl font-semibold">My Situation</h2>
-            </div>
-          </div>
-
-          <div class="bg-black/30 p-4 rounded-lg mb-2">
-            <p class="italic text-gray-200 text-sm">
-              "{{ getMyConfession(match, group.confession.id)?.text }}"
+            <p class="text-lg md:text-xl font-semibold text-slate-900 leading-relaxed">
+              “{{ group.confession.text }}”
             </p>
           </div>
+
+          <div class="shrink-0 px-4 py-2 rounded-full bg-white border border-slate-200 text-slate-600 text-sm font-bold">
+            {{ group.matches.length }} match{{ group.matches.length > 1 ? 'es' : '' }}
+          </div>
+        </div>
+      </div>
+
+      <!-- No matches for this situation -->
+      <div *ngIf="group.matches.length === 0" class="p-8 text-center text-slate-500">
+        <div class="mx-auto w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center text-2xl mb-3">
+          ⏳
         </div>
 
-        <!-- Matched Situation Card -->
-        <div class="bg-white/10 backdrop-blur-xl rounded-xl p-6 border border-white/10 mb-4 shadow-lg hover:border-purple-400 transition">
-          <div class="flex items-center gap-4 mb-2">
-            <img
-              src="https://i.pravatar.cc/150?img=5"
-              class="w-14 h-14 rounded-full border border-purple-500"
-            />
-            <div>
-              <h2 class="text-xl font-semibold">Anonymous Match</h2>
-              <p class="text-xs text-gray-300 mt-1">
-                {{ getOtherConfession(match, group.confession.id)?.is_revealed ? 'Identity revealed' : 'Waiting for reveal' }}
+        <p class="font-semibold">
+          No similar academic situations for this one yet.
+        </p>
+      </div>
+
+      <!-- Match Cards -->
+      <div *ngIf="group.matches.length > 0" class="p-6 md:p-8 space-y-6">
+
+        <h3 class="text-lg font-extrabold text-slate-900">
+          Similar students / situations
+        </h3>
+
+        <div
+          *ngFor="let match of group.matches; let i = index"
+          class="rounded-3xl border border-slate-200 bg-slate-50 p-5 md:p-6 hover:border-cyan-200 hover:bg-cyan-50/40 transition">
+
+          <div class="flex flex-col lg:flex-row lg:items-center gap-6">
+
+            <!-- Peer Identity / Contact Status -->
+            <div class="flex items-start gap-4 flex-1">
+
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-700 to-cyan-600 flex items-center justify-center text-white text-2xl font-extrabold shadow-sm">
+                🎓
+              </div>
+
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                  <h2 class="text-xl font-extrabold text-slate-900">
+                    {{ getPeerProfile(match)?.display_name || 'Academic Peer' }}
+                  </h2>
+
+                  <span
+                    *ngIf="getPeerProfile(match)"
+                    class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold">
+                    Contact exchanged
+                  </span>
+
+                  <span
+                    *ngIf="!getPeerProfile(match)"
+                    class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-700 text-xs font-bold">
+                    Private contact
+                  </span>
+                </div>
+
+                <p class="text-sm text-slate-500">
+                  {{ getPeerProfile(match)?.programme || 'Similar academic situation detected' }}
+                </p>
+
+                <div class="mt-4 rounded-2xl bg-white border border-slate-200 p-4">
+
+                  <div *ngIf="getPeerProfile(match); else privateContact">
+                    <p class="text-sm font-bold text-cyan-700">
+                      {{ getPeerProfile(match)?.academic_email }}
+                    </p>
+
+                    <p *ngIf="getPeerProfile(match)?.bio" class="text-sm italic text-slate-600 mt-2">
+                      “{{ getPeerProfile(match)?.bio }}”
+                    </p>
+
+                    <p class="text-xs text-green-700 mt-3 font-semibold">
+                      ✅ Academic contacts have been exchanged by mutual agreement.
+                    </p>
+                  </div>
+
+                  <ng-template #privateContact>
+                    <p class="text-sm text-slate-600 leading-relaxed">
+                      🔒 {{ getContactMessage(match) }}
+                    </p>
+                  </ng-template>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Action -->
+            <div class="shrink-0 flex lg:flex-col gap-3 lg:items-end">
+              <button
+                (click)="openChat(match.id, group.confession.id)"
+                class="px-6 py-3 rounded-2xl bg-indigo-700 text-white font-bold hover:bg-indigo-800 transition shadow-sm">
+                Open Discussion
+              </button>
+
+              <p class="text-xs text-slate-400 text-center lg:text-right">
+                Start or continue the academic exchange.
               </p>
             </div>
-          </div>
 
-          <div class="bg-black/30 p-4 rounded-lg mb-2">
-            <p *ngIf="getOtherConfession(match, group.confession.id)?.is_revealed" class="italic text-gray-200 text-sm">
-              "{{ getOtherConfession(match, group.confession.id)?.text }}"
-            </p>
-            <p *ngIf="!getOtherConfession(match, group.confession.id)?.is_revealed" class="text-center text-gray-400 py-2 text-sm">
-              🔒 Confession locked until reveal
-            </p>
           </div>
         </div>
-
       </div>
 
-      <div class="flex justify-center mt-2">
-        <button 
-          (click)="openChat(match.id, group.confession.id)"
-          class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95">
-          Open Discussion
-        </button>
-      </div>
-
-      <hr class="border-gray-700 my-8" *ngIf="i < group.matches.length - 1" />
     </div>
-
-    <!-- Group divider -->
-    <hr *ngIf="group.matches.length > 0" class="border-purple-500/20 my-8 border-t-2" />
-  </div>
+  </section>
 
 </div>

@@ -51,11 +51,19 @@ export class Api {
     return this.http.post(`${this.base}/login/`, data);
   }
 
-  getRevealStatus(matchId: number) {
-    return this.http.get(`${this.base}/reveal/status/${matchId}/`, this.getAuthHeaders());
+  getContactExchangeStatus(matchId: number) {
+    return this.http.get(`${this.base}/contact-exchange/status/${matchId}/`, this.getAuthHeaders());
   }
 
-  activateProfileSharing(matchId: number) {
-    return this.http.post(`${this.base}/reveal/activate/${matchId}/`, {}, this.getAuthHeaders());
+  activateContactExchange(matchId: number) {
+    return this.http.post(`${this.base}/contact-exchange/activate/${matchId}/`, {}, this.getAuthHeaders());
+  }
+
+  getAcademicProfile() {
+    return this.http.get(`${this.base}/profile/me/`, this.getAuthHeaders());
+  }
+
+  saveAcademicProfile(data: any) {
+    return this.http.post(`${this.base}/profile/me/`, data, this.getAuthHeaders());
   }
 }

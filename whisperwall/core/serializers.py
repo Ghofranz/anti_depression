@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Confession, Match, ChatMessage, RevealRequest, Event
+from .models import Confession, Match, ChatMessage, RevealRequest, Event, AcademicProfile
 
 
 class ConfessionSerializer(serializers.ModelSerializer):
@@ -28,4 +28,10 @@ class ChatMessageSerializer(serializers.ModelSerializer):
 class RevealSerializer(serializers.ModelSerializer):
     class Meta:
         model = RevealRequest
+        fields = '__all__'
+
+
+class AcademicProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AcademicProfile
         fields = '__all__'

@@ -14,14 +14,11 @@ export class App {
   constructor(private router: Router) {}
 
   isLoggedIn(): boolean {
-    return !!localStorage.getItem('profileId');
+    return !!localStorage.getItem('token');
   }
 
   logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('profileId');
-    localStorage.removeItem('userName');
-    localStorage.removeItem('myConfessionId');
+    localStorage.clear();
     this.router.navigate(['/login']);
   }
 }

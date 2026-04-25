@@ -117,33 +117,96 @@ class Live(models.Model):
         return f"Live for {self.event.title}"
 
 
+class AcademicProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='academic_profile')
+    display_name = models.CharField(max_length=100)
+    academic_email = models.CharField(max_length=255)
+    programme = models.CharField(max_length=150)
+    bio = models.TextField(blank=True, default='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} — {self.display_name}"
+
 # ─── Helpers ────────────────────────────────────────────────────────────────
 
 def similarity(a, b):
     return SequenceMatcher(None, a.lower(), b.lower()).ratio()
 
 
+# def find_matches(new_confession):
+#     matches = []
+
+#     all_confessions = Confession.objects.exclude(id=new_confession.id)
+
+#     for c in all_confessions:
+#         if c.is_revealed:
+#             continue
+#         if c.emotion == new_confession.emotion:
+#             location_score = similarity(c.location_hint, new_confession.location_hint)
+#             text_score = similarity(c.text, new_confession.text)
+#             score = (location_score * 0.6) + (text_score * 0.4)
+
+#             if score > 0.6:
+#                 match = Match.objects.create(
+#                     confession_a=new_confession,
+#                     confession_b=c,
+#                     score=score
+#                 )
+#                 matches.append(match)
+#                 event_suggestion = suggest_event(match.confession_a.emotion, match.confession_b.emotion)
+#                 Event.objects.create(
+#                     match=match,
+#                     type=event_suggestion['type'],
+#                     title=event_suggestion['title'],
+#                     plan={'steps': event_suggestion['plan']}
+#                 )
+
+#     return matches
 def find_matches(new_confession):
     matches = []
 
-    all_confessions = Confession.objects.exclude(id=new_confession.id)
+    # Exclude:
+    # 1. the current confession itself
+    # 2. all confessions created by the same user
+    all_confessions = Confession.objects.exclude(
+        id=new_confession.id
+    ).exclude(
+        author=new_confession.author
+    )
 
     for c in all_confessions:
         if c.is_revealed:
             continue
+
         if c.emotion == new_confession.emotion:
             location_score = similarity(c.location_hint, new_confession.location_hint)
             text_score = similarity(c.text, new_confession.text)
             score = (location_score * 0.6) + (text_score * 0.4)
 
             if score > 0.6:
+                # Avoid duplicate pair matches
+                already_exists = Match.objects.filter(
+                    models.Q(confession_a=new_confession, confession_b=c) |
+                    models.Q(confession_a=c, confession_b=new_confession)
+                ).exists()
+
+                if already_exists:
+                    continue
+
                 match = Match.objects.create(
                     confession_a=new_confession,
                     confession_b=c,
                     score=score
                 )
                 matches.append(match)
-                event_suggestion = suggest_event(match.confession_a.emotion, match.confession_b.emotion)
+
+                event_suggestion = suggest_event(
+                    match.confession_a.emotion,
+                    match.confession_b.emotion
+                )
+
                 Event.objects.create(
                     match=match,
                     type=event_suggestion['type'],
@@ -152,7 +215,6 @@ def find_matches(new_confession):
                 )
 
     return matches
-
 
 def suggest_event(feeling_a, feeling_b):
     if feeling_a == 'love' and feeling_b == 'love':
