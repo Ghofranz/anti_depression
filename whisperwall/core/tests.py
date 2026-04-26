@@ -10,6 +10,7 @@ from .test_seed import (
     DEMO_MATCH,
     DEMO_PROFILE,
     DEMO_REVEAL_STATUS,
+    DEMO_STUDY_ROOMS,
     DEMO_USERS,
     firebase_user,
 )
@@ -112,6 +113,32 @@ class FirebaseFeatureTests(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertEqual(len(response.data), 2)
 
+    @patch('core.firebase_auth.ensure_firebase_initialized')
+    @patch('core.firebase_auth.firebase_auth.verify_id_token')
+    @patch('core.views.create_confession', return_value=DEMO_CONFESSIONS['alice'])
+    def test_confess_post_uses_token_auth(self, mock_create_confession, mock_verify_id_token, mock_ensure_firebase_initialized):
+        mock_verify_id_token.return_value = {
+            'uid': self.alice.uid,
+            'email': self.alice.email,
+            'name': self.alice.name,
+        }
+
+        response = self.client.post(
+            '/api/confess/',
+            {
+                'text': DEMO_CONFESSIONS['alice']['text'],
+                'emotion': DEMO_CONFESSIONS['alice']['emotion'],
+                'location_hint': DEMO_CONFESSIONS['alice']['location_hint'],
+            },
+            format='json',
+            HTTP_AUTHORIZATION='Token test-firebase-id-token',
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data['id'], DEMO_CONFESSIONS['alice']['id'])
+        mock_verify_id_token.assert_called_once_with('test-firebase-id-token')
+        mock_create_confession.assert_called_once()
+
     @patch('core.views.get_matches_for_confession', return_value=[DEMO_MATCH])
     def test_match_and_chat_flow(self, mock_get_matches):
         self.client.force_authenticate(user=self.alice)
@@ -201,3 +228,17 @@ class FirebaseFeatureTests(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertIn('events', response.data)
             self.assertEqual(response.data['events'][0]['event_id'], 1)
+
+    @patch('core.views.list_study_rooms', return_value=DEMO_STUDY_ROOMS['rooms'])
+    def test_study_room_catalog_flow(self, mock_list_study_rooms):
+        self.client.force_authenticate(user=self.alice)
+
+        response = self.client.get('/api/study/rooms/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('rooms', response.data)
+        self.assertEqual(response.data['rooms'][0]['room_id'], 'focus-hall')
+
+        with patch('core.views.get_study_room', return_value=DEMO_STUDY_ROOMS['rooms'][1]):
+            response = self.client.get('/api/study/rooms/night-library/')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.data['room_id'], 'night-library')

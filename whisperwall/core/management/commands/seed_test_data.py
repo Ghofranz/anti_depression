@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 
 from core.firebase_store import _db, ensure_firebase_initialized
-from core.test_seed import DEMO_CHAT_MESSAGES, DEMO_CONFESSIONS, DEMO_EVENTS, DEMO_MATCH, DEMO_PROFILE, DEMO_USERS
+from core.test_seed import DEMO_CHAT_MESSAGES, DEMO_CONFESSIONS, DEMO_EVENTS, DEMO_MATCH, DEMO_PROFILE, DEMO_STUDY_ROOMS, DEMO_USERS
 
 
 class Command(BaseCommand):
@@ -32,6 +32,8 @@ class Command(BaseCommand):
 
             self.stdout.write('\nDemo events:')
             self.stdout.write(str(DEMO_EVENTS))
+            self.stdout.write('\nDemo study rooms:')
+            self.stdout.write(str(DEMO_STUDY_ROOMS))
             self.stdout.write('\nDemo chat messages:')
             self.stdout.write(str(DEMO_CHAT_MESSAGES))
             return
@@ -71,6 +73,9 @@ class Command(BaseCommand):
 
         for event in DEMO_EVENTS['events']:
             db.collection('events').document(str(event['event_id'])).set(event, merge=True)
+
+        for room in DEMO_STUDY_ROOMS['rooms']:
+            db.collection('study_rooms').document(room['room_id']).set(room, merge=True)
 
         for message in DEMO_CHAT_MESSAGES:
             db.collection('messages').document(str(message['id'])).set(message, merge=True)

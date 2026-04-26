@@ -5,11 +5,11 @@ import { Router } from '@angular/router';
 import { Api } from '../../services/api';
 
 @Component({
-  selector: 'app-login',
   imports: [CommonModule, FormsModule],
   templateUrl: './login.html',
   styleUrl: './login.scss',
 })
+
 export class Login {
   mode: 'login' | 'signup' = 'login';
 
@@ -80,7 +80,13 @@ export class Login {
         });
       },
       error: (err: any) => {
-        this.error = err?.error?.error || 'Login failed. Invalid credentials.';
+        if (err?.status === 401) {
+          this.error = 'Invalid username or password.';
+        } else if (err?.status === 409) {
+          this.error = 'Account already exists. Please log in instead.';
+        } else {
+          this.error = err?.error?.error || 'Login failed. Please try again.';
+        }
         this.loading = false;
       }
     });
@@ -133,7 +139,11 @@ export class Login {
         this.router.navigate(['/confess']);
       },
       error: (err: any) => {
-        this.error = err?.error?.error || 'Account creation failed. Please try again.';
+        if (err?.status === 409) {
+          this.error = err?.error?.error || 'This account already exists. Please switch to Login.';
+        } else {
+          this.error = err?.error?.error || 'Account creation failed. Please try again.';
+        }
         this.loading = false;
       }
     });

@@ -1,16 +1,27 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { inject, PLATFORM_ID } from '@angular/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Api {
   private base = 'http://127.0.0.1:8000/api';
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor(private http: HttpClient) { }
 
   private getAuthHeaders() {
-    const token = localStorage.getItem('token') || '';
+    if (!isPlatformBrowser(this.platformId)) {
+      return {};
+    }
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      return {};
+    }
 
     return {
       headers: new HttpHeaders({
@@ -25,6 +36,18 @@ export class Api {
 
   get_all_confess() {
     return this.http.get(`${this.base}/confess/`, this.getAuthHeaders());
+  }
+
+  getEvents() {
+    return this.http.get(`${this.base}/events/`, this.getAuthHeaders());
+  }
+
+  getStudyRooms() {
+    return this.http.get(`${this.base}/study/rooms/`, this.getAuthHeaders());
+  }
+
+  getStudyRoom(roomId: string) {
+    return this.http.get(`${this.base}/study/rooms/${roomId}/`, this.getAuthHeaders());
   }
 
   getMatches(id: number) {

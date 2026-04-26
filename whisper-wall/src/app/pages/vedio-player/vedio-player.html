@@ -1,87 +1,104 @@
-<div class="portal-bg-page px-4 pt-28 pb-14 md:px-10" *ngIf="room">
-  <main class="stage-panel">
-    <section class="hero-panel" [style.background]="room.color">
-      <div class="hero-copy">
-        <p class="eyebrow">Study With Me Room</p>
-        <h1>{{ room.title }}</h1>
-        <p class="subtitle">{{ room.subtitle }}</p>
-        <p class="description">{{ room.description }}</p>
-      </div>
+<div class="portal-bg-page px-4 pt-28 pb-14 md:px-10">
+  <section *ngIf="loading" class="text-center py-12 text-slate-600">
+    Loading study room...
+  </section>
 
-      <div class="hero-actions">
-        <button type="button" class="play-button" (click)="togglePlayback()">
-          {{ isPlaying ? 'Pause lo-fi' : 'Play lo-fi' }}
-        </button>
-        <div class="now-playing">
-          <span class="label">Now playing</span>
-          <strong>{{ selectedTrack }}</strong>
+  <section *ngIf="error" class="text-center py-12 text-red-600">
+    {{ error }}
+  </section>
+
+  <div *ngIf="!loading && !error && room" class="flex flex-col gap-8 lg:flex-row">
+    <main class="stage-panel flex-1">
+      <section class="hero-panel" [style.background]="room.gradient">
+        <div class="hero-copy">
+          <p class="eyebrow">Study With Me Room</p>
+          <h1>{{ room.title }}</h1>
+          <p class="subtitle">{{ room.subtitle }}</p>
+          <p class="description">{{ room.description }}</p>
         </div>
-      </div>
-    </section>
 
-    <section class="status-strip">
-      <div>
-        <span class="status-label">Room size</span>
-        <strong>{{ room.people }}</strong>
-      </div>
-      <div>
-        <span class="status-label">Mode</span>
-        <strong>Silent co-study</strong>
-      </div>
-      <div>
-        <span class="status-label">Communication</span>
-        <strong>Disabled</strong>
-      </div>
-    </section>
-
-    <section class="player-panel">
-      <div class="panel-header">
-        <h2>People in the room</h2>
-        <p>You can see everyone, but you cannot chat or talk here.</p>
-      </div>
-
-      <div class="participant-grid">
-        <article *ngFor="let participant of participants" class="participant-card">
-          <div class="avatar">{{ participant.avatar }}</div>
-          <div>
-            <h3>{{ participant.name }}</h3>
-            <p>{{ participant.focus }}</p>
+        <div class="hero-actions">
+          <button type="button" class="play-button" (click)="togglePlayback()">
+            {{ isPlaying ? 'Pause lo-fi' : 'Play lo-fi' }}
+          </button>
+          <div class="now-playing">
+            <span class="label">Now playing</span>
+            <strong>{{ selectedTrack?.label || 'Paused' }}</strong>
           </div>
-        </article>
-      </div>
-    </section>
-  </main>
+        </div>
+      </section>
 
-  <aside class="sidebar-panel">
-    <section class="music-panel">
-      <div class="panel-header">
-        <h2>Lo-fi deck</h2>
-        <p>Pick a background mix that matches your focus.</p>
-      </div>
+      <audio
+        #audioPlayer
+        [src]="currentTrackSrc"
+        preload="none"
+        loop>
+      </audio>
 
-      <div class="track-list">
-        <button
-          type="button"
-          *ngFor="let track of loFiTracks"
-          class="track-button"
-          [class.active]="selectedTrack === track"
-          (click)="selectTrack(track)">
-          {{ track }}
-        </button>
-      </div>
-    </section>
+      <section class="status-strip">
+        <div>
+          <span class="status-label">Room size</span>
+          <strong>{{ room.people }}</strong>
+        </div>
+        <div>
+          <span class="status-label">Mode</span>
+          <strong>Silent co-study</strong>
+        </div>
+        <div>
+          <span class="status-label">Communication</span>
+          <strong>Disabled</strong>
+        </div>
+      </section>
 
-    <section class="rules-panel">
-      <div class="panel-header">
-        <h2>Room rules</h2>
-      </div>
+      <section class="player-panel">
+        <div class="panel-header">
+          <h2>People in the room</h2>
+          <p>You can see everyone, but you cannot chat or talk here.</p>
+        </div>
 
-      <ul>
-        <li>Silent room only</li>
-        <li>See who is present</li>
-        <li>Switch lo-fi anytime</li>
-        <li>No messaging inside the room</li>
-      </ul>
-    </section>
-  </aside>
+        <div class="participant-grid">
+          <article *ngFor="let participant of participants" class="participant-card">
+            <div class="avatar">{{ participant.avatar }}</div>
+            <div>
+              <h3>{{ participant.name }}</h3>
+              <p>{{ participant.focus }}</p>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <aside class="sidebar-panel lg:w-[360px]">
+      <section class="music-panel">
+        <div class="panel-header">
+          <h2>Lo-fi deck</h2>
+          <p>Pick a background mix that matches your focus.</p>
+        </div>
+
+        <div class="track-list">
+          <button
+            type="button"
+            *ngFor="let track of loFiTracks"
+            class="track-button"
+            [class.active]="selectedTrack?.label === track.label"
+            (click)="selectTrack(track)">
+            {{ track.label }}
+          </button>
+        </div>
+      </section>
+
+      <section class="rules-panel">
+        <div class="panel-header">
+          <h2>Room rules</h2>
+        </div>
+
+        <ul>
+          <li>Silent room only</li>
+          <li>See who is present</li>
+          <li>Switch lo-fi anytime</li>
+          <li>No messaging inside the room</li>
+        </ul>
+      </section>
+    </aside>
+  </div>
 </div>

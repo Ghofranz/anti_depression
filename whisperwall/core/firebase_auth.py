@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 import firebase_admin
+from firebase_admin import auth as firebase_auth
 from django.conf import settings
 from rest_framework import exceptions
 from rest_framework.authentication import BaseAuthentication, get_authorization_header
@@ -42,7 +43,7 @@ class FirebaseAuthentication(BaseAuthentication):
 
         try:
             ensure_firebase_initialized()
-            decoded = firebase_admin.auth.verify_id_token(id_token)
+            decoded = firebase_auth.verify_id_token(id_token)
         except Exception as exc:
             raise exceptions.AuthenticationFailed(f'Invalid Firebase token: {exc}') from exc
 

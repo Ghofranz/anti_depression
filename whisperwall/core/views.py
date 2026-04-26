@@ -14,8 +14,10 @@ from .firebase_store import (
     get_events_for_user,
     get_matches_for_confession,
     get_or_update_profile,
+    get_study_room,
     get_user_by_username,
     list_confessions_by_author_uid,
+    list_study_rooms,
     request_reveal as do_request_reveal,
     send_chat_message,
     upsert_user_profile,
@@ -69,8 +71,13 @@ def sign_up(request):
     name = data.get('name', '').strip()
     email = _normalize_email(username, data.get('email', '').strip())
 
-    if get_user_by_username(username):
-        return Response({'error': 'Username already taken'}, status=status.HTTP_400_BAD_REQUEST)
+    try:
+        existing = get_user_by_username(username)
+    except Exception as exc:
+        return Response({'error': f'User lookup failed: {exc}'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+    if existing:
+        return Response({'error': 'Username already taken. Please log in instead.'}, status=status.HTTP_409_CONFLICT)
 
     payload = {
         'email': email,
@@ -85,7 +92,10 @@ def sign_up(request):
         return Response({'error': f'Firebase sign up failed: {exc}'}, status=500)
 
     if resp.status_code >= 400:
-        return Response({'error': body.get('error', {}).get('message', 'Sign up failed')}, status=400)
+        firebase_error = body.get('error', {}).get('message', 'Sign up failed')
+        if firebase_error == 'EMAIL_EXISTS':
+            return Response({'error': 'Email already exists. Please log in instead.'}, status=status.HTTP_409_CONFLICT)
+        return Response({'error': firebase_error}, status=status.HTTP_400_BAD_REQUEST)
 
     uid = body.get('localId', '')
     id_token = body.get('idToken', '')
@@ -93,7 +103,10 @@ def sign_up(request):
     if not uid or not id_token:
         return Response({'error': 'Invalid Firebase sign up response.'}, status=500)
 
-    upsert_user_profile(uid=uid, username=username, email=email, name=name)
+    try:
+        upsert_user_profile(uid=uid, username=username, email=email, name=name)
+    except Exception as exc:
+        return Response({'error': f'User profile write failed: {exc}'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     return Response(
         {
@@ -122,7 +135,10 @@ def login(request):
     if not _ensure_web_api_key():
         return Response({'error': 'Missing FIREBASE_WEB_API_KEY in backend configuration.'}, status=500)
 
-    lookup = get_user_by_username(username)
+    try:
+        lookup = get_user_by_username(username)
+    except Exception as exc:
+        return Response({'error': f'User lookup failed: {exc}'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     if lookup:
         email = lookup.get('email', '')
         display_name = lookup.get('name', '')
@@ -155,7 +171,10 @@ def login(request):
     email_out = body.get('email', email)
     name_out = display_name or body.get('displayName', '')
 
-    upsert_user_profile(uid=uid, username=username_out, email=email_out, name=name_out)
+    try:
+        upsert_user_profile(uid=uid, username=username_out, email=email_out, name=name_out)
+    except Exception as exc:
+        return Response({'error': f'User profile write failed: {exc}'}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
     return Response(
         {
@@ -303,3 +322,18 @@ def manage_academic_profile(request):
 def get_events_for_user_view(request):
     user = get_user(request)
     return Response(get_events_for_user(user.uid), status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_study_rooms_view(request):
+    return Response({'rooms': list_study_rooms()}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_study_room_view(request, room_id):
+    room = get_study_room(room_id)
+    if not room:
+        return Response({'error': 'Study room not found'}, status=status.HTTP_404_NOT_FOUND)
+    return Response(room, status=status.HTTP_200_OK)

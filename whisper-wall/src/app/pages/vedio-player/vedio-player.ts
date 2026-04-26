@@ -1,6 +1,12 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { AfterViewInit, Component, ElementRef, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Api } from '../../services/api';
+
+interface LoFiTrack {
+  label: string;
+  file: string;
+}
 
 @Component({
   selector: 'app-vedio-player',
@@ -9,104 +15,96 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
   styleUrl: './vedio-player.scss',
 })
 export class VedioPlayer implements OnInit {
+  @ViewChild('audioPlayer') audioPlayer?: ElementRef<HTMLAudioElement>;
+
+  private readonly platformId = inject(PLATFORM_ID);
+  private api = inject(Api);
+
   room: any;
   participants: Array<{ name: string; focus: string; avatar: string }> = [];
-  loFiTracks = [
-    'Rain Study',
-    'Moonlight Beats',
-    'Coffee & Loops',
-    'Soft Keys',
-  ];
-  selectedTrack = this.loFiTracks[0];
-  isPlaying = true;
-
-  private rooms = [
-    {
-      id: 'focus-hall',
-      title: 'Focus Hall',
-      subtitle: 'A silent room for deep work and revision',
-      description:
-        'Join a room, see who is studying, and keep your attention on the task. Chat is disabled so everyone stays focused.',
-      people: '18 students',
-      color: 'linear-gradient(180deg, #020617, #1d4ed8)',
-      track: 'Rain Study',
-      participants: [
-        { name: 'Maya', focus: 'Calculus notes', avatar: 'M' },
-        { name: 'Noah', focus: 'Django revisions', avatar: 'N' },
-        { name: 'Amina', focus: 'Flashcards', avatar: 'A' },
-        { name: 'Leo', focus: 'Report writing', avatar: 'L' },
-      ]
-    },
-    {
-      id: 'night-library',
-      title: 'Night Library',
-      subtitle: 'Shared lo-fi room for late-night concentration',
-      description:
-        'This room is built for quiet co-study. You can join, watch everyone focusing, and choose a lo-fi mix to match the pace.',
-      people: '42 students',
-      color: 'linear-gradient(180deg, #111827, #7c3aed)',
-      track: 'Moonlight Beats',
-      participants: [
-        { name: 'Sara', focus: 'Essay draft', avatar: 'S' },
-        { name: 'Omar', focus: 'Exam prep', avatar: 'O' },
-        { name: 'Hana', focus: 'Math practice', avatar: 'H' },
-        { name: 'Zed', focus: 'Presentation deck', avatar: 'Z' },
-      ]
-    },
-    {
-      id: 'exam-rush',
-      title: 'Exam Rush Room',
-      subtitle: 'A calm room for focused revision sprints',
-      description:
-        'Use the room like a virtual library table: everyone is visible, nobody talks, and the background lo-fi keeps the energy steady.',
-      people: '26 students',
-      color: 'linear-gradient(180deg, #042f2e, #0f766e)',
-      track: 'Coffee & Loops',
-      participants: [
-        { name: 'Iris', focus: 'Biology review', avatar: 'I' },
-        { name: 'Sam', focus: 'Past papers', avatar: 'S' },
-        { name: 'Jade', focus: 'Vocabulary', avatar: 'J' },
-        { name: 'Ben', focus: 'Summary sheet', avatar: 'B' },
-      ]
-    },
-    {
-      id: 'desk-setup',
-      title: 'Desk Setup Corner',
-      subtitle: 'Aesthetic co-working room for planning and note-taking',
-      description:
-        'A soft room for getting organized. Join, see the other people, and stay in flow with a lo-fi track in the background.',
-      people: '11 students',
-      color: 'linear-gradient(180deg, #431407, #ea580c)',
-      track: 'Soft Keys',
-      participants: [
-        { name: 'Ivy', focus: 'Note cleanup', avatar: 'I' },
-        { name: 'Tom', focus: 'Reading plan', avatar: 'T' },
-        { name: 'Nora', focus: 'Lecture recap', avatar: 'N' },
-        { name: 'Ali', focus: 'To-do list', avatar: 'A' },
-      ]
-    }
-  ];
+  loFiTracks: LoFiTrack[] = [];
+  selectedTrack: LoFiTrack | null = null;
+  isPlaying = false;
 
   roomId = 'focus-hall';
+  loading = false;
+  error = '';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private router: Router) {}
+
+  get currentTrack() {
+    return this.selectedTrack;
+  }
+
+  get currentTrackSrc() {
+    return this.selectedTrack ? `/lofi/${encodeURIComponent(this.selectedTrack.file)}` : '';
+  }
 
   ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
     this.roomId = this.route.snapshot.paramMap.get('roomId')
       || this.route.snapshot.paramMap.get('id')
       || 'focus-hall';
 
-    const selectedRoom = this.rooms.find((room) => room.id === this.roomId) || this.rooms[0];
-    this.room = selectedRoom;
-    this.participants = selectedRoom.participants;
-    this.selectedTrack = selectedRoom.track;
+    this.loading = true;
+    this.api.getStudyRoom(this.roomId).subscribe({
+      next: (room: any) => {
+        this.room = room;
+        this.participants = room?.participants || [];
+        this.loFiTracks = Array.isArray(room?.tracks) ? room.tracks : [];
+        this.selectedTrack = this.loFiTracks[0] || null;
+        this.isPlaying = false;
+        this.loading = false;
+        this.syncAudioState();
+      },
+      error: (err: any) => {
+        if (err?.status === 401 || err?.status === 403) {
+          this.error = 'Your session is missing or expired. Please log in again.';
+          this.router.navigate(['/login']);
+        } else {
+          this.error = 'Failed to load the study room.';
+        }
+        this.loading = false;
+      }
+    });
+  }
+
+  ngAfterViewInit() {
+    this.syncAudioState();
   }
 
   togglePlayback() {
     this.isPlaying = !this.isPlaying;
+    this.syncAudioState();
   }
 
-  selectTrack(track: string) {
+  selectTrack(track: LoFiTrack) {
     this.selectedTrack = track;
+    this.syncAudioState();
+  }
+
+  private syncAudioState() {
+    const audio = this.audioPlayer?.nativeElement;
+
+    if (!audio) {
+      return;
+    }
+
+    if (this.isPlaying) {
+      audio.play().catch(() => {
+        this.isPlaying = false;
+      });
+    } else {
+      audio.pause();
+    }
   }
 }

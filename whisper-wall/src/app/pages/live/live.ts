@@ -1,6 +1,7 @@
-import { CommonModule } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { Api } from '../../services/api';
 
 @Component({
   selector: 'app-live',
@@ -9,52 +10,44 @@ import { Router } from '@angular/router';
   templateUrl: './live.html',
   styleUrl: './live.scss',
 })
-export class Live {
+export class Live implements OnInit {
 
+  private readonly platformId = inject(PLATFORM_ID);
   private router = inject(Router);
+  private api = inject(Api);
 
-  rooms = [
-    {
-      id: 'focus-hall',
-      title: 'Focus Hall',
-      subtitle: 'Quiet room for deep work and revision',
-      status: 'OPEN',
-      people: '18 students',
-      vibe: 'Quiet • focused • warm light',
-      lofi: 'Rain Study',
-      gradient: 'linear-gradient(135deg, #0f172a, #1d4ed8)'
-    },
-    {
-      id: 'night-library',
-      title: 'Night Library',
-      subtitle: 'Late-night study session with ambient lo-fi',
-      status: 'LIVE',
-      people: '42 students',
-      vibe: 'Soft beats • shared pomodoro',
-      lofi: 'Moonlight Beats',
-      gradient: 'linear-gradient(135deg, #312e81, #7c3aed)'
-    },
-    {
-      id: 'exam-rush',
-      title: 'Exam Rush Room',
-      subtitle: 'Fast revision room with a calm background soundtrack',
-      status: 'OPEN',
-      people: '26 students',
-      vibe: 'Low pressure • checklist mode',
-      lofi: 'Coffee & Loops',
-      gradient: 'linear-gradient(135deg, #134e4a, #0f766e)'
-    },
-    {
-      id: 'desk-setup',
-      title: 'Desk Setup Corner',
-      subtitle: 'Aesthetic co-working room for planning and note-taking',
-      status: 'OPEN',
-      people: '11 students',
-      vibe: 'Calm desk cam • no chat',
-      lofi: 'Velvet Focus',
-      gradient: 'linear-gradient(135deg, #7c2d12, #ea580c)'
+  rooms: any[] = [];
+  loading = false;
+  error = '';
+
+  ngOnInit() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
     }
-  ];
+
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.loading = true;
+    this.api.getStudyRooms().subscribe({
+      next: (payload: any) => {
+        this.rooms = payload?.rooms || [];
+        this.loading = false;
+      },
+      error: (err: any) => {
+        if (err?.status === 401 || err?.status === 403) {
+          this.error = 'Your session is missing or expired. Please log in again.';
+          this.router.navigate(['/login']);
+        } else {
+          this.error = 'Failed to load study rooms.';
+        }
+        this.loading = false;
+      }
+    });
+  }
 
   joinRoom(roomId: string) {
     this.router.navigate(['/study', roomId]);

@@ -1,5 +1,5 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, ChangeDetectorRef, inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Api } from '../../services/api';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -11,6 +11,7 @@ import { Router, RouterLink } from '@angular/router';
   styleUrl: './dashboard.scss',
 })
 export class Dashboard implements OnInit {
+  private readonly platformId = inject(PLATFORM_ID);
   loading = false;
   error = '';
 
@@ -40,6 +41,10 @@ constructor(
   }
 
   loadDashboardData() {
+    if (!isPlatformBrowser(this.platformId) || !localStorage.getItem('token')) {
+      return;
+    }
+
     this.loading = true;
     this.error = '';
 

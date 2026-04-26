@@ -103,25 +103,49 @@ def suggest_event(feeling_a: str, feeling_b: str) -> Dict[str, Any]:
     if feeling_a == 'love' and feeling_b == 'love':
         return {
             'type': 'date',
+            'room_id': 'focus-hall',
             'title': 'Romantic Sunset Date',
+            'subtitle': 'Relaxed · Low Pressure · 1-on-1',
+            'vibe': 'A quiet room for starting a connection without pressure',
+            'gradient': 'linear-gradient(135deg, #c9a96e 0%, #e8c99a 100%)',
+            'status': 'LIVE',
+            'participants': 4,
             'plan': ['Meet at a cafe', 'Walk at sunset', 'Play 5 icebreaker questions'],
         }
     if {feeling_a, feeling_b} == {'love', 'crush'}:
         return {
             'type': 'date',
+            'room_id': 'focus-hall',
             'title': 'Playful Cute Date',
+            'subtitle': 'Curious · Quiet · 1-on-1',
+            'vibe': 'A soft room for turning curiosity into conversation',
+            'gradient': 'linear-gradient(135deg, #d45f7a 0%, #f08fa2 100%)',
+            'status': 'LIVE',
+            'participants': 4,
             'plan': ['Guess each other game', 'Coffee', 'Share one secret'],
         }
     if feeling_a == 'crush' and feeling_b == 'crush':
         return {
             'type': 'date',
+            'room_id': 'focus-hall',
             'title': 'Blind Icebreaker Date',
+            'subtitle': 'Curious · Low Pressure · 1-on-1',
+            'vibe': 'A calm space to talk before anything gets serious',
+            'gradient': 'linear-gradient(135deg, #c9a96e 0%, #e8c99a 100%)',
+            'status': 'LIVE',
+            'participants': 4,
             'plan': ['Mystery game', 'Quick chat', "Guess each other's hobbies"],
         }
     if 'fight' in [feeling_a, feeling_b]:
         return {
             'type': 'battle',
+            'room_id': 'exam-rush',
             'title': 'Close Cage',
+            'subtitle': 'Competitive · High Energy · Group',
+            'vibe': 'A sharp room for debate and fast thinking',
+            'gradient': 'linear-gradient(135deg, #6c4fd4 0%, #a07df0 100%)',
+            'status': 'LIVE',
+            'participants': 12,
             'plan': [
                 'No insults',
                 'Number of rounds decided by the challenger',
@@ -133,18 +157,36 @@ def suggest_event(feeling_a: str, feeling_b: str) -> Dict[str, Any]:
     if 'apology' in [feeling_a, feeling_b]:
         return {
             'type': 'date',
+            'room_id': 'desk-setup',
             'title': 'Trust Building Date',
+            'subtitle': 'Honest · Calm · 1-on-1',
+            'vibe': 'A steady room for rebuilding trust through small steps',
+            'gradient': 'linear-gradient(135deg, #ea580c 0%, #f59e0b 100%)',
+            'status': 'LIVE',
+            'participants': 4,
             'plan': ['Apology chat', 'Small game', 'Mutual promise to communicate'],
         }
     if 'miss' in [feeling_a, feeling_b]:
         return {
             'type': 'date',
+            'room_id': 'night-library',
             'title': 'Reconnect',
+            'subtitle': 'Quiet · Late Night · Open Floor',
+            'vibe': 'A soft room for catching up and sharing updates',
+            'gradient': 'linear-gradient(135deg, #312e81 0%, #7c3aed 100%)',
+            'status': 'LIVE',
+            'participants': 8,
             'plan': ['Send message', 'Plan mini date', 'Share memories'],
         }
     return {
         'type': 'chat',
+        'room_id': 'night-library',
         'title': 'Start Talking',
+        'subtitle': 'Silent · Open Floor · Group',
+        'vibe': 'A room for gentle introductions and shared focus',
+        'gradient': 'linear-gradient(135deg, #3a5a8f 0%, #6a8fc0 100%)',
+        'status': 'SOON',
+        'participants': 7,
         'plan': ['Send first message', 'Icebreaker question'],
     }
 
@@ -191,8 +233,14 @@ def find_matches(new_confession: Dict[str, Any]) -> List[Dict[str, Any]]:
             'id': event_id,
             'event_id': event_id,
             'match_id': match_id,
+            'room_id': event_suggestion.get('room_id', ''),
             'type': event_suggestion['type'],
             'title': event_suggestion['title'],
+            'subtitle': event_suggestion.get('subtitle', ''),
+            'vibe': event_suggestion.get('vibe', ''),
+            'gradient': event_suggestion.get('gradient', ''),
+            'status': event_suggestion.get('status', 'SOON'),
+            'participants': event_suggestion.get('participants', 0),
             'description': '',
             'location': '',
             'plan': {'steps': event_suggestion['plan']},
@@ -456,14 +504,33 @@ def get_events_for_user(user_uid: str):
                 {
                     'event_id': e.get('event_id', e.get('id')),
                     'match_id': e.get('match_id'),
+                    'room_id': e.get('room_id', ''),
                     'title': e.get('title'),
+                    'subtitle': e.get('subtitle', ''),
                     'type': e.get('type'),
+                    'vibe': e.get('vibe', ''),
+                    'gradient': e.get('gradient', ''),
+                    'status': e.get('status', 'SOON'),
+                    'participants': e.get('participants', 0),
                     'plan': e.get('plan'),
                     'created_at': e.get('created_at'),
                 }
             )
 
     return {'events': sorted(out, key=lambda x: x.get('event_id', 0))}
+
+
+def list_study_rooms() -> List[Dict[str, Any]]:
+    docs = _db().collection('study_rooms').stream()
+    rows = [d.to_dict() for d in docs]
+    return sorted(rows, key=lambda x: x.get('order', 0))
+
+
+def get_study_room(room_id: str) -> Optional[Dict[str, Any]]:
+    docs = _db().collection('study_rooms').where('room_id', '==', room_id).limit(1).stream()
+    for d in docs:
+        return d.to_dict()
+    return None
 
 
 def upsert_user_profile(uid: str, username: str, email: str, name: str):

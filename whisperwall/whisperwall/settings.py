@@ -135,6 +135,10 @@ REST_FRAMEWORK = {
 }
 
 FIREBASE_PROJECT_ID = os.getenv('FIREBASE_PROJECT_ID', 'whisper-wall-campus')
-FIREBASE_WEB_API_KEY = os.getenv('FIREBASE_WEB_API_KEY', '')
-FIREBASE_CREDENTIALS_PATH = os.getenv('FIREBASE_CREDENTIALS_PATH', '')
+_default_credentials = BASE_DIR.parent / 'whisper-wall-campus-firebase-adminsdk-fbsvc-70be056438.json'
+FIREBASE_WEB_API_KEY = os.getenv('FIREBASE_WEB_API_KEY', 'AIzaSyCg5jwzJVauo_OATf9O9-QYM30UWKwoYEI')
+FIREBASE_CREDENTIALS_PATH = os.getenv(
+    'FIREBASE_CREDENTIALS_PATH',
+    str(_default_credentials) if _default_credentials.exists() else '',
+)
 FIRESTORE_DATABASE_ID = os.getenv('FIRESTORE_DATABASE_ID', 'default')

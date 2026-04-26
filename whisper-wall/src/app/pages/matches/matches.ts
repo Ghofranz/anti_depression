@@ -1,5 +1,5 @@
-import { CommonModule } from '@angular/common';
-import { Component, ChangeDetectorRef, OnInit } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, ChangeDetectorRef, OnInit, inject, PLATFORM_ID } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
@@ -20,6 +20,7 @@ interface GroupedMatches {
   styleUrl: './matches.scss',
 })
 export class Matches implements OnInit {
+  private readonly platformId = inject(PLATFORM_ID);
   groupedMatches: GroupedMatches[] = [];
   contactStatuses: { [matchId: number]: any } = {};
 
@@ -42,6 +43,10 @@ export class Matches implements OnInit {
   }
 
   loadAllMatches() {
+    if (!isPlatformBrowser(this.platformId) || !localStorage.getItem('token')) {
+      return;
+    }
+
     this.loading = true;
     this.error = '';
 

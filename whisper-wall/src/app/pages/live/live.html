@@ -7,14 +7,22 @@
     </p>
   </section>
 
-  <section class="room-grid">
+  <section *ngIf="loading" class="text-center py-12 text-slate-600">
+    Loading study rooms...
+  </section>
+
+  <section *ngIf="error" class="text-center py-12 text-red-600">
+    {{ error }}
+  </section>
+
+  <section class="room-grid" *ngIf="!loading && !error">
     <article *ngFor="let room of rooms" class="room-card">
       <div class="thumbnail" [style.background]="room.gradient">
         <span class="room-status" [class.is-live]="room.status === 'LIVE'">{{ room.status }}</span>
         <div class="room-glow"></div>
         <div class="thumbnail-copy">
           <p>{{ room.people }}</p>
-          <strong>{{ room.lofi }}</strong>
+          <strong>{{ room.track }}</strong>
         </div>
       </div>
 

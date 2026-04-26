@@ -120,6 +120,12 @@ export class Confess implements OnInit {
       return;
     }
 
+    const token = localStorage.getItem('token');
+    if (!token) {
+      this.error = 'Your session is missing or expired. Please log in again.';
+      return;
+    }
+
     this.loading = true;
     this.error = '';
 
@@ -133,8 +139,12 @@ export class Confess implements OnInit {
         this.loading = false;
         this.router.navigate(['/matches']);
       },
-      error: () => {
-        this.error = 'Server error. Try again.';
+      error: (err: any) => {
+        if (err?.status === 401 || err?.status === 403) {
+          this.error = 'Your session is missing or expired. Please log in again.';
+        } else {
+          this.error = 'Server error. Try again.';
+        }
         this.loading = false;
       }
     });

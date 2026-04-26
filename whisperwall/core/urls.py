@@ -9,8 +9,10 @@ from .views import (
     get_matches,
     login,
     manage_academic_profile,
+    get_study_room_view,
     request_reveal,
     send_message,
+    list_study_rooms_view,
     sign_up,
 )
 
@@ -25,6 +27,8 @@ urlpatterns = [
     path('contact-exchange/activate/<int:match_id>/', activate_contact_exchange_view),
     path('profile/me/', manage_academic_profile),
     path('events/', get_events_for_user_view),
+    path('study/rooms/', list_study_rooms_view),
+    path('study/rooms/<str:room_id>/', get_study_room_view),
     path('sign_up/', sign_up),
     path('login/', login),
 ]

@@ -10,7 +10,15 @@
   </section>
 
   <!-- ── EVENT GRID ─────────────────────────────────────────── -->
-  <section class="room-grid">
+  <section *ngIf="loading" class="text-center py-12 text-slate-600">
+    Loading events...
+  </section>
+
+  <section *ngIf="error" class="text-center py-12 text-red-600">
+    {{ error }}
+  </section>
+
+  <section class="room-grid" *ngIf="!loading && !error">
 
     <article *ngFor="let event of events" class="room-card" [attr.data-type]="event.type">
 
@@ -21,7 +29,7 @@
         </span>
         <div class="room-glow"></div>
         <div class="thumbnail-copy">
-          <p>{{ event.participants }} attending</p>
+          <p>{{ event.participants || 0 }} attending</p>
           <strong>
             <span *ngIf="event.type === 'date'">✦ Date</span>
             <span *ngIf="event.type === 'battle'">◈ Battle</span>
@@ -44,15 +52,15 @@
 
       <!-- Steps badge -->
       <div class="steps-row">
-        <span class="steps-badge">{{ event.plan.length }} STEPS</span>
+        <span class="steps-badge">{{ getPlanCount(event) }} STEPS</span>
         <span class="event-id font-mono">WHISPER-RADAR-{{ event.event_id }}</span>
       </div>
 
       <!-- Action -->
       <div class="room-actions">
-        <button type="button" class="join-button" [disabled]="event.status === 'ENDED'"
-          (click)="joinEvent(event.event_id)">
-          {{ event.status === 'ENDED' ? 'Event ended' : 'Join event' }}
+        <button type="button" class="join-button" [disabled]="event.status === 'ENDED' || !event.room_id"
+          (click)="joinEvent(event.room_id)">
+          {{ event.status === 'ENDED' ? 'Event ended' : 'Join room' }}
         </button>
       </div>
 
