@@ -18,7 +18,8 @@ rectangle WhisperWall {
   usecase "Activate contact exchange" as UC9
   usecase "Manage academic profile" as UC10
   usecase "View events" as UC11
-  usecase "Watch live session" as UC12
+  usecase "Join Study With Me room" as UC12
+  usecase "Select lo-fi track" as UC14
   usecase "Review system data" as UC13
 }
 
@@ -26,6 +27,7 @@ Guest --> UC1
 Guest --> UC2
 Guest --> UC11
 Guest --> UC12
+Guest --> UC14
 
 User --> UC3
 User --> UC4
@@ -37,11 +39,13 @@ User --> UC9
 User --> UC10
 User --> UC11
 User --> UC12
+User --> UC14
 
 Admin --> UC13
 
 UC4 .> UC6 : triggers matching
 UC8 .> UC9 : may lead to
 UC9 .> UC10 : optionally reveals profiles
+UC12 .> UC14 : can set background audio
 
 @enduml

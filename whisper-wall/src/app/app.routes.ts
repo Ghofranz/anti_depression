@@ -20,6 +20,7 @@ export const routes: Routes = [
   { path: 'reveal/:matchId', component: Reveal },
   { path: 'event', component: EventBoard },
   { path: 'live', component: Live },
+  { path: 'study/:roomId', component: VedioPlayer },
   { path: 'watch/:id', component: VedioPlayer },
   { path: '**', redirectTo: '' }
 ];

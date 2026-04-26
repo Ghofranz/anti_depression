@@ -5,6 +5,8 @@ skinparam shadowing false
 component "Angular Frontend\nwhisper-wall" as FE
 component "Router Pages" as RP
 component "Api Service" as API
+component "Study With Me Room\nUI" as STUDY
+component "Lo-fi Player" as LOFI
 component "Django REST API\nwhisperwall" as BE
 component "Token Auth" as AUTH
 component "Matching Engine\n(model save + find_matches)" as MATCH
@@ -14,6 +16,8 @@ component "SSR Node Server" as SSR
 
 FE --> RP
 FE --> API
+FE --> STUDY
+STUDY --> LOFI
 FE --> LS
 SSR --> FE
 API --> BE : HTTP /api
@@ -27,6 +31,12 @@ BE --> DB
 note right of API
 Adds Authorization: Token <key>
 for authenticated requests.
+end note
+
+note right of STUDY
+Study rooms are silent.
+Users can see participants and choose lo-fi audio,
+but cannot communicate inside the room.
 end note
 
 note bottom of MATCH

@@ -1,64 +1,62 @@
-// live.ts
 import { CommonModule } from '@angular/common';
-import {Router} from '@angular/router';
-import { Component, inject, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-live',
   standalone: true,
-   imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './live.html',
   styleUrl: './live.scss',
 })
-export class Live implements OnInit {
+export class Live {
 
   private router = inject(Router);
 
-  // Your specific event types
-  events = [
-    { 
-      id: 1, 
-      title: 'Romantic Blind Date', 
-      type: 'Blind Date', 
-      status: 'LIVE', 
-      location: 'The Secret Garden',
-      participants: '2/2',
-      thumbnail_color: 'linear-gradient(135deg, #ff4fd8, #8b5cf6)'
+  rooms = [
+    {
+      id: 'focus-hall',
+      title: 'Focus Hall',
+      subtitle: 'Quiet room for deep work and revision',
+      status: 'OPEN',
+      people: '18 students',
+      vibe: 'Quiet • focused • warm light',
+      lofi: 'Rain Study',
+      gradient: 'linear-gradient(135deg, #0f172a, #1d4ed8)'
     },
-    { 
-      id: 2, 
-      title: 'Heavyweight Cage Fight', 
-      type: 'Cage Fight', 
-      status: 'UPCOMING', 
-      location: 'The Basement Arena',
-      participants: '1/2',
-      thumbnail_color: 'linear-gradient(135deg, #450a0a, #0f172a)'
+    {
+      id: 'night-library',
+      title: 'Night Library',
+      subtitle: 'Late-night study session with ambient lo-fi',
+      status: 'LIVE',
+      people: '42 students',
+      vibe: 'Soft beats • shared pomodoro',
+      lofi: 'Moonlight Beats',
+      gradient: 'linear-gradient(135deg, #312e81, #7c3aed)'
     },
-    { 
-      id: 3, 
-      title: 'Anonymous Trust Chat', 
-      type: 'Chat', 
-      status: 'LIVE', 
-      location: 'Private Room #09',
-      participants: '2/2',
-      thumbnail_color: 'linear-gradient(135deg, #0ea5e9, #2563eb)'
+    {
+      id: 'exam-rush',
+      title: 'Exam Rush Room',
+      subtitle: 'Fast revision room with a calm background soundtrack',
+      status: 'OPEN',
+      people: '26 students',
+      vibe: 'Low pressure • checklist mode',
+      lofi: 'Coffee & Loops',
+      gradient: 'linear-gradient(135deg, #134e4a, #0f766e)'
     },
-    { 
-      id: 4, 
-      title: 'Apology Meetup', 
-      type: 'Blind Date', 
-      status: 'ENDED', 
-      location: 'Campus Fountain',
-      participants: '2/2',
-      thumbnail_color: 'linear-gradient(135deg, #64748b, #334155)'
+    {
+      id: 'desk-setup',
+      title: 'Desk Setup Corner',
+      subtitle: 'Aesthetic co-working room for planning and note-taking',
+      status: 'OPEN',
+      people: '11 students',
+      vibe: 'Calm desk cam • no chat',
+      lofi: 'Velvet Focus',
+      gradient: 'linear-gradient(135deg, #7c2d12, #ea580c)'
     }
   ];
 
-  ngOnInit() {}
-
-  watchEvent(eventId: number) {
-    this.router.navigate(['/watch', eventId]);
-    console.log(`Navigating to watch event with ID: ${eventId} with link: /watch/${eventId}`);
+  joinRoom(roomId: string) {
+    this.router.navigate(['/study', roomId]);
   }
 }

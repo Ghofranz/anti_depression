@@ -1,0 +1,19 @@
+@startuml
+actor User
+participant "Study With Me Page" as FE
+participant "Study Room Player" as PLAYER
+participant "Lo-fi Controls" as LOFI
+
+User -> FE : open Study With Me
+FE -> PLAYER : route to /study/:roomId
+PLAYER -> PLAYER : load selected room and participants
+User -> PLAYER : join room
+PLAYER -> PLAYER : show people in room
+User -> LOFI : select track
+LOFI -> PLAYER : update selected lo-fi mix
+User -> PLAYER : press play/pause
+PLAYER -> LOFI : toggle playback state
+note right of PLAYER
+No chat or voice communication is available in the room.
+end note
+@enduml

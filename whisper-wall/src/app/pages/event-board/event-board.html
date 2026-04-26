@@ -1,26 +1,62 @@
-<div class="event-grid bg-gradient-to-br from-black via-gray-900 to-blue-900 p-6 text-white">
-  <div *ngFor="let event of events" 
-       class="ticket-card" 
-       [attr.data-type]="event.type">
-    
-    <div class="ticket-icon">
-      <span *ngIf="event.type === 'date'">✦</span>
-      <span *ngIf="event.type === 'battle'">◈</span>
-      <span *ngIf="event.type === 'chat'">❈</span>
-    </div>
+<div class="portal-bg-page px-4 pt-28 pb-14 md:px-10 text-slate-900">
 
-    <div class="flex-grow">
-      <h3 class="text-sm font-black uppercase text-slate-800 leading-tight">
-        {{ event.title }}
-      </h3>
-      <p class="text-[10px] font-bold text-slate-500 mt-1">
-        {{ event.plan.length }} STEPS
-      </p>
-    </div>
+  <!-- ── HERO ───────────────────────────────────────────────── -->
+  <section class="hero">
+    <p class="eyebrow">Upcoming Events</p>
+    <h1>Pick an event, show up, and make something happen.</h1>
+    <p class="lead">
+      Date nights, live debates, open chat rooms — each one is structured, timed, and ready when you are.
+    </p>
+  </section>
 
-    <div class="border-t border-dashed border-slate-300 pt-3 flex justify-between items-center">
-      <span class="text-[9px] text-slate-400 font-mono">WHISPER-RADAR-{{event.event_id}}</span>
-      <span class="text-slate-400">→</span>
-    </div>
-  </div>
+  <!-- ── EVENT GRID ─────────────────────────────────────────── -->
+  <section class="room-grid">
+
+    <article *ngFor="let event of events" class="room-card" [attr.data-type]="event.type">
+
+      <!-- Thumbnail -->
+      <div class="thumbnail" [style.background]="event.gradient">
+        <span class="room-status" [class.is-live]="event.status === 'LIVE'">
+          {{ event.status }}
+        </span>
+        <div class="room-glow"></div>
+        <div class="thumbnail-copy">
+          <p>{{ event.participants }} attending</p>
+          <strong>
+            <span *ngIf="event.type === 'date'">✦ Date</span>
+            <span *ngIf="event.type === 'battle'">◈ Battle</span>
+            <span *ngIf="event.type === 'chat'">❈ Chat</span>
+          </strong>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="details">
+        <div class="category-avatar" [style.background]="event.gradient">
+          {{ event.title[0] }}
+        </div>
+        <div class="info">
+          <h3 class="title">{{ event.title }}</h3>
+          <p class="meta">{{ event.subtitle }}</p>
+          <p class="vibe">{{ event.vibe }}</p>
+        </div>
+      </div>
+
+      <!-- Steps badge -->
+      <div class="steps-row">
+        <span class="steps-badge">{{ event.plan.length }} STEPS</span>
+        <span class="event-id font-mono">WHISPER-RADAR-{{ event.event_id }}</span>
+      </div>
+
+      <!-- Action -->
+      <div class="room-actions">
+        <button type="button" class="join-button" [disabled]="event.status === 'ENDED'"
+          (click)="joinEvent(event.event_id)">
+          {{ event.status === 'ENDED' ? 'Event ended' : 'Join event' }}
+        </button>
+      </div>
+
+    </article>
+
+  </section>
 </div>

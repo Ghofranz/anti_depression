@@ -1,23 +1,55 @@
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate
-from django.db.models import Q
-
+import requests
+from django.conf import settings
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 
-from .models import Confession, Match, ChatMessage, RevealRequest, Event, AcademicProfile
-from .serializers import ConfessionSerializer, MatchSerializer, ChatMessageSerializer, AcademicProfileSerializer
+from .firebase_store import (
+    activate_contact_exchange,
+    create_confession,
+    get_all_confessions as get_all_confessions_store,
+    get_chat_messages,
+    get_contact_exchange_status,
+    get_events_for_user,
+    get_matches_for_confession,
+    get_or_update_profile,
+    get_user_by_username,
+    list_confessions_by_author_uid,
+    request_reveal as do_request_reveal,
+    send_chat_message,
+    upsert_user_profile,
+)
 
 
-def get_user(request) -> User:
-    """Cast request.user to User so the IDE resolves attributes correctly."""
+class FirebaseRequestUser:
+    uid: str
+    username: str
+    email: str
+    name: str
+
+
+def get_user(request) -> FirebaseRequestUser:
     return request.user  # type: ignore[return-value]
 
 
-# ─── Auth ───────────────────────────────────────────────────────────────────
+def _firebase_rest_url(endpoint: str) -> str:
+    key = settings.FIREBASE_WEB_API_KEY
+    return f'https://identitytoolkit.googleapis.com/v1/{endpoint}?key={key}'
+
+
+def _ensure_web_api_key():
+    if not settings.FIREBASE_WEB_API_KEY:
+        return False
+    return True
+
+
+def _normalize_email(username: str, email: str) -> str:
+    if email and '@' in email:
+        return email
+    safe = username.strip().lower().replace(' ', '.')
+    return f'{safe}@whisperwall.local'
+
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -27,69 +59,123 @@ def sign_up(request):
     required = ['username', 'password']
     missing = [f for f in required if f not in data]
     if missing:
-        return Response({"error": f"Missing fields: {', '.join(missing)}"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': f"Missing fields: {', '.join(missing)}"}, status=status.HTTP_400_BAD_REQUEST)
 
-    if User.objects.filter(username=data['username']).exists():
-        return Response({"error": "Username already taken"}, status=status.HTTP_400_BAD_REQUEST)
+    if not _ensure_web_api_key():
+        return Response({'error': 'Missing FIREBASE_WEB_API_KEY in backend configuration.'}, status=500)
 
-    user = User.objects.create_user(
-        username=data['username'],
-        password=data['password'],
-        email=data.get('email', ''),
-        first_name=data.get('name', ''),
+    username = data['username'].strip()
+    password = data['password']
+    name = data.get('name', '').strip()
+    email = _normalize_email(username, data.get('email', '').strip())
+
+    if get_user_by_username(username):
+        return Response({'error': 'Username already taken'}, status=status.HTTP_400_BAD_REQUEST)
+
+    payload = {
+        'email': email,
+        'password': password,
+        'returnSecureToken': True,
+    }
+
+    try:
+        resp = requests.post(_firebase_rest_url('accounts:signUp'), json=payload, timeout=20)
+        body = resp.json()
+    except Exception as exc:
+        return Response({'error': f'Firebase sign up failed: {exc}'}, status=500)
+
+    if resp.status_code >= 400:
+        return Response({'error': body.get('error', {}).get('message', 'Sign up failed')}, status=400)
+
+    uid = body.get('localId', '')
+    id_token = body.get('idToken', '')
+
+    if not uid or not id_token:
+        return Response({'error': 'Invalid Firebase sign up response.'}, status=500)
+
+    upsert_user_profile(uid=uid, username=username, email=email, name=name)
+
+    return Response(
+        {
+            'message': 'Account created successfully',
+            'token': id_token,
+            'user': {
+                'id': uid,
+                'username': username,
+                'email': email,
+                'name': name,
+            },
+        },
+        status=status.HTTP_201_CREATED,
     )
-
-    token, _ = Token.objects.get_or_create(user=user)
-
-    return Response({
-        "message": "Account created successfully",
-        "token": token.key,
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "name": user.first_name,
-        }
-    }, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login(request):
-    username = request.data.get('username')
+    username = (request.data.get('username') or '').strip()
     password = request.data.get('password')
 
     if not username or not password:
-        return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Username and password are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    user = authenticate(username=username, password=password)
-    if user is None:
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+    if not _ensure_web_api_key():
+        return Response({'error': 'Missing FIREBASE_WEB_API_KEY in backend configuration.'}, status=500)
 
-    # Cast to User for IDE type resolution
-    typed_user: User = user  # type: ignore[assignment]
-    token, _ = Token.objects.get_or_create(user=typed_user)
+    lookup = get_user_by_username(username)
+    if lookup:
+        email = lookup.get('email', '')
+        display_name = lookup.get('name', '')
+    else:
+        email = username if '@' in username else _normalize_email(username, '')
+        display_name = ''
 
-    return Response({
-        "token": token.key,
-        "user": {
-            "id": typed_user.id,
-            "username": typed_user.username,
-            "email": typed_user.email,
-            "name": typed_user.first_name,
-        }
-    }, status=status.HTTP_200_OK)
+    payload = {
+        'email': email,
+        'password': password,
+        'returnSecureToken': True,
+    }
+
+    try:
+        resp = requests.post(_firebase_rest_url('accounts:signInWithPassword'), json=payload, timeout=20)
+        body = resp.json()
+    except Exception as exc:
+        return Response({'error': f'Firebase login failed: {exc}'}, status=500)
+
+    if resp.status_code >= 400:
+        return Response({'error': body.get('error', {}).get('message', 'Invalid credentials')}, status=401)
+
+    uid = body.get('localId', '')
+    id_token = body.get('idToken', '')
+
+    if not uid or not id_token:
+        return Response({'error': 'Invalid Firebase login response.'}, status=500)
+
+    username_out = (lookup or {}).get('username') or username
+    email_out = body.get('email', email)
+    name_out = display_name or body.get('displayName', '')
+
+    upsert_user_profile(uid=uid, username=username_out, email=email_out, name=name_out)
+
+    return Response(
+        {
+            'token': id_token,
+            'user': {
+                'id': uid,
+                'username': username_out,
+                'email': email_out,
+                'name': name_out,
+            },
+        },
+        status=status.HTTP_200_OK,
+    )
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
-    user = get_user(request)
-    Token.objects.filter(user=user).delete()  # avoids auth_token reverse accessor warning
-    return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
+    return Response({'message': 'Logged out successfully'}, status=status.HTTP_200_OK)
 
-
-# ─── Confessions ─────────────────────────────────────────────────────────────
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -102,220 +188,96 @@ def confession_list(request):
         required = ['text', 'emotion', 'location_hint']
         missing = [f for f in required if f not in data]
         if missing:
-            return Response({"error": f"Missing fields: {', '.join(missing)}"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f"Missing fields: {', '.join(missing)}"}, status=status.HTTP_400_BAD_REQUEST)
 
-        confession = Confession.objects.create(
-            text=data['text'],
-            emotion=data['emotion'],
-            location_hint=data['location_hint'],
-            author=user
-        )
+        confession = create_confession(data=data, user=user)
+        return Response(confession, status=status.HTTP_201_CREATED)
 
-        serializer = ConfessionSerializer(confession)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-    # GET — return only the current user's confessions
-    conf = Confession.objects.filter(author=user)
-    serializer = ConfessionSerializer(conf, many=True)
-    return Response(serializer.data)
+    conf = list_confessions_by_author_uid(user.uid)
+    return Response(conf)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_confessions(request):
-    conf = Confession.objects.all()
-    serializer = ConfessionSerializer(conf, many=True)
-    return Response(serializer.data)
+    return Response(get_all_confessions_store())
 
-
-# ─── Matches ─────────────────────────────────────────────────────────────────
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_matches(request, confession_id):
-    matches = Match.objects.filter(
-        Q(confession_a_id=confession_id) | Q(confession_b_id=confession_id)
-    )
-    serializer = MatchSerializer(matches, many=True)
-    return Response(serializer.data)
+    return Response(get_matches_for_confession(confession_id))
 
-
-# ─── Chat ────────────────────────────────────────────────────────────────────
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def send_message(request):
-    serializer = ChatMessageSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    data = request.data
+    required = ['match', 'sender', 'message']
+    missing = [f for f in required if f not in data]
+    if missing:
+        return Response({'error': f"Missing fields: {', '.join(missing)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+    row = send_chat_message(
+        match_id=int(data['match']),
+        sender_confession_id=int(data['sender']),
+        message=str(data['message']),
+    )
+    return Response(row, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_chat(request, match_id):
-    messages = ChatMessage.objects.filter(match_id=match_id).order_by('timestamp')
-    serializer = ChatMessageSerializer(messages, many=True)
-    return Response(serializer.data)
+    return Response(get_chat_messages(int(match_id)))
 
-
-# ─── Reveal ──────────────────────────────────────────────────────────────────
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def request_reveal(request):
     user = get_user(request)
-    match_id = request.data.get("match")
-    confession_id = request.data.get("confession")
+    match_id = request.data.get('match')
+    confession_id = request.data.get('confession')
 
     if not match_id or not confession_id:
-        return Response({"error": "match and confession are required"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'match and confession are required'}, status=status.HTTP_400_BAD_REQUEST)
 
-    try:
-        confession = Confession.objects.get(id=confession_id)
-    except Confession.DoesNotExist:
-        return Response({"error": "Confession not found"}, status=status.HTTP_404_NOT_FOUND)
+    reveal, error, code = do_request_reveal(int(match_id), int(confession_id), user.uid)
+    if error:
+        return Response({'error': error}, status=code)
 
-    if confession.author != user:
-        return Response({"error": "You can only reveal your own confessions"}, status=status.HTTP_403_FORBIDDEN)
-
-    try:
-        match = Match.objects.get(id=match_id)
-    except Match.DoesNotExist:
-        return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    reveal, _ = RevealRequest.objects.get_or_create(match_id=match_id)
-
-    if confession.id == match.confession_a.id:
-        reveal.confession_a_accepted = True
-    elif confession.id == match.confession_b.id:
-        reveal.confession_b_accepted = True
-    else:
-        return Response({"error": "This confession is not part of the match"}, status=status.HTTP_400_BAD_REQUEST)
-
-    reveal.save()
-    reveal.try_reveal()
-
-    return Response({
-        "revealed": reveal.revealed,
-        "user": {
-            "id": user.id,
-            "username": user.username,
-            "email": user.email,
-            "name": user.first_name,
-        }
-    }, status=status.HTTP_200_OK)
+    return Response(
+        {
+            'revealed': reveal.get('revealed', False),
+            'user': {
+                'id': user.uid,
+                'username': user.username,
+                'email': user.email,
+                'name': user.name,
+            },
+        },
+        status=status.HTTP_200_OK,
+    )
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_contact_exchange_status(request, match_id):
+def get_contact_exchange_status_view(request, match_id):
     user = get_user(request)
-    try:
-        match = Match.objects.get(id=match_id)
-    except Match.DoesNotExist:
-        return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    if user != match.confession_a.author and user != match.confession_b.author:
-        return Response({"error": "Forbidden: You are not part of this match."}, status=status.HTTP_403_FORBIDDEN)
-
-    try:
-        reveal = RevealRequest.objects.get(match=match)
-    except RevealRequest.DoesNotExist:
-        return Response({
-            "match": match_id,
-            "my_contact_exchange_active": False,
-            "peer_contact_exchange_active": False,
-            "both_active": False,
-            "my_profile": None,
-            "peer_profile": None
-        }, status=status.HTTP_200_OK)
-
-    my_active = False
-    peer_active = False
-    peer_user = None
-
-    if user == match.confession_a.author:
-        my_active = reveal.confession_a_accepted
-        peer_active = reveal.confession_b_accepted
-        peer_user = match.confession_b.author
-    else:
-        my_active = reveal.confession_b_accepted
-        peer_active = reveal.confession_a_accepted
-        peer_user = match.confession_a.author
-
-    both_active = (my_active and peer_active)
-
-    my_profile_data = None
-    if hasattr(user, 'academic_profile'):
-        my_profile_data = AcademicProfileSerializer(user.academic_profile).data
-
-    peer_profile_data = None
-    if both_active and peer_user and hasattr(peer_user, 'academic_profile'):
-        peer_profile_data = AcademicProfileSerializer(peer_user.academic_profile).data
-
-    return Response({
-        "match": match_id,
-        "my_contact_exchange_active": my_active,
-        "peer_contact_exchange_active": peer_active,
-        "both_active": both_active,
-        "my_profile": my_profile_data,
-        "peer_profile": peer_profile_data
-    }, status=status.HTTP_200_OK)
+    payload, error, code = get_contact_exchange_status(int(match_id), user.uid)
+    if error:
+        return Response({'error': error}, status=code)
+    return Response(payload, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def activate_contact_exchange(request, match_id):
+def activate_contact_exchange_view(request, match_id):
     user = get_user(request)
-
-    try:
-        match = Match.objects.get(id=match_id)
-    except Match.DoesNotExist:
-        return Response({"error": "Match not found"}, status=status.HTTP_404_NOT_FOUND)
-
-    if user != match.confession_a.author and user != match.confession_b.author:
-        return Response({"error": "Forbidden"}, status=status.HTTP_403_FORBIDDEN)
-
-    reveal, _ = RevealRequest.objects.get_or_create(match=match)
-
-    my_active = False
-    peer_active = False
-    peer_user = None
-
-    if user == match.confession_a.author:
-        reveal.confession_a_accepted = True
-        my_active = True
-        peer_active = reveal.confession_b_accepted
-        peer_user = match.confession_b.author
-    else:
-        reveal.confession_b_accepted = True
-        my_active = True
-        peer_active = reveal.confession_a_accepted
-        peer_user = match.confession_a.author
-
-    reveal.save()
-    # DO NOT call reveal.try_reveal() to protect confession.is_revealed from mutating!
-
-    both_active = (my_active and peer_active)
-
-    my_profile_data = None
-    if hasattr(user, 'academic_profile'):
-        my_profile_data = AcademicProfileSerializer(user.academic_profile).data
-
-    peer_profile_data = None
-    if both_active and peer_user and hasattr(peer_user, 'academic_profile'):
-        peer_profile_data = AcademicProfileSerializer(peer_user.academic_profile).data
-
-    return Response({
-        "message": "Contact exchange activated",
-        "my_contact_exchange_active": my_active,
-        "peer_contact_exchange_active": peer_active,
-        "both_active": both_active,
-        "my_profile": my_profile_data,
-        "peer_profile": peer_profile_data
-    }, status=status.HTTP_200_OK)
+    payload, error, code = activate_contact_exchange(int(match_id), user.uid)
+    if error:
+        return Response({'error': error}, status=code)
+    return Response(payload, status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST', 'PUT'])
@@ -324,56 +286,20 @@ def manage_academic_profile(request):
     user = get_user(request)
 
     if request.method == 'GET':
-        if hasattr(user, 'academic_profile'):
-            serializer = AcademicProfileSerializer(user.academic_profile)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response({"error": "Profile not found"}, status=status.HTTP_404_NOT_FOUND)
+        profile, error, code = get_or_update_profile(user.uid)
+        if error:
+            return Response({'error': error}, status=code)
+        return Response(profile, status=status.HTTP_200_OK)
 
-    if request.method in ['POST', 'PUT']:
-        data = request.data
-        if hasattr(user, 'academic_profile'):
-            profile = user.academic_profile
-            profile.display_name = data.get('display_name', profile.display_name)
-            profile.academic_email = data.get('academic_email', profile.academic_email)
-            profile.programme = data.get('programme', profile.programme)
-            profile.bio = data.get('bio', profile.bio)
-            profile.save()
-            return Response(AcademicProfileSerializer(profile).data, status=status.HTTP_200_OK)
-        else:
-            required = ['display_name', 'academic_email', 'programme']
-            missing = [f for f in required if not data.get(f)]
-            if missing:
-                return Response({"error": f"Missing fields: {', '.join(missing)}"}, status=status.HTTP_400_BAD_REQUEST)
-            
-            profile = AcademicProfile.objects.create(
-                user=user,
-                display_name=data['display_name'],
-                academic_email=data['academic_email'],
-                programme=data['programme'],
-                bio=data.get('bio', '')
-            )
-            return Response(AcademicProfileSerializer(profile).data, status=status.HTTP_201_CREATED)
+    data = request.data if isinstance(request.data, dict) else {}
+    profile, error, code = get_or_update_profile(user.uid, data)
+    if error:
+        return Response({'error': error}, status=code)
+    return Response(profile, status=code)
 
-# ─── Events ──────────────────────────────────────────────────────────────────
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def get_events_for_user(request):
+def get_events_for_user_view(request):
     user = get_user(request)
-    events = Event.objects.filter(
-        Q(match__confession_a__author=user) |
-        Q(match__confession_b__author=user)
-    ).select_related('match')
-
-    data = []
-    for event in events:
-        data.append({
-            'event_id': event.id,
-            'match_id': event.match.id,
-            'title': event.title,
-            'type': event.type,
-            'plan': event.plan,
-            'created_at': event.created_at.strftime("%Y-%m-%d %H:%M")
-        })
-
-    return Response({'events': data}, status=status.HTTP_200_OK)
+    return Response(get_events_for_user(user.uid), status=status.HTTP_200_OK)

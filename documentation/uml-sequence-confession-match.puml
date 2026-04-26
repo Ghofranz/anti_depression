@@ -6,6 +6,7 @@ participant "confession_list view" as BE
 participant "Confession.save()" as SAVE
 participant "find_matches()" as MATCH
 participant "Event creation" as EVENT
+participant "Study With Me room" as STUDY
 participant "Database" as DB
 
 User -> FE : submit confession
@@ -21,6 +22,7 @@ MATCH -> DB : create Match when score > threshold
 MATCH -> EVENT : suggest_event()
 EVENT --> MATCH : event plan
 MATCH -> DB : create Event
+MATCH -> STUDY : expose room list and lo-fi options
 BE --> API : confession response
 API --> FE : created confession
 @enduml

@@ -1,50 +1,87 @@
-<div class="watch-container">
-  
-  <main class="video-stage">
-    <div class="player-wrapper" [style.background]="'linear-gradient(to bottom, #000, ' + event.color + ')'">
-      <div class="overlay-status">LIVE</div>
-      <div class="play-icon">▶</div>
-    </div>
+<div class="portal-bg-page px-4 pt-28 pb-14 md:px-10" *ngIf="room">
+  <main class="stage-panel">
+    <section class="hero-panel" [style.background]="room.color">
+      <div class="hero-copy">
+        <p class="eyebrow">Study With Me Room</p>
+        <h1>{{ room.title }}</h1>
+        <p class="subtitle">{{ room.subtitle }}</p>
+        <p class="description">{{ room.description }}</p>
+      </div>
 
-    <div class="video-info">
-      <h1 class="title">{{ event.title }}</h1>
-      <p class="stats">{{ event.views }} watching • Started 12 mins ago</p>
-      
-      <div class="channel-info">
-        <div class="avatar"></div>
-        <div>
-          <p class="name">{{ event.host }}</p>
-          <p class="text-xs text-slate-500">Event Organizer</p>
-        </div>
-        <button class="ml-auto bg-black text-white px-4 py-2 rounded-full text-sm font-bold">
-          Join Event
+      <div class="hero-actions">
+        <button type="button" class="play-button" (click)="togglePlayback()">
+          {{ isPlaying ? 'Pause lo-fi' : 'Play lo-fi' }}
         </button>
+        <div class="now-playing">
+          <span class="label">Now playing</span>
+          <strong>{{ selectedTrack }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="status-strip">
+      <div>
+        <span class="status-label">Room size</span>
+        <strong>{{ room.people }}</strong>
+      </div>
+      <div>
+        <span class="status-label">Mode</span>
+        <strong>Silent co-study</strong>
+      </div>
+      <div>
+        <span class="status-label">Communication</span>
+        <strong>Disabled</strong>
+      </div>
+    </section>
+
+    <section class="player-panel">
+      <div class="panel-header">
+        <h2>People in the room</h2>
+        <p>You can see everyone, but you cannot chat or talk here.</p>
       </div>
 
-      <div class="mt-4 p-4 bg-slate-100 rounded-xl text-sm">
-        {{ event.description }}
+      <div class="participant-grid">
+        <article *ngFor="let participant of participants" class="participant-card">
+          <div class="avatar">{{ participant.avatar }}</div>
+          <div>
+            <h3>{{ participant.name }}</h3>
+            <p>{{ participant.focus }}</p>
+          </div>
+        </article>
       </div>
-    </div>
+    </section>
   </main>
 
-  <aside class="sidebar">
-    <div class="chat-box">
-      <div class="chat-header">Live Event Chat</div>
-      <div class="messages">
-        <div class="flex gap-2">
-          <span class="font-bold text-blue-600">Student_404:</span>
-          <span>Is this actually happening in the basement?</span>
-        </div>
-        <div class="flex gap-2">
-          <span class="font-bold text-rose-500">MysteryGirl:</span>
-          <span>GO FOR THE K.O.! 🥊</span>
-        </div>
+  <aside class="sidebar-panel">
+    <section class="music-panel">
+      <div class="panel-header">
+        <h2>Lo-fi deck</h2>
+        <p>Pick a background mix that matches your focus.</p>
       </div>
-      <div class="chat-input">
-        <input type="text" placeholder="Say something..." 
-               class="w-full bg-slate-100 border-none rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-slate-300">
-      </div>
-    </div>
-  </aside>
 
+      <div class="track-list">
+        <button
+          type="button"
+          *ngFor="let track of loFiTracks"
+          class="track-button"
+          [class.active]="selectedTrack === track"
+          (click)="selectTrack(track)">
+          {{ track }}
+        </button>
+      </div>
+    </section>
+
+    <section class="rules-panel">
+      <div class="panel-header">
+        <h2>Room rules</h2>
+      </div>
+
+      <ul>
+        <li>Silent room only</li>
+        <li>See who is present</li>
+        <li>Switch lo-fi anytime</li>
+        <li>No messaging inside the room</li>
+      </ul>
+    </section>
+  </aside>
 </div>

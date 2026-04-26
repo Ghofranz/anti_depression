@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 
 import { VedioPlayer } from './vedio-player';
 
@@ -8,7 +9,17 @@ describe('VedioPlayer', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [VedioPlayer]
+      imports: [VedioPlayer],
+      providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              paramMap: convertToParamMap({ roomId: 'night-library' })
+            }
+          }
+        }
+      ]
     })
     .compileComponents();
 
@@ -19,5 +30,11 @@ describe('VedioPlayer', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should load the selected room', () => {
+    expect(component.room.title).toContain('Night Library');
+    expect(component.selectedTrack).toBe('Moonlight Beats');
+    expect(component.participants.length).toBeGreaterThan(0);
   });
 });

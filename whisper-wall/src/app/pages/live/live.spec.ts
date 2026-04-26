@@ -20,4 +20,9 @@ describe('Live', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should expose study room cards', () => {
+    expect(component.rooms.length).toBeGreaterThan(0);
+    expect(component.rooms[0].title).toContain('Focus Hall');
+  });
 });

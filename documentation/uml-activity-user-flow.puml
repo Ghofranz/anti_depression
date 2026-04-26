@@ -16,6 +16,8 @@ if (Match found?) then (yes)
   :Create suggested Event;
   :Show match to user;
   :Open chat or reveal/contact exchange;
+  :Open Study With Me room;
+  :Join a silent room and select lo-fi;
 else (no)
   :Return to dashboard;
 endif

@@ -1,48 +1,85 @@
-.live-container {
-  @apply  mx-auto p-4 bg-gradient-to-br from-black via-gray-900 to-purple-900 p-6 text-white;
+
+
+.hero {
+  @apply mx-auto mb-8 max-w-4xl rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl backdrop-blur-xl;
+
+  .eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.35em] text-cyan-300;
+  }
+
+  h1 {
+    @apply mt-3 text-3xl font-black leading-tight text-white md:text-5xl;
+  }
+
+  .lead {
+    @apply mt-4 max-w-2xl text-sm leading-6 text-slate-300 md:text-base;
+  }
 }
 
-.event-grid {
-  @apply grid grid-cols-2 gap-x-4 gap-y-8; // 2 on the same line
+.room-grid {
+  @apply mx-auto grid max-w-6xl grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4;
 }
 
-.video-card {
-  @apply cursor-pointer flex flex-col gap-3;
+.room-card {
+  @apply overflow-hidden rounded-[1.75rem] border border-white/10 bg-white/5 p-4 shadow-xl transition-transform duration-300 hover:-translate-y-1 hover:bg-white/10;
 
-  // The "Thumbnail" look
   .thumbnail {
-    @apply relative w-full aspect-video rounded-xl overflow-hidden shadow-md;
-    
-    .live-badge {
-      @apply absolute top-2 left-2 bg-red-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-sm;
+    @apply relative mb-4 aspect-[4/3] overflow-hidden rounded-[1.4rem];
+
+    .room-status {
+      @apply absolute left-3 top-3 z-10 rounded-full bg-emerald-400/15 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-emerald-200 backdrop-blur-sm;
+
+      &.is-live {
+        @apply bg-fuchsia-400/15 text-fuchsia-200;
+      }
     }
 
-    .duration {
-      @apply absolute bottom-2 right-2 bg-black/80 text-white text-[10px] px-1 rounded-sm;
+    .room-glow {
+      @apply absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.2),transparent_55%)];
     }
 
-    .event-icon {
-      @apply absolute inset-0 flex items-center justify-center text-4xl text-white/50;
+    .thumbnail-copy {
+      @apply absolute bottom-0 left-0 right-0 flex items-end justify-between p-4 text-white;
+
+      p {
+        @apply text-xs uppercase tracking-[0.3em] text-white/70;
+      }
+
+      strong {
+        @apply text-sm font-semibold text-white;
+      }
     }
   }
 
   .details {
-    @apply flex gap-3 px-1;
+    @apply flex gap-3;
 
     .category-avatar {
-      @apply w-9 h-9 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold;
+      @apply flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-2xl text-base font-black text-white shadow-lg;
     }
 
     .info {
-      @apply flex flex-col;
-      
+      @apply min-w-0;
+
       .title {
-        @apply text-sm font-bold text-slate-900 line-clamp-2 leading-tight;
+        @apply text-base font-bold text-white;
       }
-      
+
       .meta {
-        @apply text-xs text-slate-500 mt-1;
+        @apply mt-1 text-sm text-slate-300;
       }
+
+      .vibe {
+        @apply mt-2 text-xs uppercase tracking-[0.22em] text-cyan-200;
+      }
+    }
+  }
+
+  .room-actions {
+    @apply mt-4 flex items-center justify-between border-t border-white/10 pt-4;
+
+    .join-button {
+      @apply inline-flex items-center justify-center rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-950 transition-colors hover:bg-cyan-200;
     }
   }
 }

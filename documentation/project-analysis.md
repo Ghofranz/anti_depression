@@ -7,7 +7,7 @@ WhisperWall is a campus-oriented social matching platform built as two separate 
 - Angular 21 frontend in `whisper-wall/`
 - Django 6 REST backend in `whisperwall/`
 
-The product centers on anonymous or semi-anonymous "confessions" that are matched by similarity. Once a match is found, the app supports chat, reveal/contact exchange, event suggestions, and live-related content.
+The product centers on anonymous or semi-anonymous "confessions" that are matched by similarity. Once a match is found, the app supports chat, reveal/contact exchange, event suggestions, and a Study With Me room with silent co-working and lo-fi audio.
 
 ## Frontend
 
@@ -22,7 +22,7 @@ The Angular app uses standalone components and route-based pages. Main routes in
 - reveal/:matchId
 - event
 - live
-- watch/:id
+- study/:roomId
 
 The frontend stores authentication state in `localStorage` and sends token auth headers to the backend through `src/app/services/api.ts`.
 
@@ -66,6 +66,7 @@ When a new confession is saved, the model triggers `find_matches()`. That logic 
 - `get_all_confessions` exists in the backend but is not routed in `core/urls.py`.
 - `CommonMiddleware` appears twice in Django settings.
 - `send_message()` currently trusts the posted payload and does not obviously enforce that the sender belongs to the match.
+- The Study With Me room is intentionally silent: participants are visible, but room communication is disabled and the lo-fi track is the only shared playback control.
 
 ## Documentation Files
 
@@ -77,4 +78,5 @@ When a new confession is saved, the model triggers `find_matches()`. That logic 
 - `uml-sequence-signup-login.puml`
 - `uml-sequence-confession-match.puml`
 - `uml-sequence-reveal-contact-exchange.puml`
+- `uml-sequence-study-room.puml`
 - `uml-state-confession-lifecycle.puml`

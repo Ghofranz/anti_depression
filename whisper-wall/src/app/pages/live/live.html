@@ -1,31 +1,39 @@
-<div class="live-container">
-  <div class="event-grid">
-    <div *ngFor="let event of events" class="video-card" (click)="watchEvent(event.id)">
-      
-      <div class="thumbnail" [style.background]="event.thumbnail_color">
-        <span *ngIf="event.status === 'LIVE'" class="live-badge">LIVE</span>
-        <span class="duration">{{ event.participants }}</span>
-        
-        <div class="event-icon">
-          <span *ngIf="event.type === 'Blind Date'">❤️</span>
-          <span *ngIf="event.type === 'Cage Fight'">🥊</span>
-          <span *ngIf="event.type === 'Chat'">💬</span>
+<div class="portal-bg-page px-4 pt-28 pb-14 md:px-10 text-slate-900">
+  <section class="hero">
+    <p class="eyebrow">Study With Me</p>
+    <h1>Join a silent room, see who is studying, and keep the focus on work.</h1>
+    <p class="lead">
+      No chat. No voice. Just a shared room, visible participants, and lo-fi background sound to help you stay in flow.
+    </p>
+  </section>
+
+  <section class="room-grid">
+    <article *ngFor="let room of rooms" class="room-card">
+      <div class="thumbnail" [style.background]="room.gradient">
+        <span class="room-status" [class.is-live]="room.status === 'LIVE'">{{ room.status }}</span>
+        <div class="room-glow"></div>
+        <div class="thumbnail-copy">
+          <p>{{ room.people }}</p>
+          <strong>{{ room.lofi }}</strong>
         </div>
       </div>
 
       <div class="details">
-        <div class="category-avatar" [style.background]="event.thumbnail_color">
-          {{ event.type[0] }}
+        <div class="category-avatar" [style.background]="room.gradient">
+          {{ room.title[0] }}
         </div>
         <div class="info">
-          <h3 class="title">{{ event.title }}</h3>
-          <p class="meta">
-            {{ event.type }} • {{ event.location }}<br>
-            {{ event.status === 'LIVE' ? 'Watching now' : 'Finished' }}
-          </p>
+          <h3 class="title">{{ room.title }}</h3>
+          <p class="meta">{{ room.subtitle }}</p>
+          <p class="vibe">{{ room.vibe }}</p>
         </div>
       </div>
 
-    </div>
-  </div>
+      <div class="room-actions">
+        <button type="button" class="join-button" (click)="joinRoom(room.id)">
+          Join room
+        </button>
+      </div>
+    </article>
+  </section>
 </div>
