@@ -1,0 +1,26 @@
+@startuml
+actor UserA
+actor UserB
+participant "Reveal/Contact UI" as FE
+participant "Django API" as BE
+participant "RevealRequest" as RR
+participant "AcademicProfile" as AP
+participant "Database" as DB
+
+UserA -> FE : request reveal / activate exchange
+FE -> BE : POST /reveal/ or /contact-exchange/activate/:id/
+BE -> DB : load match and confession ownership
+DB --> BE : match data
+BE -> RR : get_or_create for match
+BE -> DB : mark user A accepted
+DB --> BE : updated reveal state
+BE --> FE : status response
+
+UserB -> FE : activate exchange
+FE -> BE : same endpoint
+BE -> RR : mark user B accepted
+BE -> DB : save reveal state
+BE -> AP : load academic profile when both active
+AP --> BE : profile data
+BE --> FE : both_active = true, profiles visible
+@enduml

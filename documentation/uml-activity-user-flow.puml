@@ -1,0 +1,27 @@
+@startuml
+start
+:Open landing page;
+if (Already logged in?) then (yes)
+  :Go to dashboard or confess flow;
+else (no)
+  :Show sign up / login options;
+endif
+:Sign up or log in;
+:Store token in localStorage;
+:Submit confession;
+:Backend saves confession;
+:Matching engine searches for similar confessions;
+if (Match found?) then (yes)
+  :Create Match;
+  :Create suggested Event;
+  :Show match to user;
+  :Open chat or reveal/contact exchange;
+else (no)
+  :Return to dashboard;
+endif
+if (Both users accept reveal?) then (yes)
+  :Reveal exchange becomes active;
+  :Show academic profiles;
+endif
+stop
+@enduml

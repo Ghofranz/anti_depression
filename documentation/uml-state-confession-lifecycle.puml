@@ -1,0 +1,14 @@
+@startuml
+[*] --> Draft
+Draft --> Submitted : create confession
+Submitted --> Matched : similar confession found
+Submitted --> Unmatched : no match yet
+Matched --> Chatting : users start conversation
+Chatting --> RevealRequested : one user requests reveal
+RevealRequested --> ContactExchangeActive : both users accept
+ContactExchangeActive --> Revealed : profiles visible
+Matched --> Closed : match deactivated or ignored
+Unmatched --> Closed
+Revealed --> Closed
+Closed --> [*]
+@enduml

@@ -1,0 +1,21 @@
+@startuml
+actor User
+participant "Angular Landing/Login" as FE
+participant "Api Service" as API
+participant "Django auth view" as BE
+participant "User model" as UM
+participant "Token model" as TM
+participant "localStorage" as LS
+
+User -> FE : enter signup/login data
+FE -> API : POST /sign_up or /login
+API -> BE : HTTP request
+BE -> UM : create_user or authenticate
+UM --> BE : user record
+BE -> TM : get_or_create token
+TM --> BE : token key
+BE --> API : token + user payload
+API --> FE : response
+FE -> LS : store token and user info
+FE -> User : navigate to app area
+@enduml

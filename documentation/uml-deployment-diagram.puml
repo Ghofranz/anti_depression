@@ -1,0 +1,30 @@
+@startuml
+skinparam shadowing false
+skinparam componentStyle rectangle
+
+node "User Device" as DEVICE {
+  artifact "Browser" as BROWSER
+  artifact "Angular App" as ANGULAR
+  artifact "localStorage token" as STORAGE
+}
+
+node "Frontend Runtime" as FRONTEND_HOST {
+  artifact "Angular SSR / Dev Server" as SSR
+}
+
+node "Backend Host" as BACKEND_HOST {
+  artifact "Django App" as DJANGO
+  database "SQLite db.sqlite3" as SQLITE
+}
+
+BROWSER --> ANGULAR
+ANGULAR --> STORAGE
+BROWSER --> SSR : HTTP
+SSR --> DJANGO : HTTP /api
+DJANGO --> SQLITE
+ANGULAR --> DJANGO : API requests with token
+
+cloud "CORS allowed origin\nhttp://localhost:4200" as CORS
+ANGULAR ..> CORS
+
+@enduml

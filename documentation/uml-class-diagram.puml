@@ -1,0 +1,85 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide methods
+
+class User <<external>>
+
+class Confession {
+  +text: TextField
+  +emotion: CharField
+  +location_hint: CharField
+  +created_at: DateTimeField
+  +likes: IntegerField
+  +is_revealed: BooleanField
+}
+
+class Match {
+  +score: FloatField
+  +created_at: DateTimeField
+  +is_active: BooleanField
+}
+
+class Event {
+  +type: CharField
+  +title: CharField
+  +description: TextField
+  +location: CharField
+  +plan: JSONField
+  +created_at: DateTimeField
+}
+
+class ChatMessage {
+  +message: TextField
+  +timestamp: DateTimeField
+}
+
+class RevealRequest {
+  +confession_a_accepted: BooleanField
+  +confession_b_accepted: BooleanField
+  +revealed: BooleanField
+}
+
+class Reaction {
+  +type: CharField
+  +content: TextField
+  +timestamp: DateTimeField
+}
+
+class Live {
+  +live_date: DateTimeField
+  +link: URLField
+  +result: TextField
+}
+
+class AcademicProfile {
+  +display_name: CharField
+  +academic_email: CharField
+  +programme: CharField
+  +bio: TextField
+  +created_at: DateTimeField
+  +updated_at: DateTimeField
+}
+
+User "1" -- "0..*" Confession : authors
+Confession "1" -- "0..*" Reaction : receives
+User "1" -- "0..*" Reaction : creates
+Confession "1" -- "0..*" ChatMessage : sends
+Match "1" -- "0..*" ChatMessage : contains
+Match "1" -- "1" RevealRequest : tracks
+Match "1" -- "1" Event : generates
+Match "1" -- "0..*" Live : schedules
+Confession "1" -- "0..*" Match : confession_a
+Confession "1" -- "0..*" Match : confession_b
+User "1" -- "0..1" AcademicProfile : owns
+Live "0..*" --> "1" Event
+Reaction "0..*" --> "1" Confession
+ChatMessage "0..*" --> "1" Match
+ChatMessage "0..*" --> "1" Confession
+RevealRequest "1" --> "1" Match
+AcademicProfile "0..1" --> "1" User
+
+note right of Confession
+Matching is triggered when a new confession is saved.
+end note
+
+@enduml

@@ -1,0 +1,26 @@
+@startuml
+actor User
+participant "Confess page" as FE
+participant "Api Service" as API
+participant "confession_list view" as BE
+participant "Confession.save()" as SAVE
+participant "find_matches()" as MATCH
+participant "Event creation" as EVENT
+participant "Database" as DB
+
+User -> FE : submit confession
+FE -> API : POST /confess/
+API -> BE : request with token
+BE -> DB : insert Confession
+DB --> BE : confession id
+BE -> SAVE : save triggers matching
+SAVE -> MATCH : find_matches(new_confession)
+MATCH -> DB : query candidate confessions
+DB --> MATCH : candidate rows
+MATCH -> DB : create Match when score > threshold
+MATCH -> EVENT : suggest_event()
+EVENT --> MATCH : event plan
+MATCH -> DB : create Event
+BE --> API : confession response
+API --> FE : created confession
+@enduml

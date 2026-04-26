@@ -1,0 +1,37 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+component "Angular Frontend\nwhisper-wall" as FE
+component "Router Pages" as RP
+component "Api Service" as API
+component "Django REST API\nwhisperwall" as BE
+component "Token Auth" as AUTH
+component "Matching Engine\n(model save + find_matches)" as MATCH
+database "SQLite\ndb.sqlite3" as DB
+component "Browser Storage\nlocalStorage" as LS
+component "SSR Node Server" as SSR
+
+FE --> RP
+FE --> API
+FE --> LS
+SSR --> FE
+API --> BE : HTTP /api
+BE --> AUTH
+BE --> MATCH
+BE --> DB
+MATCH --> DB
+AUTH --> DB
+BE --> DB
+
+note right of API
+Adds Authorization: Token <key>
+for authenticated requests.
+end note
+
+note bottom of MATCH
+Creates Match and Event records
+when a new confession is saved.
+end note
+
+@enduml
