@@ -101,6 +101,7 @@ export class Landing {
         localStorage.setItem('token', res.token);
         localStorage.setItem('userId', String(res.user.id));
         localStorage.setItem('userName', res.user.username || res.user.name || this.form.userName.trim());
+        localStorage.setItem('showWelcomeAfterSignup', 'true');
 
         this.loading = false;
         this.showSignup = false;

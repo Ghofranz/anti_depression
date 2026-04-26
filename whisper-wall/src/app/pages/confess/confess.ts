@@ -20,6 +20,7 @@ export class Confess implements OnInit {
   showHelpPopup = false;
   currentHelpIndex = 0;
   neverShowHelpAgain = false;
+  showWelcomePopup = false;
 
   helpPopups = [
     {
@@ -45,8 +46,24 @@ export class Confess implements OnInit {
   constructor(private api: Api, private router: Router) {}
 
   ngOnInit() {
-    const hideHelp = localStorage.getItem('hideSubmitSituationHelp') === 'true';
+    const showWelcome = localStorage.getItem('showWelcomeAfterSignup') === 'true';
 
+    if (showWelcome) {
+      this.showWelcomePopup = true;
+      localStorage.removeItem('showWelcomeAfterSignup');
+    } else {
+      const hideHelp = localStorage.getItem('hideSubmitSituationHelp') === 'true';
+
+      if (!hideHelp) {
+        this.currentHelpIndex = 0;
+        this.showHelpPopup = true;
+      }
+    }
+  }
+
+  startJourney() {
+    this.showWelcomePopup = false;
+    const hideHelp = localStorage.getItem('hideSubmitSituationHelp') === 'true';
     if (!hideHelp) {
       this.currentHelpIndex = 0;
       this.showHelpPopup = true;
