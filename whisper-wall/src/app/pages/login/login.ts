@@ -49,7 +49,11 @@ export class Login {
       password: this.password
     }).subscribe({
       next: (res: any) => {
-        localStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('myConfessionId');
+        localStorage.removeItem('profileId');
 
         localStorage.setItem('token', res.token);
         localStorage.setItem('userId', String(res.user.id));
@@ -114,7 +118,11 @@ export class Login {
       password: this.signupForm.password
     }).subscribe({
       next: (res: any) => {
-        localStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('myConfessionId');
+        localStorage.removeItem('profileId');
 
         localStorage.setItem('token', res.token);
         localStorage.setItem('userId', String(res.user.id));

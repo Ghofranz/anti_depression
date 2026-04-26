@@ -96,7 +96,11 @@ export class Landing {
       password: this.form.password
     }).subscribe({
       next: (res: any) => {
-        localStorage.clear();
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        localStorage.removeItem('userName');
+        localStorage.removeItem('myConfessionId');
+        localStorage.removeItem('profileId');
 
         localStorage.setItem('token', res.token);
         localStorage.setItem('userId', String(res.user.id));

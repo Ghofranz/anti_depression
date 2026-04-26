@@ -18,7 +18,11 @@ export class App {
   }
 
   logout() {
-    localStorage.clear();
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userName');
+    localStorage.removeItem('myConfessionId');
+    localStorage.removeItem('profileId');
     this.router.navigate(['/login']);
   }
 }
