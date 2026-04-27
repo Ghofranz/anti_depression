@@ -320,8 +320,15 @@ def manage_academic_profile(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_events_for_user_view(request):
-    user = get_user(request)
-    return Response(get_events_for_user(user.uid), status=status.HTTP_200_OK)
+    # Return all events for any authenticated user (for demo/testing)
+    from .firebase_store import _db
+    events = []
+    for d in _db().collection('events').stream():
+        e = d.to_dict()
+        events.append(e)
+    print(f"Fetched {len(events)} events from Firestore")
+    print(events)
+    return Response({'events': events}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])

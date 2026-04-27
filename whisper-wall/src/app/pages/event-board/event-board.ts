@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { PLATFORM_ID, inject } from '@angular/core';
@@ -38,7 +38,7 @@ export class EventBoard implements OnInit {
   loading = false;
   error = '';
 
-  constructor(private api: Api, private router: Router) {}
+  constructor(private api: Api, private router: Router, private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) {
@@ -54,8 +54,37 @@ export class EventBoard implements OnInit {
     this.loading = true;
     this.api.getEvents().subscribe({
       next: (payload: any) => {
-        this.events = Array.isArray(payload) ? payload : payload?.events || [];
+        console.log('Raw events payload from API:', payload);
         this.loading = false;
+        const events = Array.isArray(payload) ? payload : payload?.events || [];
+        // Map backend fields to frontend expectations
+        this.events = events.map((event: any, index: number) => {
+          const id = event.event_id ?? event.id ?? index;
+          // Normalize plan to always be { steps: [...] }
+          let plan = event.plan;
+          if (!plan) {
+            plan = { steps: [] };
+          } else if (Array.isArray(plan)) {
+            plan = { steps: plan };
+          } else if (!plan.steps || !Array.isArray(plan.steps)) {
+            plan = { steps: [] };
+          }
+          return {
+            ...event,
+            event_id: id,
+            status: event.status || 'SOON',
+            title: event.title || 'Untitled',
+            subtitle: event.subtitle || '',
+            vibe: event.vibe || '',
+            gradient: event.gradient || '',
+            participants: event.participants || 0,
+            room_id: event.room_id || '',
+            type: event.type || 'chat',
+            plan,
+          };
+        });
+        console.log('Mapped events:', this.events);
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         if (err?.status === 401 || err?.status === 403) {
@@ -69,6 +98,10 @@ export class EventBoard implements OnInit {
     });
   }
 
+  trackByEventId(index: number, event: WhisperEvent): number | string {
+    return event.event_id ?? index;
+  }
+
   joinEvent(roomId: string | undefined): void {
     if (!roomId) {
       return;
@@ -78,10 +111,13 @@ export class EventBoard implements OnInit {
   }
 
   getPlanCount(event: WhisperEvent): number {
+    if (!event.plan) return 0;
     if (Array.isArray(event.plan)) {
       return event.plan.length;
     }
-
-    return event.plan?.steps?.length || 0;
+    if (Array.isArray(event.plan.steps)) {
+      return event.plan.steps.length;
+    }
+    return 0;
   }
 }

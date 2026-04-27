@@ -28,11 +28,7 @@
         </div>
       </section>
 
-      <audio
-        #audioPlayer
-        [src]="currentTrackSrc"
-        preload="none"
-        loop>
+      <audio #audioPlayer [src]="currentTrackSrc" preload="none" loop>
       </audio>
 
       <section class="status-strip">
@@ -76,12 +72,8 @@
         </div>
 
         <div class="track-list">
-          <button
-            type="button"
-            *ngFor="let track of loFiTracks"
-            class="track-button"
-            [class.active]="selectedTrack?.label === track.label"
-            (click)="selectTrack(track)">
+          <button type="button" *ngFor="let track of loFiTracks" class="track-button"
+            [class.active]="selectedTrack?.label === track.label" (click)="selectTrack(track)">
             {{ track.label }}
           </button>
         </div>

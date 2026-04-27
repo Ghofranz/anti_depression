@@ -16,7 +16,7 @@
   </section>
 
   <section class="room-grid" *ngIf="!loading && !error">
-    <article *ngFor="let room of rooms" class="room-card">
+    <article *ngFor="let room of rooms; trackBy: trackByRoomId" class="room-card">
       <div class="thumbnail" [style.background]="room.gradient">
         <span class="room-status" [class.is-live]="room.status === 'LIVE'">{{ room.status }}</span>
         <div class="room-glow"></div>
@@ -28,7 +28,7 @@
 
       <div class="details">
         <div class="category-avatar" [style.background]="room.gradient">
-          {{ room.title[0] }}
+          {{ room.title ? room.title[0] : '?' }}
         </div>
         <div class="info">
           <h3 class="title">{{ room.title }}</h3>

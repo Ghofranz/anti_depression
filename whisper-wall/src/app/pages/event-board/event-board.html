@@ -20,7 +20,7 @@
 
   <section class="room-grid" *ngIf="!loading && !error">
 
-    <article *ngFor="let event of events" class="room-card" [attr.data-type]="event.type">
+    <article *ngFor="let event of events; trackBy: trackByEventId" class="room-card" [attr.data-type]="event.type">
 
       <!-- Thumbnail -->
       <div class="thumbnail" [style.background]="event.gradient">

@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, PLATFORM_ID, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { Api } from '../../services/api';
 
@@ -15,6 +15,7 @@ export class Live implements OnInit {
   private readonly platformId = inject(PLATFORM_ID);
   private router = inject(Router);
   private api = inject(Api);
+  private cdr = inject(ChangeDetectorRef);
 
   rooms: any[] = [];
   loading = false;
@@ -34,8 +35,21 @@ export class Live implements OnInit {
     this.loading = true;
     this.api.getStudyRooms().subscribe({
       next: (payload: any) => {
-        this.rooms = payload?.rooms || [];
+        console.log('Raw study rooms payload from API:', payload);
+        // Map backend fields to frontend expectations
+        this.rooms = (payload?.rooms || []).map((room: any, index: number) => ({
+          ...room,
+          id: room.room_id ?? room.id ?? index,
+          status: room.status || 'OPEN',
+          title: room.title || 'Untitled Room',
+          subtitle: room.subtitle || '',
+          vibe: room.vibe || '',
+          gradient: room.gradient || '',
+          people: room.people || '',
+          track: room.track || '',
+        }));
         this.loading = false;
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         if (err?.status === 401 || err?.status === 403) {
@@ -45,8 +59,13 @@ export class Live implements OnInit {
           this.error = 'Failed to load study rooms.';
         }
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
+  }
+
+  trackByRoomId(index: number, room: any): string | number {
+    return room.id ?? index;
   }
 
   joinRoom(roomId: string) {

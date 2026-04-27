@@ -1,5 +1,5 @@
 import { CommonModule, isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnInit, PLATFORM_ID, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Api } from '../../services/api';
 
@@ -14,11 +14,12 @@ interface LoFiTrack {
   templateUrl: './vedio-player.html',
   styleUrl: './vedio-player.scss',
 })
-export class VedioPlayer implements OnInit {
+export class VedioPlayer implements OnInit, AfterViewInit {
   @ViewChild('audioPlayer') audioPlayer?: ElementRef<HTMLAudioElement>;
 
   private readonly platformId = inject(PLATFORM_ID);
   private api = inject(Api);
+  private cdr = inject(ChangeDetectorRef);
 
   room: any;
   participants: Array<{ name: string; focus: string; avatar: string }> = [];
@@ -31,10 +32,6 @@ export class VedioPlayer implements OnInit {
   error = '';
 
   constructor(private route: ActivatedRoute, private router: Router) {}
-
-  get currentTrack() {
-    return this.selectedTrack;
-  }
 
   get currentTrackSrc() {
     return this.selectedTrack ? `/lofi/${encodeURIComponent(this.selectedTrack.file)}` : '';
@@ -64,7 +61,7 @@ export class VedioPlayer implements OnInit {
         this.selectedTrack = this.loFiTracks[0] || null;
         this.isPlaying = false;
         this.loading = false;
-        this.syncAudioState();
+        this.cdr.markForCheck();
       },
       error: (err: any) => {
         if (err?.status === 401 || err?.status === 403) {
@@ -74,6 +71,7 @@ export class VedioPlayer implements OnInit {
           this.error = 'Failed to load the study room.';
         }
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -89,12 +87,17 @@ export class VedioPlayer implements OnInit {
 
   selectTrack(track: LoFiTrack) {
     this.selectedTrack = track;
-    this.syncAudioState();
+    const audio = this.audioPlayer?.nativeElement;
+    if (audio) {
+      audio.load(); // reload src binding before playing
+    }
+    if (this.isPlaying) {
+      this.syncAudioState();
+    }
   }
 
   private syncAudioState() {
     const audio = this.audioPlayer?.nativeElement;
-
     if (!audio) {
       return;
     }
@@ -102,6 +105,7 @@ export class VedioPlayer implements OnInit {
     if (this.isPlaying) {
       audio.play().catch(() => {
         this.isPlaying = false;
+        this.cdr.markForCheck();
       });
     } else {
       audio.pause();
