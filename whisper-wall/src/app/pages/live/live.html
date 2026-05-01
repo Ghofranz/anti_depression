@@ -1,0 +1,186 @@
+<div class="live-page text-white">
+  <!-- Background -->
+  <div class="live-bg"></div>
+  <div class="live-overlay"></div>
+
+  <!-- Hero Content -->
+  <main class="live-content">
+    <p class="hero-kicker">Study with me</p>
+
+    <h1>Join a live study room</h1>
+
+    <p class="hero-subtitle">
+      Create your own study room or join an existing one to study with others in real time.
+    </p>
+
+    <div class="hero-actions">
+      <button type="button" class="primary-action" (click)="showCreateMode()">
+        Create a Room
+      </button>
+
+      <button type="button" class="secondary-action" (click)="showJoinMode()">
+        Join a Room
+      </button>
+    </div>
+
+    <div class="trust-strip">
+      <span>Focused study</span>
+      <span>Live collaboration</span>
+      <span>Quick room access</span>
+    </div>
+  </main>
+
+  <!-- Create Room Modal -->
+  <div *ngIf="activeMode === 'create'" class="modal-backdrop" (click)="activeMode = null">
+    <div class="modal-card create-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="modal-close" (click)="activeMode = null">✕</button>
+
+      <h2>Create your <span>Study Room</span></h2>
+
+      <p class="modal-intro">
+        Set a topic, focus, and duration. You will enter the room immediately after creation.
+      </p>
+
+      <div class="modal-form">
+        <label>
+          Room title *
+          <input [(ngModel)]="roomForm.title" type="text" placeholder="e.g. Django Revision" />
+        </label>
+
+        <label>
+          Topic *
+          <input [(ngModel)]="roomForm.topic" type="text" placeholder="e.g. Django REST" />
+        </label>
+
+        <label>
+          Focus
+          <input [(ngModel)]="roomForm.focus" type="text" placeholder="e.g. serializers" />
+        </label>
+
+        <label>
+          Duration
+          <select [(ngModel)]="roomForm.duration_minutes">
+            <option [ngValue]="25">25 minutes</option>
+            <option [ngValue]="45">45 minutes</option>
+            <option [ngValue]="60">60 minutes</option>
+            <option [ngValue]="90">90 minutes</option>
+          </select>
+        </label>
+
+        <label class="full">
+          Description
+          <textarea
+            [(ngModel)]="roomForm.description"
+            rows="4"
+            placeholder="What will people study in this room?"
+          ></textarea>
+        </label>
+      </div>
+
+      <p *ngIf="createError" class="modal-error">
+        {{ createError }}
+      </p>
+
+      <button type="button" class="modal-main-btn" [disabled]="creating" (click)="createRoom()">
+        {{ creating ? 'Creating room...' : 'Start Room' }}
+      </button>
+
+      <p class="modal-footer-note">🔒 Your room is focused on academic collaboration.</p>
+    </div>
+  </div>
+
+<!-- Join Room Modal -->
+<!-- Join Room Modal -->
+<div *ngIf="activeMode === 'join'" class="modal-backdrop" (click)="activeMode = null">
+  <div class="modal-card join-page-modal" (click)="$event.stopPropagation()">
+    <button type="button" class="modal-close" (click)="activeMode = null">✕</button>
+
+    <!-- Header like Academic Matches -->
+    <section class="join-hero">
+      <div class="join-hero-content">
+        <p class="join-kicker">Live study rooms</p>
+
+        <h2 style="color: aliceblue;">Join a Study Room</h2>
+
+        <p>
+          Find active topic rooms, study with others in real time, and ask quick questions during focused sessions.
+        </p>
+      </div>
+
+      <div class="join-hero-circle circle-one"></div>
+      <div class="join-hero-circle circle-two"></div>
+    </section>
+
+    <!-- Rooms container -->
+    <section class="join-content-card">
+      
+
+      <div *ngIf="loading" class="join-state">
+        Loading study rooms...
+      </div>
+
+      <div *ngIf="error" class="join-state error">
+        {{ error }}
+      </div>
+
+      <div *ngIf="!loading && !error && rooms.length === 0" class="join-state empty">
+        <div>📚</div>
+        <h4>No rooms available yet</h4>
+        <p>Create the first study room and wait for others to join.</p>
+      </div>
+
+      <div *ngIf="!loading && !error && rooms.length > 0" class="join-room-list">
+        <article
+          *ngFor="let room of rooms; trackBy: trackByRoomId"
+          class="join-room-card"
+          [class.is-live]="room.status === 'LIVE'"
+        >
+          <div class="join-room-main">
+            <div class="join-room-icon">
+              {{ room.title?.charAt(0)?.toUpperCase() || '?' }}
+            </div>
+
+            <div class="join-room-info">
+              <div class="join-room-title-row">
+                <h4>{{ room.title }}</h4>
+
+                <span
+                  class="status-pill"
+                  [ngClass]="{
+                    live: room.status === 'LIVE',
+                    finished: room.status === 'FINISHED'
+                  }"
+                >
+                  <span *ngIf="room.status === 'LIVE'" class="live-dot"></span>
+                  {{ room.status }}
+                </span>
+              </div>
+
+              <p class="join-room-subtitle">
+                {{ room.subtitle }}
+              </p>
+
+              <div class="join-room-note">
+                {{ room.vibe }}
+              </div>
+            </div>
+          </div>
+
+          <div class="join-room-side">
+            <div class="room-tags">
+              <span>{{ room.track }}</span>
+              <span>{{ room.people }}</span>
+            </div>
+
+            <button type="button" class="open-room-btn" (click)="joinRoom(room.id)">
+              Join Room
+            </button>
+
+            <p>Start or continue the live study session.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</div>
+</div>

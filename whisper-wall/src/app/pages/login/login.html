@@ -1,0 +1,152 @@
+<div class="login-page text-slate-900">
+
+  <div class="login-bg"></div>
+  <div class="login-overlay"></div>
+
+  <div class="login-card">
+
+    <button
+      routerLink="/"
+      class="close-btn"
+      type="button">
+      ✕
+    </button>
+
+    <h2 class="login-title">
+      {{ mode === 'login' ? 'Welcome back to' : 'Create your' }}
+      <br>
+      <span>{{ mode === 'login' ? 'CampusConnect' : 'Student Profile' }}</span>
+    </h2>
+
+    <p class="login-subtitle">
+      {{ mode === 'login'
+        ? 'Log in to continue your academic peer-support journey.'
+        : 'Start anonymously, connect safely, and collaborate when both sides agree.' }}
+    </p>
+
+    <div class="mode-switch">
+      <button
+        type="button"
+        (click)="switchMode('login')"
+        [class.active]="mode === 'login'">
+        Log in
+      </button>
+
+      <button
+        type="button"
+        (click)="switchMode('signup')"
+        [class.active]="mode === 'signup'">
+        Sign up
+      </button>
+    </div>
+
+    <!-- Login form -->
+    <div *ngIf="mode === 'login'">
+
+      <div class="form-group">
+        <label>Username</label>
+        <input
+          [(ngModel)]="username"
+          type="text"
+          placeholder="Enter your username">
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input
+          [(ngModel)]="password"
+          type="password"
+          placeholder="Enter your password">
+      </div>
+
+      <p *ngIf="error" class="error-message">
+        {{ error }}
+      </p>
+
+      <button
+        (click)="submit()"
+        [disabled]="loading"
+        class="main-btn">
+        {{ loading ? 'Logging in...' : 'Log in' }}
+      </button>
+
+      <p class="switch-text">
+        No account yet?
+        <button type="button" (click)="switchMode('signup')">
+          Create one
+        </button>
+      </p>
+
+    </div>
+
+    <!-- Signup form -->
+    <div *ngIf="mode === 'signup'">
+
+      <div class="form-group">
+        <label>Name *</label>
+        <input
+          [(ngModel)]="signupForm.name"
+          type="text"
+          placeholder="What should we call you?">
+      </div>
+
+      <div class="form-group">
+        <label>
+          Edu Email <span>(optional)</span>
+        </label>
+        <input
+          [(ngModel)]="signupForm.email"
+          type="email"
+          placeholder="student@university.edu">
+      </div>
+
+      <div class="form-group">
+        <label>Username *</label>
+        <input
+          [(ngModel)]="signupForm.userName"
+          type="text"
+          placeholder="Choose a username">
+      </div>
+
+      <div class="form-group">
+        <label>Password *</label>
+        <input
+          [(ngModel)]="signupForm.password"
+          type="password"
+          placeholder="Min 6 characters">
+      </div>
+
+      <div class="form-group">
+        <label>Confirm Password *</label>
+        <input
+          [(ngModel)]="signupForm.confirmPassword"
+          type="password"
+          placeholder="Repeat password">
+      </div>
+
+      <p *ngIf="error" class="error-message">
+        {{ error }}
+      </p>
+
+      <button
+        (click)="submitSignup()"
+        [disabled]="loading"
+        class="main-btn">
+        {{ loading ? 'Creating account...' : 'Start Connecting' }}
+      </button>
+
+      <p class="switch-text">
+        Already have an account?
+        <button type="button" (click)="switchMode('login')">
+          Log in
+        </button>
+      </p>
+
+    </div>
+
+    <p class="privacy-note">
+      🔒 Your personal details stay private unless both students agree to exchange contact.
+    </p>
+
+  </div>
+</div>

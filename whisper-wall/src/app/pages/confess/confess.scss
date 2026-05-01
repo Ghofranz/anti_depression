@@ -1,0 +1,480 @@
+:host {
+  display: block;
+}
+
+.confess-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #0f172a;
+  color: white;
+}
+
+.confess-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('/portal-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transform: scale(1.04);
+  filter: blur(3px) brightness(1.12) saturate(1.12) contrast(1.04);
+}
+
+.confess-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at center, rgba(79, 70, 229, 0.18), rgba(15, 23, 42, 0.58)),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.38), rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.38)),
+    linear-gradient(180deg, rgba(15, 23, 42, 0.14), rgba(15, 23, 42, 0.28));
+}
+
+.confess-shell {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  width: min(1120px, 88vw);
+  margin: 0 auto;
+  padding: 5.8rem 0 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confess-card {
+  width: 100%;
+  max-height: calc(100vh - 7rem);
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  border-radius: 1.7rem;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.32);
+}
+
+.confess-info {
+  position: relative;
+  padding: 2.2rem;
+  background:
+    radial-gradient(circle at top left, rgba(103, 232, 249, 0.25), transparent 42%),
+    linear-gradient(145deg, rgba(49, 46, 129, 0.98), rgba(15, 23, 42, 0.96));
+  color: white;
+}
+
+.info-kicker,
+.form-kicker {
+  margin: 0 0 1rem;
+  font-size: 0.78rem;
+  font-weight: 950;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.info-kicker {
+  color: #a5f3fc;
+}
+
+.confess-info h1 {
+  margin: 0;
+  font-size: clamp(2.1rem, 3.5vw, 3.35rem);
+  line-height: 0.96;
+  letter-spacing: -0.055em;
+  font-weight: 950;
+}
+.confess-info > p {
+  margin: 1.4rem 0 0;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 1rem;
+  line-height: 1.75;
+  font-weight: 500;
+}
+
+.info-steps {
+  margin-top: 1.8rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.info-steps div,
+.welcome-steps div {
+  display: flex;
+  gap: 0.9rem;
+  align-items: flex-start;
+}
+
+.info-steps span,
+.welcome-steps span {
+  width: 2rem;
+  height: 2rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+.info-steps span {
+  background: rgba(255, 255, 255, 0.16);
+  color: #a5f3fc;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+}
+
+.info-steps p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.84);
+  line-height: 1.45;
+  font-weight: 700;
+}
+
+.confess-form-panel {
+  padding: 2.2rem;
+  color: #1f2937;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+.form-header {
+  margin-bottom: 1.4rem;
+}
+
+.form-header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: clamp(1.9rem, 2.6vw, 2.55rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  font-weight: 950;
+}
+.form-kicker {
+  color: #4f46e5;
+}
+
+.form-header h2 {
+  margin: 0;
+  color: #111827;
+  font-size: clamp(2rem, 3vw, 3rem);
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+  font-weight: 950;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.label-row label {
+  color: #374151;
+  font-size: 0.92rem;
+  font-weight: 850;
+}
+
+.help-btn {
+  width: 1.95rem;
+  height: 1.95rem;
+  border: none;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-weight: 950;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.help-btn:hover {
+  background: #e0e7ff;
+  transform: translateY(-1px);
+}
+
+.confess-form-panel textarea,
+.confess-form-panel input,
+.confess-form-panel select {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 1rem;
+  background: white;
+  color: #111827;
+  padding: 1rem 1.05rem;
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+  transition: border 160ms ease, box-shadow 160ms ease;
+}
+
+.confess-form-panel textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.confess-form-panel textarea::placeholder,
+.confess-form-panel input::placeholder {
+  color: #9ca3af;
+}
+
+.confess-form-panel textarea:focus,
+.confess-form-panel input:focus,
+.confess-form-panel select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.16);
+}
+
+.error-box {
+  margin: 0.4rem 0 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 0.9rem;
+  background: #fef2f2;
+  color: #ef4444;
+  border: 1px solid #fecaca;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.submit-btn {
+  width: 100%;
+  border: none;
+  border-radius: 1rem;
+  padding: 1rem 1.2rem;
+  background: linear-gradient(135deg, #5b4df6, #4338ca);
+  color: white;
+  font-size: 1.05rem;
+  font-weight: 950;
+  cursor: pointer;
+  box-shadow: 0 18px 38px rgba(79, 70, 229, 0.26);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 22px 46px rgba(79, 70, 229, 0.34);
+  filter: brightness(1.02);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Popups */
+.popup-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-card {
+  position: relative;
+  width: min(440px, 94vw);
+  padding: 2rem;
+  border-radius: 1.5rem;
+  background: white;
+  color: #374151;
+  border: 1px solid #e0e7ff;
+  box-shadow: 0 25px 80px rgba(15, 23, 42, 0.45);
+}
+
+.popup-icon {
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1.25rem;
+  display: grid;
+  place-items: center;
+  border-radius: 1.25rem;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 2rem;
+}
+
+.popup-card h3 {
+  margin: 0;
+  color: #111827;
+  font-size: 1.55rem;
+  line-height: 1.2;
+  font-weight: 950;
+}
+
+.popup-card p {
+  color: #6b7280;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.popup-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  border: none;
+  background: transparent;
+  color: #9ca3af;
+  font-size: 1.7rem;
+  cursor: pointer;
+}
+
+.popup-close:hover {
+  color: #4f46e5;
+}
+
+.tip-pill {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f46e5;
+  font-size: 0.75rem;
+  font-weight: 950;
+}
+
+.never-again {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.25rem;
+  color: #6b7280;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.never-again input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #4f46e5;
+}
+
+.popup-actions {
+  margin-top: 1.6rem;
+  display: flex;
+  gap: 0.8rem;
+}
+
+.popup-primary-btn,
+.popup-secondary-btn {
+  flex: 1;
+  border: none;
+  border-radius: 0.95rem;
+  padding: 0.9rem 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.popup-primary-btn {
+  background: #4f46e5;
+  color: white;
+  box-shadow: 0 14px 32px rgba(79, 70, 229, 0.22);
+}
+
+.popup-primary-btn:hover {
+  background: #4338ca;
+  transform: translateY(-1px);
+}
+
+.popup-secondary-btn {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.popup-secondary-btn:hover {
+  background: #e2e8f0;
+}
+
+.welcome-steps {
+  margin: 1.5rem 0 2rem;
+  display: grid;
+  gap: 1rem;
+  text-align: left;
+}
+
+.welcome-steps span {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.welcome-steps p {
+  margin: 0;
+  color: #475569;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 920px) {
+  .confess-card {
+    grid-template-columns: 1fr;
+  }
+
+  .confess-info {
+    padding: 2.2rem;
+  }
+
+  .confess-form-panel {
+    padding: 2.2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .confess-shell {
+    width: min(100% - 24px, 1180px);
+    padding: 6rem 0 2rem;
+  }
+
+  .confess-info,
+  .confess-form-panel {
+    padding: 1.5rem;
+  }
+
+  .confess-info h1 {
+    font-size: 2.5rem;
+  }
+
+  .form-header h2 {
+    font-size: 2rem;
+  }
+
+  .popup-actions {
+    flex-direction: column;
+  }
+  @media (max-height: 760px) {
+  .confess-shell {
+    align-items: flex-start;
+    padding-top: 5.5rem;
+  }
+
+  .confess-card {
+    max-height: none;
+  }
+
+  .confess-info h1 {
+    font-size: 2.7rem;
+  }
+
+  .confess-info > p {
+    font-size: 0.92rem;
+    line-height: 1.55;
+  }
+
+  .info-steps {
+    margin-top: 1.3rem;
+    gap: 0.65rem;
+  }
+
+  .confess-form-panel textarea {
+    min-height: 105px;
+  }
+}
+}

@@ -1,0 +1,70 @@
+<div class="portal-bg-page px-4 pt-28 pb-14 md:px-10 text-slate-900">
+
+  <!-- ── HERO ───────────────────────────────────────────────── -->
+  <section class="hero">
+    <p class="eyebrow">Upcoming Events</p>
+    <h1>Pick an event, show up, and make something happen.</h1>
+    <p class="lead">
+      Date nights, live debates, open chat rooms — each one is structured, timed, and ready when you are.
+    </p>
+  </section>
+
+  <!-- ── EVENT GRID ─────────────────────────────────────────── -->
+  <section *ngIf="loading" class="text-center py-12 text-slate-600">
+    Loading events...
+  </section>
+
+  <section *ngIf="error" class="text-center py-12 text-red-600">
+    {{ error }}
+  </section>
+
+  <section class="room-grid" *ngIf="!loading && !error">
+
+    <article *ngFor="let event of events; trackBy: trackByEventId" class="room-card" [attr.data-type]="event.type">
+
+      <!-- Thumbnail -->
+      <div class="thumbnail" [style.background]="event.gradient">
+        <span class="room-status" [class.is-live]="event.status === 'LIVE'">
+          {{ event.status }}
+        </span>
+        <div class="room-glow"></div>
+        <div class="thumbnail-copy">
+          <p>{{ event.participants || 0 }} attending</p>
+          <strong>
+            <span *ngIf="event.type === 'date'">✦ Date</span>
+            <span *ngIf="event.type === 'battle'">◈ Battle</span>
+            <span *ngIf="event.type === 'chat'">❈ Chat</span>
+          </strong>
+        </div>
+      </div>
+
+      <!-- Details -->
+      <div class="details">
+        <div class="category-avatar" [style.background]="event.gradient">
+          {{ event.title[0] }}
+        </div>
+        <div class="info">
+          <h3 class="title">{{ event.title }}</h3>
+          <p class="meta">{{ event.subtitle }}</p>
+          <p class="vibe">{{ event.vibe }}</p>
+        </div>
+      </div>
+
+      <!-- Steps badge -->
+      <div class="steps-row">
+        <span class="steps-badge">{{ getPlanCount(event) }} STEPS</span>
+        <span class="event-id font-mono">WHISPER-RADAR-{{ event.event_id }}</span>
+      </div>
+
+      <!-- Action -->
+      <div class="room-actions">
+        <button type="button" class="join-button" [disabled]="event.status === 'ENDED' || !event.room_id"
+          (click)="joinEvent(event.room_id)">
+          {{ event.status === 'ENDED' ? 'Event ended' : 'Join room' }}
+        </button>
+      </div>
+
+    </article>
+
+  </section>
+</div>

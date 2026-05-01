@@ -1,0 +1,83 @@
+<nav class="navbar glass-navbar">
+  <a routerLink="/" class="logo">
+    CampusConnect
+  </a>
+
+  <input type="checkbox" id="nav-toggle" class="nav-toggle" />
+
+  <label for="nav-toggle" class="nav-toggle-label">
+    <span></span>
+  </label>
+
+  <ul class="nav-links">
+    <li>
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }">
+        Home
+      </a>
+    </li>
+
+    <!-- Connected users only -->
+    <li *ngIf="isLoggedIn()">
+      <a routerLink="/dashboard" routerLinkActive="active">
+        Dashboard
+      </a>
+    </li>
+
+    <li *ngIf="isLoggedIn()">
+      <a routerLink="/confess" routerLinkActive="active">
+        Submit Situation
+      </a>
+    </li>
+
+    <li *ngIf="isLoggedIn()">
+      <a routerLink="/matches" routerLinkActive="active">
+        Academic Matches
+      </a>
+    </li>
+
+    <!-- Public links -->
+    <li>
+      <a routerLink="/event" routerLinkActive="active">
+        Event
+      </a>
+    </li>
+
+    <li>
+      <a routerLink="/live" routerLinkActive="active">
+        Live
+      </a>
+    </li>
+
+    <!-- Auth -->
+    <li *ngIf="!isLoggedIn()">
+      <a routerLink="/login" routerLinkActive="active">
+        Login
+      </a>
+    </li>
+
+    <li *ngIf="isLoggedIn()">
+      <a href="javascript:void(0)" (click)="logout()">
+        Logout
+      </a>
+    </li>
+  </ul>
+</nav>
+
+<main class="app-content">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="footer">
+  <div class="footer-content">
+    <p>CampusConnect © 2026</p>
+
+    <div class="footer-links">
+      <span>Anonymous</span>
+      <span>Academic</span>
+      <span>Supportive</span>
+    </div>
+  </div>
+</footer>

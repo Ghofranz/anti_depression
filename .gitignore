@@ -1,0 +1,14 @@
+﻿node_modules/
+.venv/
+dist/
+.angular/
+coverage/
+*.mp3
+*.wav
+*.mp4
+*.mov
+*.zip
+
+firebase-service-account.json
+
+**/firebase-service-account.json

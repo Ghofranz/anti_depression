@@ -1,0 +1,38 @@
+from django.urls import path
+from .views import (
+    activate_contact_exchange,
+    confession_list,
+    get_chat,
+    get_contact_exchange_status,
+    get_events_for_user,
+    get_matches,
+    join_study_room,
+    leave_study_room,
+    login,
+    manage_academic_profile,
+    request_reveal,
+    send_message,
+    sign_up,
+    study_room_detail,
+    study_room_messages,
+    study_rooms,
+)
+
+urlpatterns = [
+    path('confess/',confession_list),
+    path('matches/<int:confession_id>/', get_matches),
+    path('chat/send/', send_message),
+    path('chat/<int:match_id>/', get_chat),
+    path('reveal/', request_reveal),
+    path('contact-exchange/status/<int:match_id>/', get_contact_exchange_status),
+    path('contact-exchange/activate/<int:match_id>/', activate_contact_exchange),
+    path('profile/me/', manage_academic_profile),
+    path('events/', get_events_for_user),
+    path('study/rooms/', study_rooms),
+    path('study/rooms/<int:room_id>/', study_room_detail),
+    path('study/rooms/<int:room_id>/join/', join_study_room),
+    path('study/rooms/<int:room_id>/leave/', leave_study_room),
+    path('study/rooms/<int:room_id>/messages/', study_room_messages),
+    path('sign_up/', sign_up),
+    path('login/', login)
+]

@@ -1,0 +1,221 @@
+<div class="confess-page">
+  <!-- Background -->
+  <div class="confess-bg"></div>
+  <div class="confess-overlay"></div>
+
+  <main class="confess-shell">
+    <section class="confess-card">
+      <!-- Left Info Panel -->
+      <aside class="confess-info">
+        <p class="info-kicker">Academic peer support</p>
+
+        <h1>
+          Share an academic situation
+        </h1>
+
+        <p>
+          Describe what you need, add the right academic context, and CampusConnect will help match you with students who may understand your situation.
+        </p>
+
+        <div class="info-steps">
+          <div>
+            <span>1</span>
+            <p>Describe your need clearly.</p>
+          </div>
+
+          <div>
+            <span>2</span>
+            <p>Select the right academic category.</p>
+          </div>
+
+          <div>
+            <span>3</span>
+            <p>Add course, classroom, or campus context.</p>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Form Panel -->
+      <section class="confess-form-panel">
+        <div class="form-header">
+          <div>
+            <p class="form-kicker">Submit Situation</p>
+            <h2>What do you need help with?</h2>
+          </div>
+        </div>
+
+        <!-- Situation Description -->
+        <div class="form-group">
+          <div class="label-row">
+            <label>Situation Description</label>
+
+            <button
+              type="button"
+              class="help-btn"
+              (click)="openHelpPopup(0)"
+              aria-label="Help for situation description">
+              ?
+            </button>
+          </div>
+
+          <textarea
+            [(ngModel)]="text"
+            placeholder="Describe what you need help with or what you are looking for..."
+            rows="6">
+          </textarea>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <div class="label-row">
+            <label>Category</label>
+
+            <button
+              type="button"
+              class="help-btn"
+              (click)="openHelpPopup(1)"
+              aria-label="Help for category">
+              ?
+            </button>
+          </div>
+
+          <select [(ngModel)]="emotion">
+            <option value="course_help">Course Help</option>
+            <option value="project_team">Project Team</option>
+            <option value="exam_preparation">Exam Preparation</option>
+            <option value="study_group">Study Group</option>
+            <option value="internship_advice">Internship Advice</option>
+            <option value="administrative_request">Administrative Request</option>
+            <option value="lost_found">Lost / Found</option>
+          </select>
+        </div>
+
+        <!-- Campus Context -->
+        <div class="form-group">
+          <div class="label-row">
+            <label>Campus Context</label>
+
+            <button
+              type="button"
+              class="help-btn"
+              (click)="openHelpPopup(2)"
+              aria-label="Help for campus context">
+              ?
+            </button>
+          </div>
+
+          <input
+            [(ngModel)]="location"
+            placeholder="Course, classroom, campus place, or context..."
+          />
+        </div>
+
+        <div class="error-box" *ngIf="error">
+          {{ error }}
+        </div>
+
+        <button
+          type="button"
+          (click)="submit()"
+          [disabled]="loading"
+          class="submit-btn">
+          {{ loading ? 'Submitting...' : 'Submit Situation' }}
+        </button>
+      </section>
+    </section>
+  </main>
+
+  <!-- Welcome Popup -->
+  <div
+    *ngIf="showWelcomePopup"
+    class="popup-backdrop">
+
+    <div class="popup-card text-center">
+      <div class="popup-icon">
+        🎓
+      </div>
+
+      <h3>
+        Welcome to CampusConnect
+      </h3>
+
+      <p>
+        Start your academic peer-support journey.
+      </p>
+
+      <div class="welcome-steps">
+        <div>
+          <span>1</span>
+          <p>Share your academic situation.</p>
+        </div>
+
+        <div>
+          <span>2</span>
+          <p>Get matched with students who have similar academic needs.</p>
+        </div>
+
+        <div>
+          <span>3</span>
+          <p>Chat anonymously first, then exchange academic contact only by mutual agreement.</p>
+        </div>
+      </div>
+
+      <button
+        type="button"
+        (click)="startJourney()"
+        class="popup-primary-btn">
+        Start your journey
+      </button>
+    </div>
+  </div>
+
+  <!-- Help Popup -->
+  <div
+    *ngIf="showHelpPopup"
+    class="popup-backdrop">
+
+    <div class="popup-card">
+      <button
+        type="button"
+        (click)="closeHelpPopup()"
+        class="popup-close">
+        ×
+      </button>
+
+      <div class="tip-pill">
+        Tip {{ currentHelpIndex + 1 }} of {{ helpPopups.length }}
+      </div>
+
+      <h3>
+        {{ currentHelp.title }}
+      </h3>
+
+      <p>
+        {{ currentHelp.message }}
+      </p>
+
+      <label class="never-again">
+        <input
+          type="checkbox"
+          [(ngModel)]="neverShowHelpAgain">
+        Never show me again
+      </label>
+
+      <div class="popup-actions">
+        <button
+          type="button"
+          (click)="closeHelpPopup()"
+          class="popup-secondary-btn">
+          Skip
+        </button>
+
+        <button
+          type="button"
+          (click)="nextHelpPopup()"
+          class="popup-primary-btn">
+          {{ currentHelpIndex < helpPopups.length - 1 ? 'Next' : 'Got it' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
