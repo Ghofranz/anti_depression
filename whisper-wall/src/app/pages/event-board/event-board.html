@@ -2,16 +2,16 @@
 
   <!-- ── HERO ───────────────────────────────────────────────── -->
   <section class="hero">
-    <p class="eyebrow">Upcoming Events</p>
-    <h1>Pick an event, show up, and make something happen.</h1>
+    <p class="eyebrow">Campus News</p>
+    <h1>Good news from tech, studies, and campus life.</h1>
     <p class="lead">
-      Date nights, live debates, open chat rooms — each one is structured, timed, and ready when you are.
+      Official updates and positive stories shared by admins.
     </p>
   </section>
 
   <!-- ── EVENT GRID ─────────────────────────────────────────── -->
   <section *ngIf="loading" class="text-center py-12 text-slate-600">
-    Loading events...
+    Loading news...
   </section>
 
   <section *ngIf="error" class="text-center py-12 text-red-600">
@@ -20,48 +20,31 @@
 
   <section class="room-grid" *ngIf="!loading && !error">
 
-    <article *ngFor="let event of events; trackBy: trackByEventId" class="room-card" [attr.data-type]="event.type">
+    <article *ngFor="let item of news; trackBy: trackByNewsId" class="room-card">
 
-      <!-- Thumbnail -->
-      <div class="thumbnail" [style.background]="event.gradient">
-        <span class="room-status" [class.is-live]="event.status === 'LIVE'">
-          {{ event.status }}
-        </span>
+      <div class="thumbnail">
+        <span class="room-status is-live">NEWS</span>
         <div class="room-glow"></div>
         <div class="thumbnail-copy">
-          <p>{{ event.participants || 0 }} attending</p>
-          <strong>
-            <span *ngIf="event.type === 'date'">✦ Date</span>
-            <span *ngIf="event.type === 'battle'">◈ Battle</span>
-            <span *ngIf="event.type === 'chat'">❈ Chat</span>
-          </strong>
+          <p>Admin post</p>
+          <strong>Good News</strong>
         </div>
       </div>
 
-      <!-- Details -->
       <div class="details">
-        <div class="category-avatar" [style.background]="event.gradient">
-          {{ event.title[0] }}
+        <div class="category-avatar">
+          {{ item.title[0] }}
         </div>
         <div class="info">
-          <h3 class="title">{{ event.title }}</h3>
-          <p class="meta">{{ event.subtitle }}</p>
-          <p class="vibe">{{ event.vibe }}</p>
+          <h3 class="title">{{ item.title }}</h3>
+          <p class="meta">{{ item.author_name || 'Admin' }}</p>
+          <p class="vibe">{{ item.body }}</p>
         </div>
       </div>
 
-      <!-- Steps badge -->
       <div class="steps-row">
-        <span class="steps-badge">{{ getPlanCount(event) }} STEPS</span>
-        <span class="event-id font-mono">WHISPER-RADAR-{{ event.event_id }}</span>
-      </div>
-
-      <!-- Action -->
-      <div class="room-actions">
-        <button type="button" class="join-button" [disabled]="event.status === 'ENDED' || !event.room_id"
-          (click)="joinEvent(event.room_id)">
-          {{ event.status === 'ENDED' ? 'Event ended' : 'Join room' }}
-        </button>
+        <span class="steps-badge">NEWS</span>
+        <span class="event-id font-mono">{{ item.created_at | date: 'mediumDate' }}</span>
       </div>
 
     </article>

@@ -4,6 +4,8 @@ from .models import (
     ChatMessage,
     Confession,
     Event,
+    LofiTrack,
+    News,
     Match,
     RevealRequest,
     StudyMessage,
@@ -21,6 +23,33 @@ class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = '__all__'
+
+
+class NewsSerializer(serializers.ModelSerializer):
+    author_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = News
+        fields = ['id', 'title', 'body', 'created_at', 'author_name']
+
+    def get_author_name(self, obj):
+        if obj.created_by:
+            return obj.created_by.get_full_name() or obj.created_by.username
+        return 'Admin'
+
+
+class LofiTrackSerializer(serializers.ModelSerializer):
+    file_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = LofiTrack
+        fields = ['id', 'title', 'file_url', 'created_at']
+
+    def get_file_url(self, obj):
+        request = self.context.get('request')
+        if request:
+            return request.build_absolute_uri(obj.audio_file.url)
+        return obj.audio_file.url
 
 class MatchSerializer(serializers.ModelSerializer):
     confession_a = ConfessionSerializer()

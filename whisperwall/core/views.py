@@ -5,16 +5,18 @@ from django.shortcuts import get_object_or_404
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from .models import Confession, Match, ChatMessage, RevealRequest, Event, AcademicProfile, StudyMessage, StudyParticipant, StudyRoom
+from .models import Confession, Match, ChatMessage, RevealRequest, Event, LofiTrack, News, AcademicProfile, StudyMessage, StudyParticipant, StudyRoom
 from .serializers import (
     AcademicProfileSerializer,
     ChatMessageSerializer,
     ConfessionSerializer,
+    LofiTrackSerializer,
     MatchSerializer,
+    NewsSerializer,
     StudyMessageSerializer,
     StudyRoomSerializer,
 )
@@ -385,6 +387,46 @@ def get_events_for_user(request):
         })
 
     return Response({'events': data}, status=status.HTTP_200_OK)
+
+
+# ─── News ───────────────────────────────────────────────────────────────────
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def news_list(request):
+    if request.method == 'POST':
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return Response({"error": "Admin only"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = NewsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    news = News.objects.filter(is_published=True).order_by('-created_at')
+    serializer = NewsSerializer(news, many=True)
+    return Response({'news': serializer.data}, status=status.HTTP_200_OK)
+
+
+# ─── Lo-fi ──────────────────────────────────────────────────────────────────
+
+@api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
+def lofi_tracks(request):
+    if request.method == 'POST':
+        if not request.user.is_authenticated or not request.user.is_staff:
+            return Response({"error": "Admin only"}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = LofiTrackSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    tracks = LofiTrack.objects.filter(is_published=True).order_by('-created_at')
+    serializer = LofiTrackSerializer(tracks, many=True, context={'request': request})
+    return Response({'tracks': serializer.data}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET', 'POST'])

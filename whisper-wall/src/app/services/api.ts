@@ -55,8 +55,12 @@ export class Api {
     return this.http.get(`${this.base}/contact-exchange/status/${matchId}/`, this.getAuthHeaders());
   }
 
-  getEvents() {
-    return this.http.get(`${this.base}/events/`, this.getAuthHeaders());
+  getNews() {
+    return this.http.get(`${this.base}/news/`);
+  }
+
+  getLofiTracks() {
+    return this.http.get(`${this.base}/lofi/`);
   }
 
   getStudyRooms() {
@@ -97,5 +101,9 @@ export class Api {
 
   saveAcademicProfile(data: any) {
     return this.http.post(`${this.base}/profile/me/`, data, this.getAuthHeaders());
+  }
+
+  getEvents() {
+    return this.http.get(`${this.base}/events/`, this.getAuthHeaders());
   }
 }

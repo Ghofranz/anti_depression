@@ -1,5 +1,5 @@
 <nav class="navbar glass-navbar">
-  <a routerLink="/" class="logo">
+  <a routerLink="/" class="logo" style=" margin-right: 8px;">
     CampusConnect
   </a>
 
@@ -11,10 +11,7 @@
 
   <ul class="nav-links">
     <li>
-      <a
-        routerLink="/"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
         Home
       </a>
     </li>
@@ -40,8 +37,8 @@
 
     <!-- Public links -->
     <li>
-      <a routerLink="/event" routerLinkActive="active">
-        Event
+      <a routerLink="/news" routerLinkActive="active">
+        News
       </a>
     </li>
 
@@ -56,6 +53,23 @@
       <a routerLink="/login" routerLinkActive="active">
         Login
       </a>
+    </li>
+
+    <li *ngIf="isLoggedIn()" class="nav-item">
+      <a href="javascript:void(0)" (click)="toggleNotifications()" class="notification-bell">
+        🔔 <span class="badge" *ngIf="events.length > 0">{{ events.length }}</span>
+      </a>
+      <div class="notifications-dropdown" *ngIf="showNotifications">
+        <div class="dropdown-header">Notifications</div>
+        <div class="dropdown-content">
+          <div *ngIf="events.length === 0" class="no-notifications">No new notifications</div>
+          <div *ngFor="let event of events" class="notification-item">
+            <div class="notification-title">{{ event.title }}</div>
+            <div class="notification-plan">{{ event.plan }}</div>
+            <div class="notification-time">{{ event.created_at }}</div>
+          </div>
+        </div>
+      </div>
     </li>
 
     <li *ngIf="isLoggedIn()">

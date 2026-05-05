@@ -65,6 +65,33 @@ class Event(models.Model):
         return self.title
 
 
+class News(models.Model):
+    title = models.CharField(max_length=255)
+    body = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='news_posts',
+    )
+    is_published = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+
+class LofiTrack(models.Model):
+    title = models.CharField(max_length=200)
+    audio_file = models.FileField(upload_to='')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_published = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.title
+
+
 class ChatMessage(models.Model):
     match = models.ForeignKey(Match, on_delete=models.CASCADE)
     sender = models.ForeignKey(Confession, on_delete=models.CASCADE)

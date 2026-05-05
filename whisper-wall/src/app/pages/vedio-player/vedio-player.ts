@@ -6,7 +6,7 @@ import { Api } from '../../services/api';
 
 interface LoFiTrack {
   label: string;
-  file: string;
+  url: string;
 }
 
 @Component({
@@ -44,7 +44,7 @@ export class VedioPlayer implements OnInit, AfterViewInit, AfterViewChecked, OnD
   constructor(private route: ActivatedRoute, private router: Router) {}
 
   get currentTrackSrc() {
-    return this.selectedTrack ? `/lofi/${encodeURIComponent(this.selectedTrack.file)}` : '';
+    return this.selectedTrack?.url || '';
   }
 
   ngOnInit() {
@@ -113,14 +113,7 @@ export class VedioPlayer implements OnInit, AfterViewInit, AfterViewChecked, OnD
             ...p,
             avatar: (p.name || p.username || '?').charAt(0).toUpperCase(),
           }));
-        this.loFiTracks = [
-          { label: 'Rain Study', file: "A Dyin' Breed - The Grey Room _ Density & Time.mp3" },
-          { label: 'Moonlight Beats', file: 'Down The Rabbit Hole - The Grey Room _ Density & Time.mp3' },
-          { label: 'Coffee & Loops', file: 'Drop Of A Hat - The Grey Room _ Density & Time.mp3' },
-        ];
-        if (!this.selectedTrack) {
-          this.selectedTrack = this.loFiTracks[0] || null;
-        }
+        this.loadLofiTracks();
         this.loading = false;
         this.updateTimer();
         this.cdr.markForCheck();
@@ -146,6 +139,24 @@ export class VedioPlayer implements OnInit, AfterViewInit, AfterViewChecked, OnD
         this.messages = nextMessages;
         this.lastMessageCount = nextMessages.length;
         this.shouldScrollRoomChat = shouldScroll;
+        this.cdr.markForCheck();
+      },
+      error: () => {}
+    });
+  }
+
+  private loadLofiTracks() {
+    this.api.getLofiTracks().subscribe({
+      next: (payload: any) => {
+        const tracks = Array.isArray(payload) ? payload : payload?.tracks || [];
+        this.loFiTracks = tracks.map((track: any) => ({
+          label: track.title || 'Lo-fi track',
+          url: track.file_url || '',
+        })).filter((track: LoFiTrack) => !!track.url);
+
+        if (!this.selectedTrack) {
+          this.selectedTrack = this.loFiTracks[0] || null;
+        }
         this.cdr.markForCheck();
       },
       error: () => {}
