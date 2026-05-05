@@ -9,7 +9,7 @@ This plan keeps everything on free tiers and uses the simplest setup with minima
 3. Build command:
    - `pip install -r requirements.txt`
 4. Start command:
-   - `gunicorn whisperwall.wsgi:application --bind 0.0.0.0:$PORT`
+   - `gunicorn whisperwall.wsgi:application --chdir whisperwall --bind 0.0.0.0:$PORT`
 5. Add environment variables:
    - `DJANGO_SECRET_KEY` (new secure value)
    - `DJANGO_DEBUG=false`
