@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { PLATFORM_ID, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { Api } from '../../services/api';
 
 export interface NewsItem {
@@ -24,7 +25,11 @@ export class EventBoard implements OnInit {
   loading = false;
   error = '';
 
-  constructor(private api: Api, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private api: Api,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit() {
     if (!isPlatformBrowser(this.platformId)) {
@@ -54,5 +59,9 @@ export class EventBoard implements OnInit {
 
   trackByNewsId(index: number, item: NewsItem): number | string {
     return item.id ?? index;
+  }
+
+  navigateToNews(newsId: number | string) {
+    this.router.navigate(['/news', newsId]);
   }
 }

@@ -1,0 +1,8 @@
+[build]
+  command = "cd whisper-wall && npm install && npm run build && cp dist/whisper-wall/browser/index.csr.html dist/whisper-wall/browser/index.html"
+  publish = "whisper-wall/dist/whisper-wall/browser"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

@@ -5,6 +5,7 @@ import '../state/auth_store.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_card.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/background_widget.dart';
 import 'home_shell.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -56,60 +57,62 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       appBar: AppBar(),
-      body: ListView(
-        padding: const EdgeInsets.all(24),
-        children: [
-          Text(
-            'Welcome back',
-            style: Theme.of(context).textTheme.headlineMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            'Pick up the thread, check your matches, and keep the conversation flowing.',
-            style: Theme.of(
-              context,
-            ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
-          ),
-          const SizedBox(height: 24),
-          AppCard(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  TextFormField(
-                    controller: _username,
-                    decoration: const InputDecoration(labelText: 'Username'),
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Enter username'
-                        : null,
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _password,
-                    decoration: const InputDecoration(labelText: 'Password'),
-                    obscureText: true,
-                    validator: (value) => value == null || value.isEmpty
-                        ? 'Enter password'
-                        : null,
-                  ),
-                  if (_error != null) ...[
+      body: BackgroundWidget(
+        child: ListView(
+          padding: const EdgeInsets.all(24),
+          children: [
+            Text(
+              'Welcome back',
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Pick up the thread, check your matches, and keep the conversation flowing.',
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
+            ),
+            const SizedBox(height: 24),
+            AppCard(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    TextFormField(
+                      controller: _username,
+                      decoration: const InputDecoration(labelText: 'Username'),
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Enter username'
+                          : null,
+                    ),
                     const SizedBox(height: 12),
-                    Text(
-                      _error!,
-                      style: const TextStyle(color: AppColors.danger),
+                    TextFormField(
+                      controller: _password,
+                      decoration: const InputDecoration(labelText: 'Password'),
+                      obscureText: true,
+                      validator: (value) => value == null || value.isEmpty
+                          ? 'Enter password'
+                          : null,
+                    ),
+                    if (_error != null) ...[
+                      const SizedBox(height: 12),
+                      Text(
+                        _error!,
+                        style: const TextStyle(color: AppColors.danger),
+                      ),
+                    ],
+                    const SizedBox(height: 16),
+                    PrimaryButton(
+                      label: 'Login',
+                      onPressed: isBusy ? null : _submit,
+                      isLoading: isBusy,
                     ),
                   ],
-                  const SizedBox(height: 16),
-                  PrimaryButton(
-                    label: 'Login',
-                    onPressed: isBusy ? null : _submit,
-                    isLoading: isBusy,
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

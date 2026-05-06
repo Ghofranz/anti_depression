@@ -7,6 +7,7 @@ import '../models/match.dart';
 import '../state/auth_store.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_card.dart';
+import '../widgets/background_widget.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -46,7 +47,9 @@ class DashboardScreen extends StatelessWidget {
                   context: context,
                   backgroundColor: AppColors.surface,
                   shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                   ),
                   builder: (context) {
                     if (events.isEmpty) {
@@ -61,9 +64,23 @@ class DashboardScreen extends StatelessWidget {
                       itemBuilder: (context, index) {
                         final event = events[index];
                         return ListTile(
-                          title: Text(event['title'] ?? '', style: TextStyle(color: AppColors.ink)),
-                          subtitle: Text(event['plan'] ?? '', style: TextStyle(color: AppColors.ink.withOpacity(0.7))),
-                          trailing: Text(event['created_at'] ?? '', style: TextStyle(fontSize: 12, color: AppColors.teal)),
+                          title: Text(
+                            event['title'] ?? '',
+                            style: TextStyle(color: AppColors.ink),
+                          ),
+                          subtitle: Text(
+                            event['plan'] ?? '',
+                            style: TextStyle(
+                              color: AppColors.ink.withOpacity(0.7),
+                            ),
+                          ),
+                          trailing: Text(
+                            event['created_at'] ?? '',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.teal,
+                            ),
+                          ),
                         );
                       },
                     );
@@ -80,100 +97,102 @@ class DashboardScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: FutureBuilder<_DashboardData>(
-        future: _loadData(auth),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final data = snapshot.data!;
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              Text(
-                'Hello, ${session?.name.isNotEmpty == true ? session!.name : session?.username ?? 'friend'}',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Your calm progress, one whisper at a time.',
-                style: Theme.of(
-                  context,
-                ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Expanded(
-                    child: _MetricCard(
-                      label: 'Confessions',
-                      value: data.confessions.length.toString(),
-                      color: AppColors.coral,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _MetricCard(
-                      label: 'Matches',
-                      value: data.matches.length.toString(),
-                      color: AppColors.teal,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: _MetricCard(
-                      label: 'News',
-                      value: data.news.length.toString(),
-                      color: AppColors.gold,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _MetricCard(
-                      label: 'Momentum',
-                      value: data.confessions.isEmpty ? '0%' : '72%',
-                      color: AppColors.navy,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-              Text(
-                'Recent confessions',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 8),
-              if (data.confessions.isEmpty)
-                const Text('No confessions yet. Start with a new whisper.')
-              else
-                ...data.confessions
-                    .take(3)
-                    .map(
-                      (confession) => AppCard(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              confession.text,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              '${confession.emotion} • ${confession.locationHint}',
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: AppColors.navy),
-                            ),
-                          ],
-                        ),
+      body: BackgroundWidget(
+        child: FutureBuilder<_DashboardData>(
+          future: _loadData(auth),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final data = snapshot.data!;
+            return ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                Text(
+                  'Hello, ${session?.name.isNotEmpty == true ? session!.name : session?.username ?? 'friend'}',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Your calm progress, one whisper at a time.',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _MetricCard(
+                        label: 'Confessions',
+                        value: data.confessions.length.toString(),
+                        color: AppColors.coral,
                       ),
                     ),
-            ],
-          );
-        },
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _MetricCard(
+                        label: 'Matches',
+                        value: data.matches.length.toString(),
+                        color: AppColors.teal,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _MetricCard(
+                        label: 'News',
+                        value: data.news.length.toString(),
+                        color: AppColors.gold,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _MetricCard(
+                        label: 'Momentum',
+                        value: data.confessions.isEmpty ? '0%' : '72%',
+                        color: AppColors.navy,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  'Recent confessions',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 8),
+                if (data.confessions.isEmpty)
+                  const Text('No confessions yet. Start with a new whisper.')
+                else
+                  ...data.confessions
+                      .take(3)
+                      .map(
+                        (confession) => AppCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                confession.text,
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                '${confession.emotion} • ${confession.locationHint}',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: AppColors.navy),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }

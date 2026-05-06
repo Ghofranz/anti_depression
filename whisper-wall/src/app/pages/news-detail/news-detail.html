@@ -1,0 +1,67 @@
+<div class="portal-bg-page px-4 pt-28 pb-14 md:px-10 text-slate-900">
+
+  <!-- ── LOADING ────────────────────────────────────────────── -->
+  <section *ngIf="loading" class="text-center py-20">
+    <div class="spinner"></div>
+    <p class="mt-4 text-slate-400">Loading article...</p>
+  </section>
+
+  <!-- ── ERROR ─────────────────────────────────────────────── -->
+  <section *ngIf="error && !loading" class="max-w-2xl mx-auto text-center py-16">
+    <p class="text-red-500 text-lg mb-6">{{ error }}</p>
+    <button (click)="goBack()" class="btn-primary">
+      ← Back to News
+    </button>
+  </section>
+
+  <!-- ── NEWS DETAIL ───────────────────────────────────────── -->
+  <article *ngIf="news && !loading" class="max-w-3xl mx-auto">
+
+    <!-- Header with gradient -->
+    <section class="mb-8">
+      <button (click)="goBack()" class="text-cyan-400 hover:text-cyan-300 text-sm mb-6 flex items-center gap-2 transition">
+        ← Back to News
+      </button>
+
+      <div class="news-header-card">
+        <div class="flex items-start gap-4 mb-6">
+          <div class="w-16 h-16 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+            {{ news.title[0].toUpperCase() }}
+          </div>
+          <div class="flex-1">
+            <h2 class="text-sm text-cyan-400 font-semibold uppercase tracking-widest mb-2">{{ news.author_name || 'Campus Admin' }}</h2>
+            <p class="text-xs text-slate-400">{{ news.created_at | date: 'fullDate' }}</p>
+          </div>
+        </div>
+
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">{{ news.title }}</h1>
+        
+        <div class="flex items-center gap-2">
+          <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-cyan-500 bg-opacity-20 text-cyan-300 border border-cyan-400 border-opacity-30">
+            📰 News
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content card -->
+    <section class="news-content-card">
+      <div class="prose-content">
+        {{ news.body }}
+      </div>
+    </section>
+
+    <!-- Footer with action -->
+    <section class="mt-12 flex gap-4 justify-center">
+      <button
+        (click)="goBack()"
+        class="btn-secondary"
+      >
+        ← Back to News
+      </button>
+    </section>
+
+  </article>
+
+</div>
+

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../models/study_message.dart';
 import '../state/auth_store.dart';
 import '../theme/app_colors.dart';
+import '../widgets/background_widget.dart';
 
 class StudyRoomDetailArgs {
   StudyRoomDetailArgs({required this.roomId, required this.roomTitle});
@@ -85,71 +86,73 @@ class _StudyRoomDetailScreenState extends State<StudyRoomDetailScreen> {
         title: Text(widget.args.roomTitle),
         actions: [TextButton(onPressed: _leave, child: const Text('Leave'))],
       ),
-      body: Column(
-        children: [
-          Expanded(
-            child: _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              message.name.isNotEmpty
-                                  ? message.name
-                                  : message.username,
-                              style: Theme.of(context).textTheme.bodyMedium
-                                  ?.copyWith(color: AppColors.teal),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(message.message),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-          ),
-          Container(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Color(0x11000000),
-                  blurRadius: 12,
-                  offset: Offset(0, -4),
-                ),
-              ],
+      body: BackgroundWidget(
+        child: Column(
+          children: [
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: _messages.length,
+                      itemBuilder: (context, index) {
+                        final message = _messages[index];
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                message.name.isNotEmpty
+                                    ? message.name
+                                    : message.username,
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: AppColors.teal),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(message.message),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    decoration: const InputDecoration(
-                      hintText: 'Share your focus...',
+            Container(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x11000000),
+                    blurRadius: 12,
+                    offset: Offset(0, -4),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      decoration: const InputDecoration(
+                        hintText: 'Share your focus...',
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: AppColors.teal),
-                  onPressed: _send,
-                ),
-              ],
+                  IconButton(
+                    icon: const Icon(Icons.send, color: AppColors.teal),
+                    onPressed: _send,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

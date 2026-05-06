@@ -5,6 +5,7 @@ import '../models/study_room.dart';
 import '../state/auth_store.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_card.dart';
+import '../widgets/background_widget.dart';
 import '../widgets/primary_button.dart';
 import 'study_room_detail_screen.dart';
 
@@ -50,69 +51,73 @@ class _StudyRoomsScreenState extends State<StudyRoomsScreen> {
           IconButton(icon: const Icon(Icons.add), onPressed: _openCreateRoom),
         ],
       ),
-      body: FutureBuilder<List<StudyRoom>>(
-        future: _roomsFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final rooms = snapshot.data!;
-          if (rooms.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Start a room',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Create a focus room and invite your match to study with you.',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    PrimaryButton(
-                      label: 'Create room',
-                      onPressed: _openCreateRoom,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: rooms.length,
-            itemBuilder: (context, index) {
-              final room = rooms[index];
-              return AppCard(
-                child: ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(room.title),
-                  subtitle: Text('${room.topic} • ${room.durationMinutes} min'),
-                  trailing: Chip(
-                    label: Text('${room.activeParticipantCount} active'),
-                    backgroundColor: AppColors.sand,
-                  ),
-                  onTap: () => Navigator.pushNamed(
-                    context,
-                    StudyRoomDetailScreen.routeName,
-                    arguments: StudyRoomDetailArgs(
-                      roomId: room.id,
-                      roomTitle: room.title,
-                    ),
+      body: BackgroundWidget(
+        child: FutureBuilder<List<StudyRoom>>(
+          future: _roomsFuture,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final rooms = snapshot.data!;
+            if (rooms.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Start a room',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Create a focus room and invite your match to study with you.',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      PrimaryButton(
+                        label: 'Create room',
+                        onPressed: _openCreateRoom,
+                      ),
+                    ],
                   ),
                 ),
               );
-            },
-          );
-        },
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: rooms.length,
+              itemBuilder: (context, index) {
+                final room = rooms[index];
+                return AppCard(
+                  child: ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(room.title),
+                    subtitle: Text(
+                      '${room.topic} • ${room.durationMinutes} min',
+                    ),
+                    trailing: Chip(
+                      label: Text('${room.activeParticipantCount} active'),
+                      backgroundColor: AppColors.sand,
+                    ),
+                    onTap: () => Navigator.pushNamed(
+                      context,
+                      StudyRoomDetailScreen.routeName,
+                      arguments: StudyRoomDetailArgs(
+                        roomId: room.id,
+                        roomTitle: room.title,
+                      ),
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openCreateRoom,

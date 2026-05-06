@@ -6,6 +6,7 @@ import '../state/auth_store.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_card.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/background_widget.dart';
 
 class ConfessScreen extends StatefulWidget {
   const ConfessScreen({super.key});
@@ -49,77 +50,79 @@ class _ConfessScreenState extends State<ConfessScreen> {
           IconButton(icon: const Icon(Icons.add), onPressed: _openComposer),
         ],
       ),
-      body: FutureBuilder<List<Confession>>(
-        future: _confessionsFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final confessions = snapshot.data!;
-          if (confessions.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Share your first whisper',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Post a confession to unlock matches and news.',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
-                      textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 16),
-                    PrimaryButton(
-                      label: 'Create confession',
-                      onPressed: _openComposer,
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: confessions.length,
-            itemBuilder: (context, index) {
-              final confession = confessions[index];
-              return AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      confession.text,
-                      style: Theme.of(context).textTheme.bodyLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          confession.emotion,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppColors.teal),
-                        ),
-                        Text(
-                          confession.locationHint,
-                          style: Theme.of(context).textTheme.bodyMedium
-                              ?.copyWith(color: AppColors.navy),
-                        ),
-                      ],
-                    ),
-                  ],
+      body: BackgroundWidget(
+        child: FutureBuilder<List<Confession>>(
+          future: _confessionsFuture,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final confessions = snapshot.data!;
+            if (confessions.isEmpty) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Share your first whisper',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Post a confession to unlock matches and news.',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      PrimaryButton(
+                        label: 'Create confession',
+                        onPressed: _openComposer,
+                      ),
+                    ],
+                  ),
                 ),
               );
-            },
-          );
-        },
+            }
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: confessions.length,
+              itemBuilder: (context, index) {
+                final confession = confessions[index];
+                return AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        confession.text,
+                        style: Theme.of(context).textTheme.bodyLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            confession.emotion,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.teal),
+                          ),
+                          Text(
+                            confession.locationHint,
+                            style: Theme.of(context).textTheme.bodyMedium
+                                ?.copyWith(color: AppColors.navy),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openComposer,

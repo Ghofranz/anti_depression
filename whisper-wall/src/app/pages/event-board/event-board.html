@@ -20,7 +20,14 @@
 
   <section class="room-grid" *ngIf="!loading && !error">
 
-    <article *ngFor="let item of news; trackBy: trackByNewsId" class="room-card">
+    <article 
+      *ngFor="let item of news; trackBy: trackByNewsId" 
+      class="room-card"
+      (click)="navigateToNews(item.id)"
+      role="button"
+      tabindex="0"
+      (keyup.enter)="navigateToNews(item.id)"
+    >
 
       <div class="thumbnail">
         <span class="room-status is-live">NEWS</span>

@@ -25,7 +25,7 @@ This plan keeps everything on free tiers and uses the simplest setup with minima
    - `cd whisper-wall`
    - `npm install`
    - `npm run build`
-2. Drag and drop the `dist/` folder to Netlify.
+2. Drag and drop `whisper-wall/dist/whisper-wall/browser/` to Netlify after making sure it contains `index.html`.
 3. Update API base URL in Angular to the Render URL.
 
 ## 3) Mobile App (Flutter) — Android APK (Free)

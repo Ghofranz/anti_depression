@@ -5,7 +5,7 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class Api {
-  private base = 'http://127.0.0.1:8000/api';
+  private base = 'https://anti-depression.onrender.com/api';
 
   constructor(private http: HttpClient) { }
 

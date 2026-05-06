@@ -6,6 +6,7 @@ import { Confess } from './pages/confess/confess';
 import { Login } from './pages/login/login';
 import { Landing } from './pages/landing/landing';
 import { EventBoard } from './pages/event-board/event-board';
+import { NewsDetail } from './pages/news-detail/news-detail';
 import { Live } from './pages/live/live';
 import { VedioPlayer } from './pages/vedio-player/vedio-player';
 import { Dashboard } from './pages/dashboard/dashboard';
@@ -19,6 +20,7 @@ export const routes: Routes = [
   { path: 'chat/:matchId', component: Chat },
   { path: 'reveal/:matchId', component: Reveal },
   { path: 'news', component: EventBoard },
+  { path: 'news/:id', component: NewsDetail },
   { path: 'event', redirectTo: 'news', pathMatch: 'full' },
   { path: 'live', component: Live },
   { path: 'study/:roomId', component: VedioPlayer },

@@ -5,6 +5,7 @@ import '../state/auth_store.dart';
 import '../theme/app_colors.dart';
 import '../widgets/app_card.dart';
 import '../widgets/primary_button.dart';
+import '../widgets/background_widget.dart';
 
 class RevealScreenArgs {
   RevealScreenArgs({required this.matchId, required this.confessionId});
@@ -62,68 +63,70 @@ class _RevealScreenState extends State<RevealScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Reveal')),
-      body: FutureBuilder<Map<String, dynamic>>(
-        future: _statusFuture,
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          final status = snapshot.data!;
-          final bothActive = status['both_active'] == true;
-          final myActive = status['my_contact_exchange_active'] == true;
-          final peerActive = status['peer_contact_exchange_active'] == true;
+      body: BackgroundWidget(
+        child: FutureBuilder<Map<String, dynamic>>(
+          future: _statusFuture,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            final status = snapshot.data!;
+            final bothActive = status['both_active'] == true;
+            final myActive = status['my_contact_exchange_active'] == true;
+            final peerActive = status['peer_contact_exchange_active'] == true;
 
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Contact exchange',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    _StatusRow(label: 'You', value: myActive),
-                    _StatusRow(label: 'Peer', value: peerActive),
-                    const SizedBox(height: 12),
-                    PrimaryButton(
-                      label: myActive ? 'Activated' : 'Activate exchange',
-                      onPressed: myActive ? null : _activateExchange,
-                    ),
-                  ],
+            return ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Contact exchange',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      _StatusRow(label: 'You', value: myActive),
+                      _StatusRow(label: 'Peer', value: peerActive),
+                      const SizedBox(height: 12),
+                      PrimaryButton(
+                        label: myActive ? 'Activated' : 'Activate exchange',
+                        onPressed: myActive ? null : _activateExchange,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              AppCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Reveal request',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      bothActive
-                          ? 'Both sides agreed. You can reveal now.'
-                          : 'Reveal is available once both sides agree.',
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
-                    ),
-                    const SizedBox(height: 12),
-                    PrimaryButton(
-                      label: 'Request reveal',
-                      onPressed: _requestReveal,
-                    ),
-                  ],
+                const SizedBox(height: 16),
+                AppCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Reveal request',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        bothActive
+                            ? 'Both sides agreed. You can reveal now.'
+                            : 'Reveal is available once both sides agree.',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.bodyMedium?.copyWith(color: AppColors.navy),
+                      ),
+                      const SizedBox(height: 12),
+                      PrimaryButton(
+                        label: 'Request reveal',
+                        onPressed: _requestReveal,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

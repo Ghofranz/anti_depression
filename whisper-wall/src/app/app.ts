@@ -60,4 +60,20 @@ export class App implements OnInit {
     localStorage.removeItem('profileId');
     this.router.navigate(['/login']);
   }
+
+  navigateToEvent(event: any) {
+    this.showNotifications = false;
+    // Navigate based on event type
+    if (event.type === 'match' || event.match) {
+      // Navigate to matches page
+      this.router.navigate(['/matches']);
+    } else if (event.type === 'chat') {
+      this.router.navigate(['/chat']);
+    } else if (event.type === 'reveal') {
+      this.router.navigate(['/reveal']);
+    } else {
+      // Default to dashboard
+      this.router.navigate(['/dashboard']);
+    }
+  }
 }
