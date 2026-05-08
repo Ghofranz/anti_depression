@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { Api } from '../../services/api';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,7 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './confess.html',
   styleUrl: './confess.scss',
 })
-export class Confess implements OnInit {
+export class Confess implements OnInit, AfterViewInit {
   text = '';
   emotion = 'course_help';
   location = '';
@@ -45,6 +45,10 @@ export class Confess implements OnInit {
 
   constructor(private api: Api, private router: Router) {}
 
+  @ViewChild('formPanel') formPanel: ElementRef | undefined;
+
+  atBottom = false;
+
   ngOnInit() {
     const showWelcome = localStorage.getItem('showWelcomeAfterSignup') === 'true';
 
@@ -59,6 +63,23 @@ export class Confess implements OnInit {
         this.showHelpPopup = true;
       }
     }
+  }
+
+  ngAfterViewInit() {
+    // initial hint visibility: if content doesn't overflow hide hint (treat as at bottom)
+    try {
+      if (this.formPanel && this.formPanel.nativeElement) {
+        const el = this.formPanel.nativeElement as HTMLElement;
+        this.atBottom = el.scrollHeight <= el.clientHeight || (el.scrollTop + el.clientHeight >= el.scrollHeight - 2);
+      }
+    } catch (e) {
+      // ignore DOM access errors in SSR / tests
+    }
+  }
+
+  onFormScroll(ev: any) {
+    const el = ev.target as HTMLElement;
+    this.atBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 6;
   }
 
   startJourney() {

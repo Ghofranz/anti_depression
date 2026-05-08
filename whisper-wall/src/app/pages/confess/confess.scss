@@ -33,10 +33,11 @@
 .confess-shell {
   position: relative;
   z-index: 2;
-  min-height: 100vh;
+  height: 100vh;
   width: min(1120px, 88vw);
   margin: 0 auto;
   padding: 5.8rem 0 2rem;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -44,7 +45,7 @@
 
 .confess-card {
   width: 100%;
-  max-height: calc(100vh - 7rem);
+  height: 100%;
   display: grid;
   grid-template-columns: 0.85fr 1.15fr;
   border-radius: 1.7rem;
@@ -56,6 +57,10 @@
 
 .confess-info {
   position: relative;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding: 2.2rem;
   background:
     radial-gradient(circle at top left, rgba(103, 232, 249, 0.25), transparent 42%),
@@ -83,7 +88,8 @@
   letter-spacing: -0.055em;
   font-weight: 950;
 }
-.confess-info > p {
+
+.confess-info>p {
   margin: 1.4rem 0 0;
   color: rgba(255, 255, 255, 0.82);
   font-size: 1rem;
@@ -134,6 +140,35 @@
   color: #1f2937;
   background: #ffffff;
   overflow-y: auto;
+  min-height: 0;
+  position: relative;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.confess-form-panel::-webkit-scrollbar {
+  width: 0;
+  /* Hide scrollbar for WebKit */
+  height: 0;
+}
+
+/* bottom gradient hint when there is more content to scroll */
+.confess-form-panel::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3.6rem;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+  transition: opacity 160ms ease;
+  opacity: 1;
+}
+
+/* when scrolled to bottom, hide the hint */
+.confess-form-panel.at-bottom::after {
+  opacity: 0;
 }
 
 .form-header {
@@ -148,6 +183,7 @@
   letter-spacing: -0.045em;
   font-weight: 950;
 }
+
 .form-kicker {
   color: #4f46e5;
 }
@@ -449,32 +485,33 @@
   .popup-actions {
     flex-direction: column;
   }
+
   @media (max-height: 760px) {
-  .confess-shell {
-    align-items: flex-start;
-    padding-top: 5.5rem;
-  }
+    .confess-shell {
+      align-items: flex-start;
+      padding-top: 5.5rem;
+    }
 
-  .confess-card {
-    max-height: none;
-  }
+    .confess-card {
+      max-height: none;
+    }
 
-  .confess-info h1 {
-    font-size: 2.7rem;
-  }
+    .confess-info h1 {
+      font-size: 2.7rem;
+    }
 
-  .confess-info > p {
-    font-size: 0.92rem;
-    line-height: 1.55;
-  }
+    .confess-info>p {
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
 
-  .info-steps {
-    margin-top: 1.3rem;
-    gap: 0.65rem;
-  }
+    .info-steps {
+      margin-top: 1.3rem;
+      gap: 0.65rem;
+    }
 
-  .confess-form-panel textarea {
-    min-height: 105px;
+    .confess-form-panel textarea {
+      min-height: 105px;
+    }
   }
-}
 }

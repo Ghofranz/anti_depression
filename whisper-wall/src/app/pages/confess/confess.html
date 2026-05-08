@@ -36,7 +36,7 @@
       </aside>
 
       <!-- Form Panel -->
-      <section class="confess-form-panel">
+      <section class="confess-form-panel" #formPanel (scroll)="onFormScroll($event)" [class.at-bottom]="atBottom">
         <div class="form-header">
           <div>
             <p class="form-kicker">Submit Situation</p>
