@@ -53,11 +53,11 @@
   <!-- Signup Modal -->
 <div
   *ngIf="showSignup"
-  class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm p-4"
+  class="signup-modal fixed inset-0 bg-black/70 flex items-center justify-center z-50 backdrop-blur-sm p-4"
   (click)="closeModal()">
 
   <div
-    class="bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 relative text-gray-700 border border-indigo-100"
+    class="signup-modal-card bg-white w-full max-w-md rounded-3xl shadow-2xl p-8 relative text-gray-700 border border-indigo-100"
     (click)="$event.stopPropagation()">
 
     <button

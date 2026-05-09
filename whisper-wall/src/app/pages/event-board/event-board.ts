@@ -61,6 +61,19 @@ export class EventBoard implements OnInit {
     return item.id ?? index;
   }
 
+  truncateBody(body: string, wordCount = 13): string {
+    if (!body) {
+      return '';
+    }
+
+    const words = body.trim().split(/\s+/);
+    if (words.length <= wordCount) {
+      return body.trim();
+    }
+
+    return `${words.slice(0, wordCount).join(' ')}..`;
+  }
+
   navigateToNews(newsId: number | string) {
     this.router.navigate(['/news', newsId]);
   }

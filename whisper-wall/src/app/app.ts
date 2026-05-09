@@ -129,31 +129,40 @@ export class App implements OnInit {
       return '';
     }
   }
+    notificationTitle(event: any): string {
+      const id = event?.event_id ?? event?.id ?? event?.match_id ?? event?.matchId;
 
-  notificationSender(event: any): string {
-    console.log('Extracting sender from event:', event);
-    if (!event) return 'unknown';
-
-    const candidates = [
-      event.username,
-      event.user_name,
-      event.userName,
-      event.sender?.username,
-      event.sender?.name,
-      event.author?.username,
-      event.author?.name,
-      event.profile?.username,
-      event.profile?.name,
-      event.from_username,
-      event.fromUserName,
-      event.name,
-    ];
-
-    for (const candidate of candidates) {
-      if (typeof candidate === 'string' && candidate.trim()) {
-        return candidate.trim();
+      if (id === undefined || id === null || id === '') {
+        return 'New msg';
       }
+
+      return `New msg ${id}`;
     }
+
+    notificationSummary(event: any): string {
+      if (!event) {
+        return '';
+      }
+
+      if (event.plan && Array.isArray(event.plan.steps)) {
+        const steps = event.plan.steps
+          .filter((step: any) => typeof step === 'string' && step.trim())
+          .map((step: string) => step.trim());
+
+        if (steps.length > 0) {
+          return steps.join(' · ');
+        }
+      }
+
+      if (typeof event.description === 'string' && event.description.trim()) {
+        return event.description.trim();
+      }
+
+      if (typeof event.message === 'string' && event.message.trim()) {
+        return event.message.trim();
+      }
+
+      return this.notificationText(event);
 
     return 'someone';
   }

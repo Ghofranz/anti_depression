@@ -45,7 +45,7 @@
         <div class="info">
           <h3 class="title">{{ item.title }}</h3>
           <p class="meta">{{ item.author_name || 'Admin' }}</p>
-          <p class="vibe">{{ item.body }}</p>
+          <p class="vibe">{{ truncateBody(item.body) }}</p>
         </div>
       </div>
 

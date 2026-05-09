@@ -64,8 +64,8 @@
         <div class="dropdown-content">
           <div *ngIf="events.length === 0" class="no-notifications">No new notifications</div>
           <div *ngFor="let event of events" class="notification-item" (click)="navigateToEvent(event)">
-            <div class="notification-title">Msg from {{ notificationSender(event) }}</div>
-            <div class="notification-plan">{{ event.description }}</div>
+            <div class="notification-title">{{ notificationTitle(event) }}</div>
+            <div class="notification-plan">{{ notificationSummary(event) }}</div>
             <div class="notification-time">{{ event.created_at | date: 'short' }}</div>
           </div>
         </div>
