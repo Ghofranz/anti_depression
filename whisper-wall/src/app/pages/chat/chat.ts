@@ -1,18 +1,21 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import {
   Component,
   ChangeDetectorRef,
   OnInit,
   ViewChild,
   ElementRef,
-  AfterViewInit
+  AfterViewInit,
+  OnDestroy
 } from '@angular/core';
+import { PLATFORM_ID, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Api } from '../../services/api';
 import { Match } from '../../entity/match';
 
 interface Message {
+  id: number;
   from: 'me' | 'them';
   text: string;
   time: string;
@@ -24,8 +27,9 @@ interface Message {
   templateUrl: './chat.html',
   styleUrl: './chat.scss',
 })
-export class Chat implements OnInit, AfterViewInit {
+export class Chat implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('messagesContainer') messagesContainer?: ElementRef<HTMLDivElement>;
+  private readonly platformId = inject(PLATFORM_ID);
 
   messages: Message[] = [];
   newMessage = '';
@@ -51,6 +55,8 @@ export class Chat implements OnInit, AfterViewInit {
 
   showProfileForm = false;
   savingProfile = false;
+
+  private refreshTimer?: number;
 
   profileForm = {
     display_name: '',
@@ -81,14 +87,39 @@ constructor(
     this.loadContactStatus();
     this.loadMatchContext();
     this.loadMessages();
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.startPolling();
+    }
   }
 
   ngAfterViewInit() {
     this.scrollToBottom();
   }
+
+  ngOnDestroy() {
+    if (this.refreshTimer && isPlatformBrowser(this.platformId)) {
+      window.clearInterval(this.refreshTimer);
+    }
+  }
 goBackToMatches() {
   this.router.navigate(['/matches']);
 }
+
+  startPolling() {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    if (this.refreshTimer) {
+      window.clearInterval(this.refreshTimer);
+    }
+
+    this.refreshTimer = window.setInterval(() => {
+      this.refreshMessages(false);
+      this.loadContactStatus();
+    }, 3000);
+  }
   loadMatchContext() {
     if (!this.myConfessionId) return;
 
@@ -139,21 +170,34 @@ goBackToMatches() {
   }
 
   loadMessages() {
+    this.refreshMessages(true);
+  }
+
+  refreshMessages(scrollAfterUpdate = false) {
+    const shouldStickToBottom = scrollAfterUpdate || this.isNearBottom();
+
     this.api.getChat(this.matchId).subscribe({
       next: (res: any) => {
         const data = Array.isArray(res) ? res : res?.results || [];
 
-        this.messages = data.map((msg: any) => ({
-          from: (msg.sender?.id ?? msg.sender) === this.myConfessionId ? 'me' : 'them',
-          text: msg.message,
-          time: new Date(msg.timestamp || new Date()).toLocaleTimeString().slice(0, 5)
-        }));
+        const nextMessages = data
+          .map((msg: any) => ({
+            id: Number(msg.id),
+            from: (msg.sender?.id ?? msg.sender) === this.myConfessionId ? 'me' : 'them',
+            text: msg.message,
+            time: new Date(msg.timestamp || new Date()).toLocaleTimeString().slice(0, 5)
+          }))
+          .filter((msg: Message) => !Number.isNaN(msg.id));
+
+        this.messages = nextMessages;
 
         this.loading = false;
         this.updateContactAvailability();
         this.checkContactNudge();
         this.cdr.detectChanges();
-        this.scrollToBottom();
+        if (shouldStickToBottom) {
+          this.scrollToBottom();
+        }
       },
       error: () => {
         this.loading = false;
@@ -173,11 +217,14 @@ goBackToMatches() {
       message: messageToSend
     }).subscribe({
       next: (msg: any) => {
-        this.messages.push({
+        const sentMessage: Message = {
+          id: Number(msg.id || Date.now()),
           from: 'me',
           text: msg.message || messageToSend,
           time: new Date(msg.timestamp || new Date()).toLocaleTimeString().slice(0, 5)
-        });
+        };
+
+        this.messages = [...this.messages.filter((item) => item.id !== sentMessage.id), sentMessage];
 
         this.newMessage = '';
         this.updateContactAvailability();
@@ -189,6 +236,13 @@ goBackToMatches() {
         console.error('Failed to send message');
       }
     });
+  }
+
+  isNearBottom(): boolean {
+    const el = this.messagesContainer?.nativeElement;
+    if (!el) return true;
+
+    return el.scrollHeight - el.scrollTop - el.clientHeight < 120;
   }
 
 scrollToBottom() {

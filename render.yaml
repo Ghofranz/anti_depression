@@ -2,6 +2,6 @@ services:
   - type: web
     name: whisperwall
     env: python
-    buildCommand: pip install -r whisperwall/requirements.txt
+    buildCommand: pip install -r whisperwall/requirements.txt && python whisperwall/manage.py collectstatic --noinput
     startCommand: gunicorn whisperwall.wsgi:application --chdir whisperwall --bind 0.0.0.0:$PORT
     plan: free
