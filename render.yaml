@@ -3,13 +3,8 @@ services:
     name: whisperwall
     env: python
     plan: free
-    buildCommand: |
-      cd whisperwall && \
-      pip install -r requirements.txt && \
-      python manage.py collectstatic --noinput --clear --verbosity 2
-    startCommand: |
-      cd whisperwall && \
-      gunicorn whisperwall.wsgi:application --bind 0.0.0.0:$PORT --workers 4 --worker-class sync --timeout 120 --access-logfile - --error-logfile -
+    buildCommand: cd whisperwall && pip install -r requirements.txt && python manage.py collectstatic --noinput --clear
+    startCommand: cd whisperwall && gunicorn whisperwall.wsgi:application --bind 0.0.0.0:$PORT --workers 4 --worker-class sync --timeout 120
     envVars:
       - key: PYTHON_VERSION
         value: 3.11
@@ -19,8 +14,8 @@ services:
       - key: DJANGO_DEBUG
         value: "False"
       - key: ALLOWED_HOSTS
-        value: anti-depression.onrender.com,www.anti-depression.onrender.com,localhost,127.0.0.1
+        value: anti-depression.onrender.com,www.anti-depression.onrender.com
       - key: CSRF_TRUSTED_ORIGINS
-        value: https://anti-depression.onrender.com,https://www.anti-depression.onrender.com,http://localhost:3000,http://127.0.0.1:3000
+        value: https://anti-depression.onrender.com,https://www.anti-depression.onrender.com
       - key: PYTHONUNBUFFERED
         value: "1"

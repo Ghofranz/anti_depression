@@ -37,7 +37,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,*.onrender.com').split(',')
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,*.onrender.com').split(',')]
 
 
 # Application definition
@@ -171,7 +171,7 @@ REST_FRAMEWORK = {
 SECURE_PROXY_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Redirect to HTTPS on Render (only when running on Render platform)
-SECURE_SSL_REDIRECT = os.environ.get('RENDER', False)
+SECURE_SSL_REDIRECT = bool(os.environ.get('RENDER'))
 
 # HSTS (HTTP Strict Transport Security) - only on production
 SECURE_HSTS_SECONDS = 31536000 if not DEBUG else 0
@@ -183,10 +183,10 @@ CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = False  # IMPORTANT: False allows JavaScript to access CSRF token for forms
 SESSION_COOKIE_HTTPONLY = True
-CSRF_TRUSTED_ORIGINS = os.environ.get(
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get(
     'CSRF_TRUSTED_ORIGINS',
     'https://anti-depression.onrender.com,http://localhost:3000,http://127.0.0.1:3000'
-).split(',')
+).split(',')]
 
 # Development settings - disable security features locally
 if DEBUG:
