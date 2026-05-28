@@ -101,10 +101,11 @@ WSGI_APPLICATION = 'whisperwall.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+SQLITE_PATH = os.environ.get('SQLITE_PATH')
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': Path(SQLITE_PATH) if SQLITE_PATH else (BASE_DIR / 'db.sqlite3'),
     }
 }
 
