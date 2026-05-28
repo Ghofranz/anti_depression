@@ -140,19 +140,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
 
 if HAS_WHITENOISE:
     STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-    WHITENOISE_MIMETYPES = {
-        '.js': 'application/javascript',
-        '.css': 'text/css',
-        '.woff': 'font/woff',
-        '.woff2': 'font/woff2',
-        '.ttf': 'font/ttf',
-    }
 
 MEDIA_URL = '/lofi/'
 MEDIA_ROOT = BASE_DIR.parent / 'lofi_database'
