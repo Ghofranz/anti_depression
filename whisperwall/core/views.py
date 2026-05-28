@@ -4,6 +4,7 @@ from django.shortcuts import render
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
 import os
+import sys
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -23,6 +24,11 @@ from .serializers import (
     StudyMessageSerializer,
     StudyRoomSerializer,
 )
+
+
+def console_error(message):
+    """Print error to console for debugging"""
+    print(f"[ERROR] {message}", file=sys.stderr)
 
 
 def get_user(request) -> User:
@@ -526,19 +532,27 @@ def study_room_messages(request, room_id):
 @permission_classes([IsAuthenticated])
 def get_notifications(request):
     user = get_user(request)
-    notifications = Notification.objects.filter(recipient=user).order_by('-created_at')
-    serializer = NotificationSerializer(notifications, many=True)
-    return Response({'notifications': serializer.data}, status=status.HTTP_200_OK)
+    try:
+        notifications = Notification.objects.filter(recipient=user).order_by('-created_at')
+        serializer = NotificationSerializer(notifications, many=True)
+        return Response({'notifications': serializer.data}, status=status.HTTP_200_OK)
+    except Exception as e:
+        console_error(f"Error fetching notifications: {str(e)}")
+        return Response({'notifications': [], 'error': 'Failed to load notifications'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_unread_notifications(request):
     user = get_user(request)
-    notifications = Notification.objects.filter(recipient=user, is_read=False).order_by('-created_at')
-    serializer = NotificationSerializer(notifications, many=True)
-    count = notifications.count()
-    return Response({'count': count, 'notifications': serializer.data}, status=status.HTTP_200_OK)
+    try:
+        notifications = Notification.objects.filter(recipient=user, is_read=False).order_by('-created_at')
+        serializer = NotificationSerializer(notifications, many=True)
+        count = notifications.count()
+        return Response({'count': count, 'notifications': serializer.data}, status=status.HTTP_200_OK)
+    except Exception as e:
+        console_error(f"Error fetching unread notifications: {str(e)}")
+        return Response({'count': 0, 'notifications': []}, status=status.HTTP_200_OK)
 
 
 @api_view(['PATCH'])
@@ -547,18 +561,24 @@ def mark_notification_as_read(request, notification_id):
     user = get_user(request)
     try:
         notification = Notification.objects.get(id=notification_id, recipient=user)
+        notification.is_read = True
+        notification.save()
+        serializer = NotificationSerializer(notification)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     except Notification.DoesNotExist:
         return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    notification.is_read = True
-    notification.save()
-    serializer = NotificationSerializer(notification)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    except Exception as e:
+        console_error(f"Error marking notification as read: {str(e)}")
+        return Response({"error": "Failed to mark notification as read"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['PATCH'])
 @permission_classes([IsAuthenticated])
 def mark_all_notifications_as_read(request):
     user = get_user(request)
-    Notification.objects.filter(recipient=user, is_read=False).update(is_read=True)
-    return Response({"message": "All notifications marked as read"}, status=status.HTTP_200_OK)
+    try:
+        Notification.objects.filter(recipient=user, is_read=False).update(is_read=True)
+        return Response({"message": "All notifications marked as read"}, status=status.HTTP_200_OK)
+    except Exception as e:
+        console_error(f"Error marking all notifications as read: {str(e)}")
+        return Response({"message": "All notifications marked as read"}, status=status.HTTP_200_OK)

@@ -24,6 +24,18 @@
         : 'Start anonymously, connect safely, and collaborate when both sides agree.' }}
     </p>
 
+    <!-- Error/Success Toast -->
+    <div class="message-toast" 
+         [hidden]="!error"
+         [class.error]="errorType === 'error'"
+         [class.success]="errorType === 'success'"
+         [class.info]="errorType === 'info'">
+      <span>{{ error }}</span>
+      <button type="button" class="toast-close" (click)="clearError()" aria-label="Close notification">
+        ✕
+      </button>
+    </div>
+
     <div class="mode-switch">
       <button
         type="button"
@@ -48,7 +60,8 @@
         <input
           [(ngModel)]="username"
           type="text"
-          placeholder="Enter your username">
+          placeholder="Enter your username"
+          [disabled]="loading">
       </div>
 
       <div class="form-group">
@@ -56,23 +69,20 @@
         <input
           [(ngModel)]="password"
           type="password"
-          placeholder="Enter your password">
+          placeholder="Enter your password"
+          [disabled]="loading">
       </div>
-
-      <p *ngIf="error" class="error-message">
-        {{ error }}
-      </p>
 
       <button
         (click)="submit()"
         [disabled]="loading"
         class="main-btn">
-        {{ loading ? 'Logging in...' : 'Log in' }}
+        {{ loading ? '⏳ Logging in...' : '🔓 Log in' }}
       </button>
 
       <p class="switch-text">
         No account yet?
-        <button type="button" (click)="switchMode('signup')">
+        <button type="button" (click)="switchMode('signup')" [disabled]="loading">
           Create one
         </button>
       </p>
@@ -87,7 +97,8 @@
         <input
           [(ngModel)]="signupForm.name"
           type="text"
-          placeholder="What should we call you?">
+          placeholder="What should we call you?"
+          [disabled]="loading">
       </div>
 
       <div class="form-group">
@@ -97,7 +108,8 @@
         <input
           [(ngModel)]="signupForm.email"
           type="email"
-          placeholder="student@university.edu">
+          placeholder="student@university.edu"
+          [disabled]="loading">
       </div>
 
       <div class="form-group">
@@ -105,7 +117,8 @@
         <input
           [(ngModel)]="signupForm.userName"
           type="text"
-          placeholder="Choose a username">
+          placeholder="Choose a username"
+          [disabled]="loading">
       </div>
 
       <div class="form-group">
@@ -113,7 +126,8 @@
         <input
           [(ngModel)]="signupForm.password"
           type="password"
-          placeholder="Min 6 characters">
+          placeholder="Min 6 characters"
+          [disabled]="loading">
       </div>
 
       <div class="form-group">
@@ -121,23 +135,20 @@
         <input
           [(ngModel)]="signupForm.confirmPassword"
           type="password"
-          placeholder="Repeat password">
+          placeholder="Repeat password"
+          [disabled]="loading">
       </div>
-
-      <p *ngIf="error" class="error-message">
-        {{ error }}
-      </p>
 
       <button
         (click)="submitSignup()"
         [disabled]="loading"
         class="main-btn">
-        {{ loading ? 'Creating account...' : 'Start Connecting' }}
+        {{ loading ? '⏳ Creating account...' : '✨ Start Connecting' }}
       </button>
 
       <p class="switch-text">
         Already have an account?
-        <button type="button" (click)="switchMode('login')">
+        <button type="button" (click)="switchMode('login')" [disabled]="loading">
           Log in
         </button>
       </p>

@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Api } from '../../services/api';
 import { Notification } from '../../entity/notification';
-import { Subject } from 'rxjs';
-import { takeUntil, interval } from 'rxjs/operators';
+import { Subject, interval } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-notifications-widget',
