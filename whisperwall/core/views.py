@@ -1,7 +1,9 @@
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.shortcuts import render
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
+import os
 
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -25,6 +27,15 @@ from .serializers import (
 def get_user(request) -> User:
     """Cast request.user to User so the IDE resolves attributes correctly."""
     return request.user  # type: ignore[return-value]
+
+
+def public_index(request):
+    frontend_url = os.environ.get('FRONTEND_URL', 'https://compuslife.netlify.app')
+    return render(request, 'core/index.html', {
+        'frontend_url': frontend_url,
+        'admin_url': '/admin/',
+        'api_url': '/api/news/',
+    })
 
 
 # ─── Auth ───────────────────────────────────────────────────────────────────

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import importlib.util
 from pathlib import Path
 # Load environment variables from .env file if it exists
 try:
@@ -53,6 +54,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken'
 ]
 
+HAS_WHITENOISE = importlib.util.find_spec('whitenoise') is not None
+
 
 CORS_ALLOW_ALL_ORIGINS = True
 
@@ -60,7 +63,6 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -68,6 +70,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if HAS_WHITENOISE:
+    MIDDLEWARE.insert(3, 'whitenoise.middleware.WhiteNoiseMiddleware')
 
 ROOT_URLCONF = 'whisperwall.urls'
 
@@ -137,11 +142,12 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-STORAGES = {
-    'staticfiles': {
-        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
-    },
-}
+if HAS_WHITENOISE:
+    STORAGES = {
+        'staticfiles': {
+            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+        },
+    }
 
 MEDIA_URL = '/lofi/'
 MEDIA_ROOT = BASE_DIR.parent / 'lofi_database'
