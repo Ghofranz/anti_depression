@@ -2,6 +2,9 @@ services:
   - type: web
     name: whisperwall
     env: python
-    buildCommand: pip install -r whisperwall/requirements.txt && python whisperwall/manage.py collectstatic --noinput
+    buildCommand: pip install -r whisperwall/requirements.txt && DJANGO_DEBUG=False python whisperwall/manage.py collectstatic --noinput
     startCommand: gunicorn whisperwall.wsgi:application --chdir whisperwall --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
     plan: free
