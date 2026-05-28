@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Server error</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(
+            circle at top,
+            rgba(34, 211, 238, 0.16),
+            transparent 30%
+          ),
+          linear-gradient(180deg, #0f172a, #08111f);
+        color: #e2e8f0;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 24px;
+      }
+      .card {
+        width: min(760px, 100%);
+        padding: 32px;
+        border-radius: 24px;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 5vw, 3.2rem);
+      }
+      p {
+        line-height: 1.7;
+        color: #94a3b8;
+      }
+      .hint {
+        margin-top: 18px;
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.06);
+        color: #cbd5e1;
+        line-height: 1.7;
+      }
+      a {
+        display: inline-block;
+        margin-right: 12px;
+        margin-top: 14px;
+        padding: 12px 18px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: #0f172a;
+        background: linear-gradient(135deg, #22d3ee, #818cf8);
+      }
+      .secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Something went wrong</h1>
+      <p>
+        The server could not complete your request. This usually means there was
+        a temporary backend error, a missing dependency, or a deployment
+        problem.
+      </p>
+      <div class="hint">
+        What you can try:
+        <br />- Refresh the page. <br />- Return to the home page and open the
+        app again. <br />- If this happens on <strong>/admin/</strong>, check
+        that static files were collected during deployment.
+      </div>
+      <a href="/">Go to home</a>
+      <a class="secondary" href="/admin/">Retry admin</a>
+    </main>
+  </body>
+</html>

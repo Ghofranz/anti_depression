@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page not found</title>
+    <style>
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(180deg, #0f172a, #08111f);
+        color: #e2e8f0;
+        font-family: Arial, Helvetica, sans-serif;
+        padding: 24px;
+      }
+      .card {
+        width: min(720px, 100%);
+        padding: 32px;
+        border-radius: 24px;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 5vw, 3.2rem);
+      }
+      p {
+        line-height: 1.7;
+        color: #94a3b8;
+      }
+      a {
+        display: inline-block;
+        margin-right: 12px;
+        margin-top: 14px;
+        padding: 12px 18px;
+        border-radius: 999px;
+        text-decoration: none;
+        font-weight: 700;
+        color: #0f172a;
+        background: linear-gradient(135deg, #22d3ee, #818cf8);
+      }
+      .secondary {
+        background: rgba(255, 255, 255, 0.08);
+        color: #e2e8f0;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+      }
+      ul {
+        color: #cbd5e1;
+        line-height: 1.8;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Page not found</h1>
+      <p>
+        The page you requested does not exist or the link is incorrect. Check
+        the URL, then try the app or the admin panel below.
+      </p>
+      <ul>
+        <li>The route may be wrong.</li>
+        <li>The page may have moved.</li>
+        <li>You may not have access to that resource.</li>
+      </ul>
+      <a href="/">Go to home</a>
+      <a class="secondary" href="/admin/">Open admin</a>
+    </main>
+  </body>
+</html>

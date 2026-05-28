@@ -143,11 +143,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 if HAS_WHITENOISE:
-    STORAGES = {
-        'staticfiles': {
-            'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
-        },
-    }
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 MEDIA_URL = '/lofi/'
 MEDIA_ROOT = BASE_DIR.parent / 'lofi_database'
