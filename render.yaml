@@ -17,3 +17,5 @@ services:
         value: "False"
       - key: ALLOWED_HOSTS
         value: anti-depression.onrender.com,www.anti-depression.onrender.com
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://anti-depression.onrender.com,https://www.anti-depression.onrender.com
