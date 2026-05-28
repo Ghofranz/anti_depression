@@ -2,13 +2,18 @@ services:
   - type: web
     name: whisperwall
     env: python
-    buildCommand: cd whisperwall && pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: cd whisperwall && gunicorn whisperwall.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --worker-class sync --timeout 60
-    envVars:
-      - key: DJANGO_DEBUG
-        value: 'False'
-      - key: PYTHONUNBUFFERED
-        value: '1'
-      - key: DJANGO_SETTINGS_MODULE
-        value: 'whisperwall.settings'
     plan: free
+    buildCommand: |
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput --clear
+    startCommand: gunicorn whisperwall.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11
+      - key: DJANGO_SECRET_KEY
+        scope: project
+        value: your-very-long-random-secret-key-here-min-50-characters
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: anti-depression.onrender.com,www.anti-depression.onrender.com
