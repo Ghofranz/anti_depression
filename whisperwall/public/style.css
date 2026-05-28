@@ -1,0 +1,40 @@
+/* Admin panel overrides */
+:root {
+  --admin-accent: #22d3ee;
+  --admin-accent-2: #818cf8;
+  --admin-bg: #0b1020;
+}
+
+body.dashboard,
+body.login {
+  background: linear-gradient(180deg, #0f172a 0%, var(--admin-bg) 100%);
+}
+
+#header {
+  background: linear-gradient(
+    135deg,
+    var(--admin-accent),
+    var(--admin-accent-2)
+  );
+}
+
+#header h1,
+#header h1 a:link,
+#header h1 a:visited {
+  color: #04111f;
+}
+
+.module h2,
+.module caption,
+.module th {
+  background: rgba(34, 211, 238, 0.16);
+}
+
+.button,
+input[type="submit"],
+input[type="button"],
+.submit-row input {
+  background: var(--admin-accent);
+  border-color: var(--admin-accent);
+  color: #04111f;
+}

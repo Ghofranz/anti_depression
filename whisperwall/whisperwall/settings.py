@@ -37,7 +37,7 @@ SECRET_KEY = os.environ.get(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DJANGO_DEBUG', 'False').lower() in ('true', '1', 'yes')
 
-ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1,*.onrender.com').split(',')]
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -145,6 +145,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'public',
+]
 
 # WhiteNoise configuration for serving static files efficiently in production
 if HAS_WHITENOISE:
@@ -183,6 +186,10 @@ CSRF_COOKIE_SECURE = not DEBUG
 SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_HTTPONLY = False  # IMPORTANT: False allows JavaScript to access CSRF token for forms
 SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
+SECURE_REFERRER_POLICY = 'same-origin'
+SECURE_CONTENT_TYPE_NOSNIFF = True
 CSRF_TRUSTED_ORIGINS = [o.strip() for o in os.environ.get(
     'CSRF_TRUSTED_ORIGINS',
     'https://anti-depression.onrender.com,http://localhost:3000,http://127.0.0.1:3000'

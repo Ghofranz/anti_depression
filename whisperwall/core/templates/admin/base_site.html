@@ -1,0 +1,88 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block title %}Admin Panel - Anti-Depression{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'style.css' %}">
+<style>
+  :root {
+    --admin-accent: #22d3ee;
+    --admin-accent-2: #818cf8;
+    --admin-bg: #0b1020;
+    --admin-panel: rgba(15, 23, 42, 0.88);
+    --admin-text: #e2e8f0;
+    --admin-muted: #94a3b8;
+    --admin-border: rgba(255, 255, 255, 0.12);
+  }
+
+  html, body {
+    background: linear-gradient(180deg, #0f172a 0%, var(--admin-bg) 100%);
+    color: var(--admin-text);
+  }
+
+  #header {
+    background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2)) !important;
+    border: none !important;
+  }
+
+  #header h1,
+  #header h1 a:link,
+  #header h1 a:visited {
+    color: #04111f !important;
+    font-weight: 800;
+  }
+
+  .module,
+  #content-related,
+  #changelist-filter,
+  #changelist-search {
+    background: var(--admin-panel);
+    border-color: var(--admin-border);
+  }
+
+  .module h2,
+  .module caption,
+  .module th {
+    background: rgba(34, 211, 238, 0.12);
+    color: var(--admin-text);
+  }
+
+  a {
+    color: var(--admin-accent);
+  }
+
+  a:hover {
+    color: var(--admin-accent-2);
+  }
+
+  .button,
+  input[type="submit"],
+  input[type="button"],
+  .submit-row input,
+  a.button {
+    background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2));
+    border-color: var(--admin-accent);
+    color: #04111f;
+    font-weight: 700;
+  }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="url"],
+  textarea,
+  select {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--admin-border);
+    color: var(--admin-text);
+  }
+</style>
+{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Anti-Depression Admin Panel</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
