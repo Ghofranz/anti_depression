@@ -7,6 +7,7 @@ from .models import (
     LofiTrack,
     News,
     Match,
+    Notification,
     RevealRequest,
     StudyMessage,
     StudyParticipant,
@@ -118,3 +119,29 @@ class StudyRoomSerializer(serializers.ModelSerializer):
 
     def get_active_participant_count(self, obj):
         return obj.participants.filter(is_active=True).count()
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    sender_username = serializers.CharField(source='sender.username', read_only=True, allow_null=True)
+    sender_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Notification
+        fields = [
+            'id',
+            'notification_type',
+            'title',
+            'content',
+            'sender_username',
+            'sender_name',
+            'related_id',
+            'is_read',
+            'created_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'notification_type', 'title', 'content', 'sender_username']
+    
+    def get_sender_name(self, obj):
+        if obj.sender:
+            return obj.sender.get_full_name() or obj.sender.username
+        return 'System'
+

@@ -2,10 +2,11 @@ import { Component, PLATFORM_ID, inject, signal, OnInit } from '@angular/core';
 import { RouterModule, RouterOutlet, Router } from '@angular/router';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Api } from './services/api';
+import { NotificationsWidgetComponent } from './features/whisper-radar/notifications';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterModule, CommonModule],
+  imports: [RouterOutlet, RouterModule, CommonModule, NotificationsWidgetComponent],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })

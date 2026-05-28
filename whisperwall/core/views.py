@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from .models import Confession, Match, ChatMessage, RevealRequest, Event, LofiTrack, News, AcademicProfile, StudyMessage, StudyParticipant, StudyRoom
+from .models import Confession, Match, ChatMessage, RevealRequest, Event, LofiTrack, News, AcademicProfile, StudyMessage, StudyParticipant, StudyRoom, Notification
 from .serializers import (
     AcademicProfileSerializer,
     ChatMessageSerializer,
@@ -19,6 +19,7 @@ from .serializers import (
     LofiTrackSerializer,
     MatchSerializer,
     NewsSerializer,
+    NotificationSerializer,
     StudyMessageSerializer,
     StudyRoomSerializer,
 )
@@ -517,3 +518,47 @@ def study_room_messages(request, room_id):
 
     messages = StudyMessage.objects.filter(room=room).order_by('timestamp')
     return Response({'messages': StudyMessageSerializer(messages, many=True).data}, status=status.HTTP_200_OK)
+
+
+# ─── Notifications ──────────────────────────────────────────────────────────
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_notifications(request):
+    user = get_user(request)
+    notifications = Notification.objects.filter(recipient=user).order_by('-created_at')
+    serializer = NotificationSerializer(notifications, many=True)
+    return Response({'notifications': serializer.data}, status=status.HTTP_200_OK)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_unread_notifications(request):
+    user = get_user(request)
+    notifications = Notification.objects.filter(recipient=user, is_read=False).order_by('-created_at')
+    serializer = NotificationSerializer(notifications, many=True)
+    count = notifications.count()
+    return Response({'count': count, 'notifications': serializer.data}, status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def mark_notification_as_read(request, notification_id):
+    user = get_user(request)
+    try:
+        notification = Notification.objects.get(id=notification_id, recipient=user)
+    except Notification.DoesNotExist:
+        return Response({"error": "Notification not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    notification.is_read = True
+    notification.save()
+    serializer = NotificationSerializer(notification)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+def mark_all_notifications_as_read(request):
+    user = get_user(request)
+    Notification.objects.filter(recipient=user, is_read=False).update(is_read=True)
+    return Response({"message": "All notifications marked as read"}, status=status.HTTP_200_OK)

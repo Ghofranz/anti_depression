@@ -1,0 +1,98 @@
+<div class="relative">
+  <!-- Notification Bell Icon Button -->
+  <button
+    (click)="togglePanel()"
+    class="relative p-2 rounded-lg bg-white shadow-sm border border-slate-200 hover:bg-slate-50 transition">
+    <span class="text-2xl">🔔</span>
+    <span
+      *ngIf="unreadCount > 0"
+      class="absolute top-0 right-0 w-5 h-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+      {{ unreadCount > 9 ? '9+' : unreadCount }}
+    </span>
+  </button>
+
+  <!-- Notifications Panel -->
+  <div
+    *ngIf="showPanel"
+    class="absolute right-0 top-12 w-96 bg-white rounded-2xl shadow-xl border border-slate-200 z-50 max-h-96 overflow-y-auto">
+
+    <!-- Panel Header -->
+    <div class="sticky top-0 bg-gradient-to-r from-indigo-600 to-blue-600 text-white p-4 rounded-t-2xl flex items-center justify-between">
+      <h2 class="text-lg font-bold">Notifications</h2>
+      <button
+        *ngIf="unreadCount > 0"
+        (click)="markAllAsRead()"
+        class="text-xs font-semibold bg-white/20 px-3 py-1 rounded-full hover:bg-white/30 transition">
+        Mark all read
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="p-6 text-center text-slate-500">
+      <div class="inline-block animate-spin">⏳</div>
+      <p class="mt-2">Loading notifications...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="p-4 bg-red-50 border-b border-red-200 text-red-700 text-sm">
+      {{ error }}
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && notifications.length === 0" class="p-8 text-center text-slate-500">
+      <div class="text-4xl mb-2">📭</div>
+      <p class="font-semibold">No notifications yet</p>
+      <p class="text-xs mt-1">You'll see updates here</p>
+    </div>
+
+    <!-- Notifications List -->
+    <div *ngIf="!loading && notifications.length > 0" class="divide-y divide-slate-100">
+      <div
+        *ngFor="let notif of notifications"
+        (click)="markAsRead(notif)"
+        [ngClass]="getNotificationColor(notif.notification_type)"
+        class="p-4 border-l-4 hover:bg-opacity-75 transition cursor-pointer border-b"
+        [class.opacity-60]="notif.is_read">
+
+        <!-- Notification Header: Icon, Title, Date -->
+        <div class="flex items-start justify-between gap-3 mb-2">
+          <div class="flex items-start gap-3 flex-1 min-w-0">
+            <span class="text-2xl flex-shrink-0">
+              {{ getNotificationIcon(notif.notification_type) }}
+            </span>
+            <div class="flex-1 min-w-0">
+              <h3 class="text-sm font-bold text-slate-900">{{ notif.title }}</h3>
+              <p class="text-xs text-slate-600">
+                From: <span class="font-semibold">{{ notif.sender_name }}</span>
+              </p>
+            </div>
+          </div>
+          <div class="flex-shrink-0 text-xs text-slate-500 whitespace-nowrap">
+            {{ formatDate(notif.created_at) }}
+          </div>
+        </div>
+
+        <!-- Notification Content (Truncated) -->
+        <p class="text-sm text-slate-700 line-clamp-2 mb-2">
+          {{ truncateContent(notif.content, 100) }}
+        </p>
+
+        <!-- Read Status Indicator -->
+        <div class="flex items-center justify-between">
+          <span
+            *ngIf="!notif.is_read"
+            class="inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
+          <span
+            *ngIf="notif.is_read"
+            class="text-xs text-slate-400">✓ Read</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay to close panel -->
+  <div
+    *ngIf="showPanel"
+    (click)="togglePanel()"
+    class="fixed inset-0 z-40"></div>
+</div>

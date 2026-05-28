@@ -56,20 +56,7 @@
     </li>
 
     <li *ngIf="isLoggedIn()" class="nav-item">
-      <a href="javascript:void(0)" (click)="toggleNotifications()" class="notification-bell">
-        🔔 <span class="badge" *ngIf="events.length > 0">{{ events.length }}</span>
-      </a>
-      <div class="notifications-dropdown" *ngIf="showNotifications">
-        <div class="dropdown-header">Notifications</div>
-        <div class="dropdown-content">
-          <div *ngIf="events.length === 0" class="no-notifications">No new notifications</div>
-          <div *ngFor="let event of events" class="notification-item" (click)="navigateToEvent(event)">
-            <div class="notification-title">Msg from {{ notificationSender(event) }}</div>
-            <div class="notification-plan">{{ event.description }}</div>
-            <div class="notification-time">{{ event.created_at | date: 'short' }}</div>
-          </div>
-        </div>
-      </div>
+      <app-notifications-widget></app-notifications-widget>
     </li>
 
     <li *ngIf="isLoggedIn()">

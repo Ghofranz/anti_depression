@@ -23,30 +23,4 @@ services:
         value: https://anti-depression.onrender.com,https://www.anti-depression.onrender.com
       - key: PYTHONUNBUFFERED
         value: "1"
-      - key: DATABASE_ENGINE
-        value: postgresql
-      - key: POSTGRES_DB
-        fromDatabase:
-          name: anti_depression_db
-          property: database
-      - key: POSTGRES_USER
-        fromDatabase:
-          name: anti_depression_db
-          property: user
-      - key: POSTGRES_PASSWORD
-        fromDatabase:
-          name: anti_depression_db
-          property: password
-      - key: POSTGRES_HOST
-        fromDatabase:
-          name: anti_depression_db
-          property: host
-      - key: POSTGRES_PORT
-        fromDatabase:
-          name: anti_depression_db
-          property: port
 
-databases:
-  - name: anti_depression_db
-    plan: free
-    version: 14

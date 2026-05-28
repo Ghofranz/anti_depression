@@ -107,4 +107,20 @@ export class Api {
   getEvents() {
     return this.http.get(`${this.base}/events/`, this.getAuthHeaders());
   }
+
+  getNotifications() {
+    return this.http.get(`${this.base}/notifications/`, this.getAuthHeaders());
+  }
+
+  getUnreadNotifications() {
+    return this.http.get(`${this.base}/notifications/unread/`, this.getAuthHeaders());
+  }
+
+  markNotificationAsRead(notificationId: number) {
+    return this.http.patch(`${this.base}/notifications/${notificationId}/read/`, {}, this.getAuthHeaders());
+  }
+
+  markAllNotificationsAsRead() {
+    return this.http.patch(`${this.base}/notifications/mark-all-read/`, {}, this.getAuthHeaders());
+  }
 }
